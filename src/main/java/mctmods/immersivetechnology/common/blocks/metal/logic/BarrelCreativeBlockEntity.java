@@ -8,6 +8,7 @@ import mctmods.immersivetechnology.common.blocks.helper.ITBlockInterfaces;
 import mctmods.immersivetechnology.core.network.ITOSDRequestMessage;
 import mctmods.immersivetechnology.core.network.ITPacketHandler;
 import mctmods.immersivetechnology.core.util.TranslationKey;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import mctmods.immersivetechnology.core.ITClientConfig;
 import mctmods.immersivetechnology.core.ITServerConfig;
 import mctmods.immersivetechnology.core.registration.ITBlockEntities;
@@ -27,14 +28,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.common.SoundActions;
+import net.neoforged.neoforge.common.SoundActions;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -84,16 +85,16 @@ public class BarrelCreativeBlockEntity extends OSDCommonBlockEntity implements I
                 boolean isPipe = neighbor instanceof FluidPipeBlockEntity;
                 FluidStack fs = selectedFluid.copy();
                 fs.setAmount(CREATIVE_BARREL_OUTPUT_AMOUNT);
-                boolean hadTag = fs.hasTag() && fs.getTag().contains(IFluidPipe.NBT_PRESSURIZED);
-                if (isPipe && !hadTag) { fs.getOrCreateTag().putBoolean(IFluidPipe.NBT_PRESSURIZED, true); }
-                LazyOptional<IFluidHandler> cap = FluidUtil.getFluidHandler(level, neighborPos, dir.getOpposite());
+                boolean hadTag = ITUtils.fluidHasCustomTag(fs, IFluidPipe.NBT_PRESSURIZED);
+                if (isPipe && !hadTag) { ITUtils.putFluidCustomBoolean(fs, IFluidPipe.NBT_PRESSURIZED, true); }
+                LazyOptional<IFluidHandler> cap = LazyOptional.ofNullable(FluidUtil.getFluidHandler(level, neighborPos, dir.getOpposite()).orElse(null));
                 if (!cap.isPresent()) { continue; }
                 IFluidHandler handler = cap.orElseThrow(AssertionError::new);
                 int accepted = handler.fill(fs, FluidAction.SIMULATE);
-                if (!hadTag) { fs.removeChildTag(IFluidPipe.NBT_PRESSURIZED); }
+                if (!hadTag) { ITUtils.removeFluidCustomTag(fs, IFluidPipe.NBT_PRESSURIZED); }
                 if (accepted <= 0) { continue; }
                 FluidStack toFill = Utils.copyFluidStackWithAmount(fs, accepted, false);
-                if (isPipe) { toFill.getOrCreateTag().putBoolean(IFluidPipe.NBT_PRESSURIZED, true); }
+                if (isPipe) { ITUtils.putFluidCustomBoolean(toFill, IFluidPipe.NBT_PRESSURIZED, true); }
                 int filled = handler.fill(toFill, FluidAction.EXECUTE);
                 thisTickOutput += filled;
             }
@@ -155,7 +156,7 @@ public class BarrelCreativeBlockEntity extends OSDCommonBlockEntity implements I
         ItemStack stack = new ItemStack(getBlockState().getBlock(), 1);
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag);
-        if (!tag.isEmpty()) { stack.setTag(tag); }
+        if (!tag.isEmpty()) { ITUtils.setItemCustomTag(stack, tag); }
         drop.accept(stack);
     }
 
@@ -185,18 +186,15 @@ public class BarrelCreativeBlockEntity extends OSDCommonBlockEntity implements I
     }
 
     public void onBEPlaced(ItemStack stack) {
-        if (stack.hasTag()) {
-            CompoundTag tag = stack.getTag();
-            assert tag != null;
-            if (tag.contains("SelectedFluid")) {
-                selectedFluid = FluidStack.loadFluidStackFromNBT(tag.getCompound("SelectedFluid"));
-                if (selectedFluid == null) selectedFluid = FluidStack.EMPTY;
-            }
+        CompoundTag tag = ITUtils.getItemCustomTag(stack);
+        if (tag.contains("SelectedFluid")) {
+            selectedFluid = FluidStack.loadFluidStackFromNBT(tag.getCompound("SelectedFluid"));
+            if (selectedFluid == null) selectedFluid = FluidStack.EMPTY;
         }
     }
 
-    @Override public void invalidateCaps() {
-        super.invalidateCaps();
+    @Override public void invalidateCapabilities() {
+        super.invalidateCapabilities();
         fluidHandler.invalidate();
     }
 }

@@ -4,18 +4,22 @@ import com.mojang.datafixers.util.Pair;
 import mctmods.immersivetechnology.common.gui.helper.ITGenericDataSerializers;
 import mctmods.immersivetechnology.common.gui.helper.ITGenericDataSerializers.DataPair;
 import mctmods.immersivetechnology.common.gui.helper.ITContainerMenu;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
+import mctmods.immersivetechnology.core.lib.ITLib;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.NetworkEvent.Context;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
-public record ITMessageContainerData(List<Pair<Integer, DataPair<?>>> synced) implements ITMessage {
-    public ITMessageContainerData(FriendlyByteBuf buf) { this(readSynced(buf)); }
+public record ITMessageContainerData(List<Pair<Integer, DataPair<?>>> synced) implements CustomPacketPayload {
+    public static final Type<ITMessageContainerData> TYPE = new Type<>(ITLib.rl("container_data"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ITMessageContainerData> STREAM_CODEC = StreamCodec.of(ITMessageContainerData::write, ITMessageContainerData::new);
 
-    private static List<Pair<Integer, DataPair<?>>> readSynced(FriendlyByteBuf buf) {
+    public ITMessageContainerData(RegistryFriendlyByteBuf buf) { this(readSynced(buf)); }
+
+    private static List<Pair<Integer, DataPair<?>>> readSynced(RegistryFriendlyByteBuf buf) {
         int size = buf.readInt();
         List<Pair<Integer, DataPair<?>>> synced = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
@@ -26,7 +30,7 @@ public record ITMessageContainerData(List<Pair<Integer, DataPair<?>>> synced) im
         return synced;
     }
 
-    @Override public void toBytes(FriendlyByteBuf buf) {
+    private void write(RegistryFriendlyByteBuf buf) {
         buf.writeInt(synced.size());
         for (Pair<Integer, DataPair<?>> pair : synced) {
             buf.writeVarInt(pair.getFirst());
@@ -34,11 +38,13 @@ public record ITMessageContainerData(List<Pair<Integer, DataPair<?>>> synced) im
         }
     }
 
-    @Override public void process(Supplier<Context> context) {
-        context.get().enqueueWork(() -> {
-            assert Minecraft.getInstance().player != null;
-            AbstractContainerMenu currentContainer = Minecraft.getInstance().player.containerMenu;
-            if (currentContainer instanceof ITContainerMenu itContainer) { itContainer.receiveSync(synced); }
-        });
+    public static void handle(ITMessageContainerData message, IPayloadContext context) {
+        AbstractContainerMenu currentContainer = context.player().containerMenu;
+        if (currentContainer instanceof ITContainerMenu itContainer) itContainer.receiveSync(message.synced);
+    }
+
+    @Override
+    public Type<ITMessageContainerData> type() {
+        return TYPE;
     }
 }

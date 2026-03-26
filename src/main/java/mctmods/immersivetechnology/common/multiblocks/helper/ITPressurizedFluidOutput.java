@@ -6,7 +6,6 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockS
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.CapabilityPosition;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.MultiblockFace;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.RelativeBlockFace;
-import blusunrize.immersiveengineering.api.utils.CapabilityReference;
 import blusunrize.immersiveengineering.common.blocks.metal.FluidPipeBlockEntity;
 import mctmods.immersivetechnology.common.fluids.helper.ITMarkableFluidTank;
 import mctmods.immersivetechnology.core.util.ITUtils;
@@ -14,10 +13,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 import java.util.List;
 
@@ -48,27 +47,26 @@ public interface ITPressurizedFluidOutput<State extends IMultiblockState> {
             MultiblockFace mbf = new MultiblockFace(face, outputPositions.get(i));
             CapabilityPosition oppCp = CapabilityPosition.opposing(mbf);
             MultiblockFace oppMbf = new MultiblockFace(oppCp.side(), oppCp.posInMultiblock());
-            CapabilityReference<IFluidHandler> ref = ctx.getCapabilityAt(ForgeCapabilities.FLUID_HANDLER, oppMbf);
-            if (!ref.isPresent()) continue;
-            IFluidHandler handler = ref.get();
             BlockPos portAbs = ctx.getLevel().toAbsolute(outputPositions.get(i));
             Direction outputDir = singleOutputDir;
             if (facings != null && !facings.isEmpty()) outputDir = ctx.getLevel().toAbsolute(facings.get(i));
             assert outputDir != null;
             BlockPos externalAbs = portAbs.relative(outputDir);
+            IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, externalAbs, outputDir.getOpposite());
+            if (handler == null) continue;
             BlockEntity adjTE = level.getBlockEntity(externalAbs);
             boolean isPipe = adjTE instanceof FluidPipeBlockEntity;
             FluidStack fs = tank.getFluid().copy();
             if (fs == null) continue;
             int transferSpeed = getTransferSpeed();
             if (transferSpeed != Integer.MAX_VALUE && !isPipe) fs = ITUtils.copyFluidStackWithAmount(fs, Math.min(transferSpeed, fs.getAmount()), false);
-            boolean hadTag = fs.hasTag() && fs.getTag().contains(IFluidPipe.NBT_PRESSURIZED);
-            if (isPipe && !hadTag) fs.getOrCreateTag().putBoolean(IFluidPipe.NBT_PRESSURIZED, true);
+            boolean hadTag = ITUtils.fluidHasCustomTag(fs, IFluidPipe.NBT_PRESSURIZED);
+            if (isPipe && !hadTag) ITUtils.putFluidCustomBoolean(fs, IFluidPipe.NBT_PRESSURIZED, true);
             int accepted = handler.fill(fs, FluidAction.SIMULATE);
-            if (!hadTag && fs.hasTag()) fs.getTag().remove(IFluidPipe.NBT_PRESSURIZED);
+            if (!hadTag) ITUtils.removeFluidCustomTag(fs, IFluidPipe.NBT_PRESSURIZED);
             if (accepted <= 0) continue;
             FluidStack toFill = ITUtils.copyFluidStackWithAmount(fs, Math.min(fs.getAmount(), accepted), false);
-            if (isPipe) toFill.getOrCreateTag().putBoolean(IFluidPipe.NBT_PRESSURIZED, true);
+            if (isPipe) ITUtils.putFluidCustomBoolean(toFill, IFluidPipe.NBT_PRESSURIZED, true);
             int drained = handler.fill(toFill, FluidAction.EXECUTE);
             tank.drain(drained, FluidAction.EXECUTE);
             dirty = true;
@@ -85,7 +83,10 @@ public interface ITPressurizedFluidOutput<State extends IMultiblockState> {
         MultiblockFace mbf = new MultiblockFace(face, outputPositions.get(index));
         CapabilityPosition oppCp = CapabilityPosition.opposing(mbf);
         MultiblockFace oppMbf = new MultiblockFace(oppCp.side(), oppCp.posInMultiblock());
-        CapabilityReference<IFluidHandler> ref = ctx.getCapabilityAt(ForgeCapabilities.FLUID_HANDLER, oppMbf);
-        return ref.isPresent();
+        BlockPos portAbs = ctx.getLevel().toAbsolute(outputPositions.get(index));
+        Direction outputDir = facings != null && !facings.isEmpty() ? ctx.getLevel().toAbsolute(facings.get(index)) : getOutputDirection(ctx);
+        if (outputDir == null) return false;
+        BlockPos externalAbs = portAbs.relative(outputDir);
+        return ctx.getLevel().getRawLevel().getCapability(Capabilities.FluidHandler.BLOCK, externalAbs, outputDir.getOpposite()) != null;
     }
 }

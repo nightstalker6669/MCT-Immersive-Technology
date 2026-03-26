@@ -3,7 +3,7 @@ package mctmods.immersivetechnology.core.registration;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.neoforged.bus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 

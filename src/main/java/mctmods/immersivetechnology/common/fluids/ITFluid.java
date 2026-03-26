@@ -9,8 +9,8 @@ import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 import mctmods.immersivetechnology.core.registration.ITFluids;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.world.item.BucketItem;
@@ -38,7 +38,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -391,8 +391,8 @@ public class ITFluid extends FlowingFluid {
 
         @NotNull public ItemStack execute(BlockSource source, ItemStack stack) {
             BucketItem bucketitem = (BucketItem)stack.getItem();
-            BlockPos blockpos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
-            Level world = source.getLevel();
+            BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+            Level world = source.level();
             if (bucketitem.emptyContents(null, world, blockpos, null, stack)) {
                 bucketitem.checkExtraContent(null, world, stack, blockpos);
                 FluidState placedState = world.getFluidState(blockpos);

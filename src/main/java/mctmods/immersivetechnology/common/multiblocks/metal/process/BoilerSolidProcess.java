@@ -16,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.ForgeHooks;
 
 public class BoilerSolidProcess implements IMultiblockComponent<BoilerSolidLogic.State> {
     @Override public InteractionResult click(IMultiblockContext<BoilerSolidLogic.State> ctx, BlockPos posInMultiblock, Player player, InteractionHand hand, BlockHitResult absoluteHit, boolean isClient) {
@@ -33,7 +32,7 @@ public class BoilerSolidProcess implements IMultiblockComponent<BoilerSolidLogic
         Level level = ctx.getLevel().getRawLevel();
         ItemStack fuelStack = state.inventory.getStackInSlot(BoilerSolidLogic.INPUT_FUEL_SLOT);
         BoilerSolidRecipe recipe = fuelStack.isEmpty() ? null : BoilerSolidRecipe.findRecipe(level, fuelStack);
-        int burnTime = ForgeHooks.getBurnTime(fuelStack, RecipeType.SMELTING);
+        int burnTime = fuelStack.getBurnTime(RecipeType.SMELTING);
         int consumeAmount = (recipe != null) ? recipe.input.getCount() : 1;
         if (fuelStack.isEmpty() || burnTime <= 0 || fuelStack.getCount() < consumeAmount) { return InteractionResult.PASS; }
         if (isClient) { return InteractionResult.SUCCESS; }

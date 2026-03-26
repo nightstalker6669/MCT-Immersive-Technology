@@ -10,7 +10,7 @@ import mctmods.immersivetechnology.client.renderer.helper.ITRenderTypes;
 import mctmods.immersivetechnology.common.multiblocks.metal.logic.SteelSheetmetalTankLogic.State;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 

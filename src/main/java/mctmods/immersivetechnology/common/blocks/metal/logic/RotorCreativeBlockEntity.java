@@ -17,36 +17,34 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class RotorCreativeBlockEntity extends ITBaseBlockEntity implements MenuProvider, ITClientTickableBE {
     public int rpm;
-    private final LazyOptional<IMechanicalEnergyProvider> providerCap = LazyOptional.of(Provider::new);
+    private final IMechanicalEnergyProvider provider = new Provider();
     public float animation_rotation = 0f;
     public float animation_step = 0f;
 
-    public RotorCreativeBlockEntity(BlockPos pos, BlockState state) { super(ITBlockEntities.ROTOR_CREATIVE.get(), pos, state); rpm = MechanicalCapabilities.MAX_RPM; }
+    public RotorCreativeBlockEntity(BlockPos pos, BlockState state) { super(ITBlockEntities.ROTOR_CREATIVE.get(), pos, state); rpm = MechanicalCapabilities.getMaxRpm(); }
 
     @Override public void tickClient() {
-        animation_step = (Math.abs(rpm) / (float) MechanicalCapabilities.MAX_RPM) * 72f;
+        animation_step = (Math.abs(rpm) / (float) MechanicalCapabilities.getMaxRpm()) * 72f;
         float dir = Math.signum(rpm);
         animation_rotation += animation_step * dir;
         animation_rotation %= 360;
     }
 
-    @Override @NotNull public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+    @Nullable
+    public IMechanicalEnergyProvider getMechanicalProvider(@Nullable Direction side) {
         Direction facing = getBlockState().getValue(RotorCreativeBlock.FACING);
-        if ((side == facing || side == facing.getOpposite()) && cap == MechanicalCapabilities.MECHANICAL_PROVIDER_CAPABILITY) { return providerCap.cast(); }
-        return super.getCapability(cap, side);
+        return side == facing || side == facing.getOpposite() ? provider : null;
     }
 
     private class Provider implements IMechanicalEnergyProvider {
         @Override public int getSpeed() { return rpm; }
         @Override public float getTorque() { return 1f; }
-        @Override public int getMaxSpeed() { return MechanicalCapabilities.MAX_RPM; }
+        @Override public int getMaxSpeed() { return MechanicalCapabilities.getMaxRpm(); }
         @Override public double getBaseMass() { return 0; }
         @Override public double getDriveTorque() { return 0; }
         @Override public double getFriction() { return 0; }
@@ -71,7 +69,8 @@ public class RotorCreativeBlockEntity extends ITBaseBlockEntity implements MenuP
     @Override public void receiveMessageFromClient(CompoundTag message) {
         if (message.contains("rpm")) {
             int newRpm = message.getInt("rpm");
-            rpm = Math.max(Math.min(newRpm, MechanicalCapabilities.MAX_RPM), -MechanicalCapabilities.MAX_RPM);
+            int maxRpm = MechanicalCapabilities.getMaxRpm();
+            rpm = Math.max(Math.min(newRpm, maxRpm), -maxRpm);
             setChanged();
             markContainingBlockForUpdate(null);
         }

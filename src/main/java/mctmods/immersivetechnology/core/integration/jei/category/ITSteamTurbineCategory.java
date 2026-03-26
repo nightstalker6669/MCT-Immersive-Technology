@@ -5,7 +5,7 @@ import mctmods.immersivetechnology.common.multiblocks.metal.recipe.SteamTurbineR
 import mctmods.immersivetechnology.core.integration.jei.JEIRecipeTypes;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
-import mezz.jei.api.forge.ForgeTypes;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawableAnimated;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
@@ -15,7 +15,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -48,16 +48,16 @@ public class ITSteamTurbineCategory extends ITRecipeCategory<SteamTurbineRecipe>
                 .toList();
 
         var inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 11, 11)
-                .addIngredients(ForgeTypes.FLUID_STACK, inputs)
+                .addIngredients(NeoForgeTypes.FLUID_STACK, inputs)
                 .setFluidRenderer(tankCapacity, false, 16, 47);
-        inputSlot.addRichTooltipCallback((slotView, tooltip) -> slotView.getDisplayedIngredient(ForgeTypes.FLUID_STACK).ifPresent(fs ->
+        inputSlot.addRichTooltipCallback((slotView, tooltip) -> slotView.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK).ifPresent(fs ->
                 ITFluidInfoArea.fillTooltip(fs, recipe.input.getAmount(), tooltip::add)));
 
         FluidStack fluidOut = (recipe.fluidOutput != null && !recipe.fluidOutput.isEmpty()) ? recipe.fluidOutput : FluidStack.EMPTY;
         var outputSlot = builder.addSlot(RecipeIngredientRole.OUTPUT, 89, 11)
-                .addIngredient(ForgeTypes.FLUID_STACK, fluidOut)
+                .addIngredient(NeoForgeTypes.FLUID_STACK, fluidOut)
                 .setFluidRenderer(tankCapacity, false, 16, 47);
-        outputSlot.addRichTooltipCallback((slotView, tooltip) -> slotView.getDisplayedIngredient(ForgeTypes.FLUID_STACK).ifPresent(fs ->
+        outputSlot.addRichTooltipCallback((slotView, tooltip) -> slotView.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK).ifPresent(fs ->
                 ITFluidInfoArea.fillTooltip(fs, recipe.fluidOutput != null ? recipe.fluidOutput.getAmount() : 0, tooltip::add)));
     }
 
@@ -74,3 +74,4 @@ public class ITSteamTurbineCategory extends ITRecipeCategory<SteamTurbineRecipe>
         turbineAndArrow.draw(guiGraphics, 42, 18);
     }
 }
+

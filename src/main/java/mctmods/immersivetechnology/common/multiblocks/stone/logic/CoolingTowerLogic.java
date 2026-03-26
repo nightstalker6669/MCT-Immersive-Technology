@@ -32,12 +32,12 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.IFluidTank;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -162,7 +162,7 @@ public class CoolingTowerLogic implements IMultiblockLogic<CoolingTowerLogic.Sta
 
     private int getProcessQueueMaxLength() { return 3; }
 
-    @Override public <T> LazyOptional<T> getCapability(IMultiblockContext<CoolingTowerLogic.State> ctx, CapabilityPosition position, Capability<T> cap) {
+    public <T> LazyOptional<T> getCapability(IMultiblockContext<CoolingTowerLogic.State> ctx, CapabilityPosition position, Capability<T> cap) {
         CoolingTowerLogic.State state = ctx.getState();
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
             BlockPos localPos = position.posInMultiblock();

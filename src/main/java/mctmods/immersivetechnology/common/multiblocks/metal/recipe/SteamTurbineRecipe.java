@@ -2,21 +2,22 @@ package mctmods.immersivetechnology.common.multiblocks.metal.recipe;
 
 import blusunrize.immersiveengineering.api.crafting.FluidTagInput;
 import blusunrize.immersiveengineering.api.crafting.IERecipeSerializer;
-import blusunrize.immersiveengineering.api.crafting.IESerializableRecipe;
+import blusunrize.immersiveengineering.api.crafting.MultiblockRecipe;
+import blusunrize.immersiveengineering.api.crafting.TagOutput;
 import blusunrize.immersiveengineering.api.crafting.cache.CachedRecipeList;
 import mctmods.immersivetechnology.core.registration.ITRecipeTypes;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public class SteamTurbineRecipe extends IESerializableRecipe {
+public class SteamTurbineRecipe extends MultiblockRecipe {
     public static RegistryObject<IERecipeSerializer<SteamTurbineRecipe>> SERIALIZER;
     public static final CachedRecipeList<SteamTurbineRecipe> RECIPES = new CachedRecipeList<>(ITRecipeTypes.STEAM_TURBINE);
 
@@ -29,29 +30,40 @@ public class SteamTurbineRecipe extends IESerializableRecipe {
      */
     public final float torque;
     private final int time;
-    Lazy<Integer> totalProcessTime;
+    private final ResourceLocation id;
 
     public SteamTurbineRecipe(ResourceLocation id, FluidTagInput input, @Nullable FluidStack fluidOutput, int time, float torque) {
-        super(LAZY_EMPTY, ITRecipeTypes.STEAM_TURBINE, id);
+        super(TagOutput.EMPTY, ITRecipeTypes.STEAM_TURBINE, time, 0, () -> new RecipeMultiplier(() -> 1, () -> 1));
+        this.id = id;
         this.input = input;
         this.fluidOutput = fluidOutput;
         this.time = time;
         this.torque = torque;
-        totalProcessTime = Lazy.of(() -> this.time);
+        this.fluidInputList = java.util.List.of(this.input.asSizedIngredient());
+        this.fluidOutputList = fluidOutput == null ? java.util.List.of() : java.util.List.of(fluidOutput);
     }
 
     @Override
     protected IERecipeSerializer<?> getIESerializer() { return SERIALIZER.get(); }
 
-    @Override @NotNull public ItemStack getResultItem(@NotNull RegistryAccess registryAccess) { return ItemStack.EMPTY; }
+    @Override @NotNull public ItemStack getResultItem(HolderLookup.Provider registryAccess) { return ItemStack.EMPTY; }
 
     public boolean matches(FluidStack fluid) { return input.test(fluid); }
 
     public static SteamTurbineRecipe findRecipe(Level level, FluidStack fluid, @Nullable SteamTurbineRecipe hint) {
         if (hint != null && hint.matches(fluid)) return hint;
-        for (SteamTurbineRecipe recipe : RECIPES.getRecipes(level)) { if (recipe.matches(fluid)) return recipe; }
+        for (RecipeHolder<SteamTurbineRecipe> holder : RECIPES.getRecipes(level)) {
+            SteamTurbineRecipe recipe = holder.value();
+            if (recipe.matches(fluid)) return recipe;
+        }
         return null;
     }
 
-    public int getTotalProcessTime() { return totalProcessTime.get(); }
+    @Override public int getTotalProcessTime() { return time; }
+
+    @Override public int getTotalProcessEnergy() { return 0; }
+
+    @Override public int getMultipleProcessTicks() { return 0; }
+
+    public ResourceLocation id() { return id; }
 }

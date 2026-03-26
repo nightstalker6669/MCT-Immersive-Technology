@@ -11,7 +11,7 @@ import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.forge.ForgeTypes;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
@@ -31,8 +31,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.IFluidTank;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -121,7 +121,7 @@ public class JEIIntegration implements IModPlugin {
                 }
                 if (fs != null && fs.getAmount() > 0) {
                     Rect2i finalArea = area;
-                    return ingredientManager.createTypedIngredient(ForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
+                    return ingredientManager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
                         @SuppressWarnings("removal")
                         @Override @NotNull public ITypedIngredient<FluidStack> getTypedIngredient() {return typed;}
 
@@ -185,7 +185,7 @@ public class JEIIntegration implements IModPlugin {
                 }
                 if (fs != null && fs.getAmount() > 0) {
                     Rect2i finalArea = area;
-                    return ingredientManager.createTypedIngredient(ForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
+                    return ingredientManager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
                         @SuppressWarnings("removal")
                         @Override @NotNull public ITypedIngredient<FluidStack> getTypedIngredient() {return typed;}
 
@@ -218,7 +218,7 @@ public class JEIIntegration implements IModPlugin {
                 }
                 if (fs != null && fs.getAmount() > 0) {
                     Rect2i finalArea = area;
-                    return ingredientManager.createTypedIngredient(ForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
+                    return ingredientManager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
                         @SuppressWarnings("removal")
                         @Override @NotNull public ITypedIngredient<FluidStack> getTypedIngredient() {return typed;}
 
@@ -251,7 +251,7 @@ public class JEIIntegration implements IModPlugin {
                 }
                 if (fs != null && fs.getAmount() > 0) {
                     Rect2i finalArea = area;
-                    return ingredientManager.createTypedIngredient(ForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
+                    return ingredientManager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
                         @SuppressWarnings("removal")
                         @Override @NotNull public ITypedIngredient<FluidStack> getTypedIngredient() {return typed;}
 
@@ -361,3 +361,4 @@ public class JEIIntegration implements IModPlugin {
     private List<SolarTowerRecipe> getSolarTowerRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(SolarTowerRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
     private List<SteamTurbineRecipe> getSteamTurbineRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(SteamTurbineRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
 }
+

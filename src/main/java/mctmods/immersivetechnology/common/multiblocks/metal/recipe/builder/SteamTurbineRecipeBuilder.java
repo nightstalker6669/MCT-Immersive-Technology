@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.SteamTurbineRecipe;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;

@@ -1,9 +1,9 @@
 package mctmods.immersivetechnology.client.gui.helper;
 
 import blusunrize.immersiveengineering.api.client.TextUtils;
-import com.mojang.blaze3d.vertex.Tesselator;
 import mctmods.immersivetechnology.client.renderer.helper.ITRenderTypes;
 import mctmods.immersivetechnology.core.util.TranslationKey;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -13,8 +13,8 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.IFluidTank;
 import net.minecraftforge.registries.ForgeRegistries;
 import java.util.List;
 import java.util.Objects;
@@ -46,7 +46,7 @@ public class ITFluidInfoArea extends ITInfoArea {
                 tooltip.accept(TextUtils.applyFormat(Component.translatable(TranslationKey.GUI_FLUID_DENSITY.getLocation(), fluid.getFluid().getFluidType().getDensity(fluid)), ChatFormatting.DARK_GRAY));
                 tooltip.accept(TextUtils.applyFormat(Component.translatable(TranslationKey.GUI_FLUID_TEMPERATURE.getLocation(), fluid.getFluid().getFluidType().getTemperature(fluid)), ChatFormatting.DARK_GRAY));
                 tooltip.accept(TextUtils.applyFormat(Component.translatable(TranslationKey.GUI_FLUID_VISCOSITY.getLocation(), fluid.getFluid().getFluidType().getViscosity(fluid)), ChatFormatting.DARK_GRAY));
-                tooltip.accept(TextUtils.applyFormat(Component.translatable(TranslationKey.GUI_FLUID_NBT.getLocation(), fluid.getTag()), ChatFormatting.DARK_GRAY));
+                tooltip.accept(TextUtils.applyFormat(Component.translatable(TranslationKey.GUI_FLUID_NBT.getLocation(), ITUtils.getFluidCustomTag(fluid)), ChatFormatting.DARK_GRAY));
             }
         }
         if (tankCapacity > 0) { tooltip.accept(TextUtils.applyFormat(Component.translatable(TranslationKey.GUI_FLUID_CAPACITY.getLocation(), fluid.getAmount(), tankCapacity), ChatFormatting.GRAY)); } else if (tankCapacity == 0) { tooltip.accept(TextUtils.applyFormat(Component.translatable(TranslationKey.GUI_FLUID_AMOUNT.getLocation(), fluid.getAmount()), ChatFormatting.GRAY)); }
@@ -56,7 +56,7 @@ public class ITFluidInfoArea extends ITInfoArea {
         FluidStack fluid = tank.getFluid();
         float capacity = (float) tank.getCapacity();
         graphics.pose().pushPose();
-        MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+        MultiBufferSource.BufferSource buffer = graphics.bufferSource();
         if (!fluid.isEmpty()) {
             int fluidHeight = (int) ((float) area.getHeight() * ((float) fluid.getAmount() / capacity));
             ITGuiHelper.drawRepeatedFluidSpriteGui(buffer, graphics.pose(), fluid, area.getX(), area.getY() + area.getHeight() - fluidHeight, area.getWidth(), fluidHeight);
@@ -65,7 +65,7 @@ public class ITFluidInfoArea extends ITInfoArea {
         int yOff = (area.getHeight() - overlayHeight) / 2;
         RenderType renderType = ITRenderTypes.getGui(overlayTexture);
         ITGuiHelper.drawTexturedRect(buffer.getBuffer(renderType), graphics.pose(), area.getX() + xOff, area.getY() + yOff, overlayWidth, overlayHeight, 256.0F, overlayUMin, overlayUMin + overlayWidth, overlayVMin, overlayVMin + overlayHeight);
-        buffer.endBatch();
+        graphics.flush();
         graphics.pose().popPose();
     }
 }

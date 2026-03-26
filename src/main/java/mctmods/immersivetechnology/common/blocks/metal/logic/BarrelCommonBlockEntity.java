@@ -9,6 +9,7 @@ import mctmods.immersivetechnology.common.blocks.helper.ITEnums.IOSideConfig;
 import mctmods.immersivetechnology.common.blocks.helper.ITClientTickableBE;
 import mctmods.immersivetechnology.common.blocks.helper.ITServerTickableBE;
 import mctmods.immersivetechnology.common.fluids.helper.ITMarkableFluidTank;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import mctmods.immersivetechnology.core.util.TranslationKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,11 +27,11 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
@@ -65,7 +66,7 @@ public abstract class BarrelCommonBlockEntity extends ITBaseBlockEntity implemen
             sideConfig.put(Direction.DOWN, IOSideConfig.OUTPUT);
             sideConfig.put(Direction.UP, IOSideConfig.INPUT);
         }
-        tank.readFromNBT(nbt.getCompound("tank"));
+        tank.readFromNBT(ITUtils.serverRegistryAccess(), nbt.getCompound("tank"));
         postRead(descPacket);
     }
 
@@ -76,7 +77,7 @@ public abstract class BarrelCommonBlockEntity extends ITBaseBlockEntity implemen
         sideCfgArray[0] = sideConfig.getOrDefault(Direction.DOWN, IOSideConfig.OUTPUT).ordinal();
         sideCfgArray[1] = sideConfig.getOrDefault(Direction.UP, IOSideConfig.INPUT).ordinal();
         nbt.putIntArray("sideConfig", sideCfgArray);
-        nbt.put("tank", tank.writeToNBT(new CompoundTag()));
+        nbt.put("tank", tank.writeToNBT(ITUtils.serverRegistryAccess(), new CompoundTag()));
     }
 
     @Override @NotNull public <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction facing) {
@@ -88,8 +89,8 @@ public abstract class BarrelCommonBlockEntity extends ITBaseBlockEntity implemen
         return super.getCapability(capability, facing);
     }
 
-    @Override public void invalidateCaps() {
-        super.invalidateCaps();
+    @Override public void invalidateCapabilities() {
+        super.invalidateCapabilities();
         nonsidedHandler.invalidate();
         upHandler.invalidate();
         downHandler.invalidate();
@@ -121,19 +122,22 @@ public abstract class BarrelCommonBlockEntity extends ITBaseBlockEntity implemen
         ItemStack stack = new ItemStack(getBlockState().getBlock(), 1);
         CompoundTag tag = new CompoundTag();
         writeTank(tag, true);
-        if (!tag.isEmpty()) stack.setTag(tag);
+        if (!tag.isEmpty()) ITUtils.setItemCustomTag(stack, tag);
         drop.accept(stack);
     }
 
-    @Override public void onBEPlaced(BlockPlaceContext ctx) { if (ctx.getItemInHand().hasTag()) readTank(ctx.getItemInHand().getOrCreateTag()); }
+    @Override public void onBEPlaced(BlockPlaceContext ctx) {
+        CompoundTag tag = ITUtils.getItemCustomTag(ctx.getItemInHand());
+        if (!tag.isEmpty()) readTank(tag);
+    }
 
     public void writeTank(CompoundTag nbt, boolean toItem) {
         boolean write = tank.getFluidAmount() > 0;
-        CompoundTag tankTag = tank.writeToNBT(new CompoundTag());
+        CompoundTag tankTag = tank.writeToNBT(ITUtils.serverRegistryAccess(), new CompoundTag());
         if (!toItem || write) nbt.put("tank", tankTag);
     }
 
-    public void readTank(CompoundTag nbt) { tank.readFromNBT(nbt.getCompound("tank")); }
+    public void readTank(CompoundTag nbt) { tank.readFromNBT(ITUtils.serverRegistryAccess(), nbt.getCompound("tank")); }
 
     protected abstract boolean isFluidValid(@NotNull FluidStack fluid);
 

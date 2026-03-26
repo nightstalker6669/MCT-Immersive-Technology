@@ -2,8 +2,8 @@ package mctmods.immersivetechnology.common.multiblocks.stone.process;
 
 import mctmods.immersivetechnology.common.multiblocks.stone.logic.CoolingTowerLogic;
 import mctmods.immersivetechnology.common.multiblocks.stone.recipe.CoolingTowerRecipe;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class CoolingTowerProcess {
     private final CoolingTowerRecipe recipe;

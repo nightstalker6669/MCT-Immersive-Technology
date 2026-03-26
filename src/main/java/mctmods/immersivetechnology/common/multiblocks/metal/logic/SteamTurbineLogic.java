@@ -23,6 +23,7 @@ import mctmods.immersivetechnology.common.multiblocks.metal.process.RotationIner
 import mctmods.immersivetechnology.common.fluids.helper.ITArrayFluidHandler;
 import mctmods.immersivetechnology.common.fluids.helper.ITMarkableFluidTank;
 import mctmods.immersivetechnology.core.ITServerConfig;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import mctmods.immersivetechnology.core.util.multiblock.PoIJSONSchema;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.lib.ITSound;
@@ -31,6 +32,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.sounds.SoundSource;
@@ -38,15 +40,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.IFluidTank;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -70,7 +72,7 @@ public class SteamTurbineLogic implements IMultiblockLogic<SteamTurbineLogic.Sta
     private static final double BASE_MASS = ITServerConfig.steamTurbineBaseMass;
     private static final double DRIVE_TORQUE = ITServerConfig.steamTurbineDriveTorque;
     private static final double FRICTION = ITServerConfig.steamTurbineFriction;
-    private static final int MAX_SPEED = (int) (MechanicalCapabilities.MAX_RPM * ITServerConfig.steamTurbineMaxSpeedFactor);
+    private static int getMaxSpeed() { return (int) (MechanicalCapabilities.getMaxRpm() * ITServerConfig.steamTurbineMaxSpeedFactor); }
 
     private static List<BlockPos> getPosList(String name) { return RAW_POIS.stream().filter(poi -> poi.name.equals(name)).map(poi -> new BlockPos(poi.pos[0], poi.pos[1], poi.pos[2])).collect(ImmutableList.toImmutableList()); }
     private static RelativeBlockFace getFacing(String name) {
@@ -164,9 +166,9 @@ public class SteamTurbineLogic implements IMultiblockLogic<SteamTurbineLogic.Sta
         boolean hasConsumer = false;
         double additionalMass = 0.0;
         double additionalFriction = 0.0;
-        int consumerMaxSpeed = MechanicalCapabilities.MAX_RPM;
+        int consumerMaxSpeed = MechanicalCapabilities.getMaxRpm();
         if (entity != null) {
-            LazyOptional<IMechanicalEnergyConsumer> consumerCap = entity.getCapability(MechanicalCapabilities.MECHANICAL_CONSUMER_CAPABILITY, outputFacing.getOpposite());
+            LazyOptional<IMechanicalEnergyConsumer> consumerCap = LazyOptional.ofNullable(level.getCapability(MechanicalCapabilities.MECHANICAL_CONSUMER_CAPABILITY, consumerAbsPos, entity.getBlockState(), entity, outputFacing.getOpposite()));
             if (consumerCap.isPresent()) {
                 hasConsumer = true;
                 IMechanicalEnergyConsumer consumer = consumerCap.orElseThrow(RuntimeException::new);
@@ -175,7 +177,8 @@ public class SteamTurbineLogic implements IMultiblockLogic<SteamTurbineLogic.Sta
                 consumerMaxSpeed = consumer.getMaxSpeed();
             }
         }
-        int effectiveMax = hasConsumer ? Math.min(MAX_SPEED, consumerMaxSpeed) : MAX_SPEED;
+        int configuredMax = getMaxSpeed();
+        int effectiveMax = hasConsumer ? Math.min(configuredMax, consumerMaxSpeed) : configuredMax;
         state.effectiveMaxSpeed = effectiveMax;
         if (additionalMass != state.connectedMass || additionalFriction != state.connectedFriction) {
             state.connectedMass = additionalMass;
@@ -238,13 +241,13 @@ public class SteamTurbineLogic implements IMultiblockLogic<SteamTurbineLogic.Sta
 
     private static double particleXZSpeed() { return ApiUtils.RANDOM.nextDouble(-0.015625, 0.015625); }
 
-    @Override public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
+    public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
         State state = ctx.getState();
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
             if (position.equals(INPUT_FLUID_POI)) { return state.fluidCap.cast(ctx); }
             if (position.equals(OUTPUT_FLUID_POI)) { return state.fluidCapExhaust.cast(ctx); }
         }
-        if (cap == MechanicalCapabilities.MECHANICAL_PROVIDER_CAPABILITY) {
+        if (cap == (Object)MechanicalCapabilities.MECHANICAL_PROVIDER_CAPABILITY) {
             if (position.equals(ROTATIONAL_OUTPUT_POI)) { return LazyOptional.of(() -> new MechanicalEnergyProvider(state)).cast(); }
         }
         return LazyOptional.empty();
@@ -253,7 +256,7 @@ public class SteamTurbineLogic implements IMultiblockLogic<SteamTurbineLogic.Sta
     private record MechanicalEnergyProvider(State state) implements IMechanicalEnergyProvider {
         @Override public int getSpeed() { return state.speed; }
         @Override public float getTorque() { return state.currentTorque; }
-        @Override public int getMaxSpeed() { return MAX_SPEED; }
+        @Override public int getMaxSpeed() { return SteamTurbineLogic.getMaxSpeed(); }
         @Override public double getBaseMass() { return BASE_MASS; }
         @Override public double getDriveTorque() { return DRIVE_TORQUE; }
         @Override public double getFriction() { return FRICTION; }
@@ -283,7 +286,7 @@ public class SteamTurbineLogic implements IMultiblockLogic<SteamTurbineLogic.Sta
         private RotationInertiaProcess inertia;
         private int pressureReleaseCooldown = 0;
         private boolean wasEnabled = false;
-        public int effectiveMaxSpeed = MAX_SPEED;
+        public int effectiveMaxSpeed = getMaxSpeed();
         private float accumConsume;
         private float outAccum;
         private double accumDelta;
@@ -304,10 +307,10 @@ public class SteamTurbineLogic implements IMultiblockLogic<SteamTurbineLogic.Sta
             this.effectiveRatio = 0f;
         }
 
-        @Override public void writeSaveNBT(CompoundTag nbt) {
+        @Override public void writeSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.putInt("speed", speed);
             nbt.putBoolean("active", active);
-            nbt.put("tanks", tanks.toNBT());
+            nbt.put("tanks", tanks.toNBT(provider));
             nbt.putInt("pressureReleaseCooldown", pressureReleaseCooldown);
             nbt.putBoolean("wasEnabled", wasEnabled);
             nbt.putInt("effectiveMaxSpeed", effectiveMaxSpeed);
@@ -317,10 +320,10 @@ public class SteamTurbineLogic implements IMultiblockLogic<SteamTurbineLogic.Sta
             nbt.putFloat("effectiveRatio", effectiveRatio);
         }
 
-        @Override public void readSaveNBT(CompoundTag nbt) {
+        @Override public void readSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             speed = nbt.getInt("speed");
             active = nbt.getBoolean("active");
-            tanks.readNBT(nbt.getCompound("tanks"));
+            tanks.readNBT(provider, nbt.getCompound("tanks"));
             pressureReleaseCooldown = nbt.getInt("pressureReleaseCooldown");
             wasEnabled = nbt.getBoolean("wasEnabled");
             effectiveMaxSpeed = nbt.getInt("effectiveMaxSpeed");
@@ -330,14 +333,14 @@ public class SteamTurbineLogic implements IMultiblockLogic<SteamTurbineLogic.Sta
             effectiveRatio = nbt.getFloat("effectiveRatio");
         }
 
-        @Override public void writeSyncNBT(CompoundTag nbt) {
+        @Override public void writeSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             CompoundTag display = new CompoundTag();
-            writeDisplaySyncNBT(display);
+            writeDisplaySyncNBT(display, provider);
             nbt.put("display", display);
         }
 
-        @Override public void readSyncNBT(CompoundTag nbt) {
-            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display")); }
+        @Override public void readSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display"), provider); }
         }
 
         @Override public boolean isActive() { return active; }
@@ -346,18 +349,18 @@ public class SteamTurbineLogic implements IMultiblockLogic<SteamTurbineLogic.Sta
 
         @Override public IFluidTank[] getInternalTanks() { return new IFluidTank[]{tanks.input, tanks.output}; }
 
-        @Override public void writeDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void writeDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.putBoolean("active", active);
             nbt.putInt("speed", speed);
-            nbt.put("tanks", tanks.toNBT());
+            nbt.put("tanks", tanks.toNBT(provider));
             nbt.putInt("effectiveMaxSpeed", effectiveMaxSpeed);
         }
 
-        @Override public void readDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void readDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             boolean oldActive = active;
             active = nbt.getBoolean("active");
             speed = nbt.getInt("speed");
-            tanks.readNBT(nbt.getCompound("tanks"));
+            tanks.readNBT(provider, nbt.getCompound("tanks"));
             effectiveMaxSpeed = nbt.getInt("effectiveMaxSpeed");
             if (active && !oldActive) { animation_fanFadeIn = 80; }
         }
@@ -371,15 +374,23 @@ public class SteamTurbineLogic implements IMultiblockLogic<SteamTurbineLogic.Sta
         public static SteamTurbineTank makeClient(int capacity) { return new SteamTurbineTank(v -> {}, capacity); }
 
         public CompoundTag toNBT() {
+            return toNBT(ITUtils.serverRegistryAccess());
+        }
+
+        public CompoundTag toNBT(HolderLookup.Provider provider) {
             CompoundTag tag = new CompoundTag();
-            tag.put("input", this.input.writeToNBT(new CompoundTag()));
-            tag.put("output", this.output.writeToNBT(new CompoundTag()));
+            tag.put("input", this.input.writeToNBT(provider, new CompoundTag()));
+            tag.put("output", this.output.writeToNBT(provider, new CompoundTag()));
             return tag;
         }
 
         public void readNBT(CompoundTag tag) {
-            this.input.readFromNBT(tag.getCompound("input"));
-            this.output.readFromNBT(tag.getCompound("output"));
+            readNBT(ITUtils.serverRegistryAccess(), tag);
+        }
+
+        public void readNBT(HolderLookup.Provider provider, CompoundTag tag) {
+            this.input.readFromNBT(provider, tag.getCompound("input"));
+            this.output.readFromNBT(provider, tag.getCompound("output"));
         }
 
         @SuppressWarnings("unused")

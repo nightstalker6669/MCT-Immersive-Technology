@@ -6,6 +6,7 @@ import mctmods.immersivetechnology.common.blocks.helper.ITProperties;
 import mctmods.immersivetechnology.common.blocks.helper.ITServerTickableBE;
 import mctmods.immersivetechnology.common.blocks.metal.gui.ValveFluidMenu;
 import mctmods.immersivetechnology.core.util.TranslationKey;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import mctmods.immersivetechnology.core.registration.ITBlockEntities;
 import mctmods.immersivetechnology.core.registration.ITMenuTypes;
 import net.minecraft.core.BlockPos;
@@ -20,9 +21,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import org.jetbrains.annotations.NotNull;
 
@@ -88,15 +89,15 @@ public class ValveFluidBlockEntity extends ValveCommonBlockEntity implements ITS
         return super.getCapability(capability, facing);
     }
 
-    @Override public void invalidateCaps() {
-        super.invalidateCaps();
+    @Override public void invalidateCapabilities() {
+        super.invalidateCapabilities();
         if (myCapability != null) { myCapability.invalidate(); myCapability = null; }
         if (dummyCapability != null) { dummyCapability.invalidate(); dummyCapability = null; }
     }
 
     @Override public void setFacing(@NotNull Direction facing) {
         this.facing = facing;
-        invalidateCaps();
+        invalidateCapabilities();
         if (level != null && !level.isClientSide) {
             BlockState state = getBlockState();
             if (state.hasProperty(ITProperties.FACING_ALL)) {
@@ -122,7 +123,7 @@ public class ValveFluidBlockEntity extends ValveCommonBlockEntity implements ITS
                     pipe.markContainingBlockForUpdate(null);
                     pipe.setChanged();
                 } else if (adj != null) {
-                    adj.invalidateCaps();
+                    adj.invalidateCapabilities();
                     adj.setChanged();
                 }
                 level.neighborChanged(adjPos, level.getBlockState(adjPos).getBlock(), worldPosition);
@@ -158,13 +159,14 @@ public class ValveFluidBlockEntity extends ValveCommonBlockEntity implements ITS
         if (canAccept == 0) return 0;
         BlockEntity dst = level.getBlockEntity(worldPosition.relative(blockFacing.getOpposite()));
         boolean isPipe = dst instanceof FluidPipeBlockEntity;
-        FluidStack fillStack = new FluidStack(fluidStack.getFluid(), canAccept, fluidStack.getTag());
-        boolean hadTag = fillStack.hasTag() && fillStack.getTag().contains(IFluidPipe.NBT_PRESSURIZED);
-        if (isPipe && !hadTag) { fillStack.getOrCreateTag().putBoolean(IFluidPipe.NBT_PRESSURIZED, true); }
+        FluidStack fillStack = fluidStack.copyWithAmount(canAccept);
+        CompoundTag fillTag = ITUtils.getOrCreateFluidCustomTag(fillStack);
+        boolean hadTag = fillTag.contains(IFluidPipe.NBT_PRESSURIZED);
+        if (isPipe && !hadTag) { fillTag.putBoolean(IFluidPipe.NBT_PRESSURIZED, true); }
         busy = true;
         int toReturn = destination.fill(fillStack, doFill);
         busy = false;
-        if (!hadTag && fillStack.hasTag()) { fillStack.getTag().remove(IFluidPipe.NBT_PRESSURIZED); }
+        if (!hadTag) { fillTag.remove(IFluidPipe.NBT_PRESSURIZED); }
         if (doFill == FluidAction.EXECUTE) { acceptedAmount += toReturn; packets++; }
         return toReturn;
     }
@@ -189,7 +191,7 @@ public class ValveFluidBlockEntity extends ValveCommonBlockEntity implements ITS
         BlockPos dstPos = worldPosition.relative(blockFacing.getOpposite());
         BlockEntity dst = level.getBlockEntity(dstPos);
         if (dst != null) {
-            LazyOptional<IFluidHandler> cap = dst.getCapability(ForgeCapabilities.FLUID_HANDLER, blockFacing);
+            LazyOptional<IFluidHandler> cap = ForgeCapabilities.FLUID_HANDLER.get(dst, blockFacing);
             return cap.resolve().orElse(null);
         }
         return null;

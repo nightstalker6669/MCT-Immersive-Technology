@@ -5,11 +5,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class ITSlot extends Slot {
@@ -39,8 +39,8 @@ public abstract class ITSlot extends Slot {
         }
 
         @Override public boolean mayPlace(@NotNull ItemStack itemStack) {
-            LazyOptional<IFluidHandlerItem> handlerCap = FluidUtil.getFluidHandler(itemStack);
-            return handlerCap.map(handler -> {
+            LazyOptional<IFluidHandlerItem> handlerCap = LazyOptional.ofNullable(FluidUtil.getFluidHandler(itemStack).orElse(null));
+            return handlerCap.resolve().map(handler -> {
                 if (handler.getTanks() <= 0) return false;
 
                 if (filter == 1) return handler.getFluidInTank(0).isEmpty();

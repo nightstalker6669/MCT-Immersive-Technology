@@ -1,39 +1,40 @@
 package mctmods.immersivetechnology.core.network;
 
 import mctmods.immersivetechnology.common.gui.helper.ITContainerMenu;
+import mctmods.immersivetechnology.core.lib.ITLib;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+public record ITMessageContainerUpdate(int windowId, CompoundTag nbt) implements CustomPacketPayload {
+    public static final Type<ITMessageContainerUpdate> TYPE = new Type<>(ITLib.rl("container_update"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ITMessageContainerUpdate> STREAM_CODEC = StreamCodec.of(ITMessageContainerUpdate::write, ITMessageContainerUpdate::new);
 
-public class ITMessageContainerUpdate implements ITMessage {
-    private final int windowId;
-    private final CompoundTag nbt;
-
-    public ITMessageContainerUpdate(FriendlyByteBuf buf) {
-        this.windowId = buf.readByte();
-        this.nbt = buf.readNbt();
+    public ITMessageContainerUpdate(RegistryFriendlyByteBuf buf) {
+        this(buf.readVarInt(), buf.readNbt());
     }
 
-    @Override public void toBytes(FriendlyByteBuf buf) {
-        buf.writeByte(this.windowId);
+    private void write(RegistryFriendlyByteBuf buf) {
+        buf.writeVarInt(this.windowId);
         buf.writeNbt(this.nbt);
     }
 
-    @Override public void process(Supplier<NetworkEvent.Context> context) {
-        NetworkEvent.Context ctx = context.get();
-        ServerPlayer player = ctx.getSender();
-        if (player != null) {
-            ctx.enqueueWork(() -> {
-                player.resetLastActionTime();
-                if (player.containerMenu.containerId == this.windowId) {
-                    AbstractContainerMenu menu = player.containerMenu;
-                    if (menu instanceof ITContainerMenu itMenu) { itMenu.receiveMessageFromScreen(this.nbt); }
-                }
-            });
+    public static void handle(ITMessageContainerUpdate message, IPayloadContext context) {
+        if (context.player() instanceof ServerPlayer player) {
+            player.resetLastActionTime();
+            if (player.containerMenu.containerId == message.windowId) {
+                AbstractContainerMenu menu = player.containerMenu;
+                if (menu instanceof ITContainerMenu itMenu) itMenu.receiveMessageFromScreen(message.nbt);
+            }
         }
+    }
+
+    @Override
+    public Type<ITMessageContainerUpdate> type() {
+        return TYPE;
     }
 }

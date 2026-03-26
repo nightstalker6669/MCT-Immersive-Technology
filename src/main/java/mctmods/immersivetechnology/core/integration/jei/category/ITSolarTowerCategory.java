@@ -6,7 +6,7 @@ import mctmods.immersivetechnology.core.integration.jei.JEIRecipeTypes;
 import mctmods.immersivetechnology.core.util.TranslationKey;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
-import mezz.jei.api.forge.ForgeTypes;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -19,7 +19,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -66,20 +66,20 @@ public class ITSolarTowerCategory extends ITRecipeCategory<SolarTowerRecipe> {
         }
 
         var inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 102, 21)
-                .addIngredients(ForgeTypes.FLUID_STACK, inputs)
+                .addIngredients(NeoForgeTypes.FLUID_STACK, inputs)
                 .setFluidRenderer(tankCapacity, false, 16, 47);
 
         inputSlot.addRichTooltipCallback((slotView, tooltip) ->
-                slotView.getDisplayedIngredient(ForgeTypes.FLUID_STACK).ifPresent(fs ->
+                slotView.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK).ifPresent(fs ->
                         ITFluidInfoArea.fillTooltip(fs, recipe.input.getAmount(), tooltip::add)));
 
         FluidStack fluidOut = (recipe.fluidOutput != null && !recipe.fluidOutput.isEmpty()) ? recipe.fluidOutput : FluidStack.EMPTY;
         var outputSlot = builder.addSlot(RecipeIngredientRole.OUTPUT, 126, 21)
-                .addIngredient(ForgeTypes.FLUID_STACK, fluidOut)
+                .addIngredient(NeoForgeTypes.FLUID_STACK, fluidOut)
                 .setFluidRenderer(tankCapacity, false, 16, 47);
 
         outputSlot.addRichTooltipCallback((slotView, tooltip) ->
-                slotView.getDisplayedIngredient(ForgeTypes.FLUID_STACK).ifPresent(fs ->
+                slotView.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK).ifPresent(fs ->
                         ITFluidInfoArea.fillTooltip(fs, recipe.fluidOutput != null ? recipe.fluidOutput.getAmount() : 0, tooltip::add)));
     }
 
@@ -112,3 +112,4 @@ public class ITSolarTowerCategory extends ITRecipeCategory<SolarTowerRecipe> {
         guiGraphics.drawString(font, tempComponent, tempX, 9, 0xAAAAAA, true);
     }
 }
+

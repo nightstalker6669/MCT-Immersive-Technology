@@ -1,5 +1,6 @@
 package mctmods.immersivetechnology.core.util.solarregistry;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongTag;
@@ -25,7 +26,7 @@ public class SolarRegistryData extends SavedData {
 
     public SolarRegistryData() { super(); }
 
-    public static SolarRegistryData load(CompoundTag nbt) {
+    public static SolarRegistryData load(CompoundTag nbt, HolderLookup.Provider provider) {
         SolarRegistryData data = new SolarRegistryData();
         for (String key : nbt.getAllKeys()) {
             if (key.startsWith("towers_")) {
@@ -64,7 +65,7 @@ public class SolarRegistryData extends SavedData {
         return data;
     }
 
-    @Override @NotNull public CompoundTag save(@NotNull CompoundTag nbt) {
+    @Override @NotNull public CompoundTag save(@NotNull CompoundTag nbt, HolderLookup.Provider provider) {
         for (Map.Entry<Integer, Set<BlockPos>> entry : towerBasesByY.entrySet()) {
             if (entry.getValue().isEmpty()) continue;
             ListTag list = new ListTag();

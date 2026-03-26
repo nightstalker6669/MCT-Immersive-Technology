@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -81,22 +82,22 @@ public class ITBaseBlock extends Block implements ITBlock, SimpleWaterloggedBloc
         else { return super.triggerEvent(state, worldIn, pos, eventID, eventParam); }
     }
 
-    @Override @NotNull public InteractionResult use(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
-        ItemStack activeStack = player.getItemInHand(hand);
+    @Override
+    protected @NotNull ItemInteractionResult useItemOn(ItemStack activeStack, @NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
         if (activeStack.is(ITTags.formationTools)) { return this.hammerUseSide(hit.getDirection(), player, hand, world, pos, hit); }
         else if (activeStack.is(ITTags.screwdrivers)) { return this.screwdriverUseSide(hit.getDirection(), player, hand, world, pos, hit); }
-        else { return super.use(state, world, pos, player, hand, hit); }
+        else { return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; }
     }
 
-    public InteractionResult hammerUseSide(Direction side, Player player, InteractionHand hand, Level w, BlockPos pos, BlockHitResult hit) {
-        return InteractionResult.PASS;
+    public ItemInteractionResult hammerUseSide(Direction side, Player player, InteractionHand hand, Level w, BlockPos pos, BlockHitResult hit) {
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
-    public InteractionResult screwdriverUseSide(Direction side, Player player, InteractionHand hand, Level w, BlockPos pos, BlockHitResult hit) {
-        return InteractionResult.PASS;
+    public ItemInteractionResult screwdriverUseSide(Direction side, Player player, InteractionHand hand, Level w, BlockPos pos, BlockHitResult hit) {
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
-    @Override public boolean isPathfindable(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull PathComputationType type) {
+    @Override protected boolean isPathfindable(@NotNull BlockState state, @NotNull PathComputationType type) {
         return false;
     }
 
@@ -125,16 +126,16 @@ public class ITBaseBlock extends Block implements ITBlock, SimpleWaterloggedBloc
                 Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
-    @Override public boolean canPlaceLiquid(@NotNull BlockGetter worldIn, @NotNull BlockPos pos, BlockState state, @NotNull Fluid fluidIn) {
-        return state.hasProperty(BlockStateProperties.WATERLOGGED) && SimpleWaterloggedBlock.super.canPlaceLiquid(worldIn, pos, state, fluidIn);
+    @Override public boolean canPlaceLiquid(@Nullable Player player, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, BlockState state, @NotNull Fluid fluidIn) {
+        return state.hasProperty(BlockStateProperties.WATERLOGGED) && SimpleWaterloggedBlock.super.canPlaceLiquid(player, worldIn, pos, state, fluidIn);
     }
 
     @Override public boolean placeLiquid(@NotNull LevelAccessor worldIn, @NotNull BlockPos pos, BlockState state, @NotNull FluidState fluidStateIn) {
         return state.hasProperty(BlockStateProperties.WATERLOGGED) && SimpleWaterloggedBlock.super.placeLiquid(worldIn, pos, state, fluidStateIn);
     }
 
-    @Override @NotNull public ItemStack pickupBlock(@NotNull LevelAccessor level, @NotNull BlockPos pos, BlockState state) {
-        return state.hasProperty(BlockStateProperties.WATERLOGGED) ? SimpleWaterloggedBlock.super.pickupBlock(level, pos, state) : ItemStack.EMPTY;
+    @Override @NotNull public ItemStack pickupBlock(@Nullable Player player, @NotNull LevelAccessor level, @NotNull BlockPos pos, BlockState state) {
+        return state.hasProperty(BlockStateProperties.WATERLOGGED) ? SimpleWaterloggedBlock.super.pickupBlock(player, level, pos, state) : ItemStack.EMPTY;
     }
 
     public boolean fitsIntoContainer() { return this.fitsIntoContainer; }

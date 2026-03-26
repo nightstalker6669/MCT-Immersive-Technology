@@ -7,28 +7,17 @@ import mctmods.immersivetechnology.core.ITClientConfig;
 import mctmods.immersivetechnology.core.registration.ITBlockEntities;
 import mctmods.immersivetechnology.core.registration.ITMenuTypes;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 public class TrashItemBlockEntity extends OSDCommonBlockEntity implements IItemHandlerModifiable, ITBlockInterfaces.IInteractionObjectIT<TrashItemBlockEntity>, TrashCanShape, Container {
     public TrashItemBlockEntity(BlockPos pos, BlockState state) { super(ITBlockEntities.TRASH_ITEM.get(), pos, state); }
-
-    @SuppressWarnings("unchecked")
-    @Override @NotNull public <T>LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction facing) {
-        if (capability == ForgeCapabilities.ITEM_HANDLER) { return LazyOptional.of(() -> (T) this); }
-        return super.getCapability(capability, facing);
-    }
 
     @Override public int getSlots() { return 1; }
 

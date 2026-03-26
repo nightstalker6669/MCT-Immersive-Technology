@@ -5,7 +5,7 @@ import mctmods.immersivetechnology.common.multiblocks.metal.recipe.HeatExchanger
 import mctmods.immersivetechnology.core.integration.jei.JEIRecipeTypes;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
-import mezz.jei.api.forge.ForgeTypes;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawableAnimated;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
@@ -15,7 +15,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -54,11 +54,11 @@ public class ITHeatExchangerCategory extends ITRecipeCategory<HeatExchangerRecip
                 .toList();
 
         var slotIn0 = builder.addSlot(RecipeIngredientRole.INPUT, 35, 12)
-                .addIngredients(ForgeTypes.FLUID_STACK, in0)
+                .addIngredients(NeoForgeTypes.FLUID_STACK, in0)
                 .setFluidRenderer(tankCapacity, false, 16, 47);
 
         slotIn0.addRichTooltipCallback((view, tooltip) ->
-                view.getDisplayedIngredient(ForgeTypes.FLUID_STACK)
+                view.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK)
                         .ifPresent(fs -> ITFluidInfoArea.fillTooltip(fs, recipe.input0.getAmount(), tooltip::add)));
 
         List<FluidStack> in1 = (recipe.input1 != null) ? recipe.input1.getMatchingFluidStacks().stream()
@@ -70,28 +70,28 @@ public class ITHeatExchangerCategory extends ITRecipeCategory<HeatExchangerRecip
                 .toList() : List.of();
 
         var slotIn1 = builder.addSlot(RecipeIngredientRole.INPUT, 12, 12)
-                .addIngredients(ForgeTypes.FLUID_STACK, in1)
+                .addIngredients(NeoForgeTypes.FLUID_STACK, in1)
                 .setFluidRenderer(tankCapacity, false, 16, 47);
 
         slotIn1.addRichTooltipCallback((view, tooltip) ->
-                view.getDisplayedIngredient(ForgeTypes.FLUID_STACK)
+                view.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK)
                         .ifPresent(fs -> ITFluidInfoArea.fillTooltip(fs, recipe.input1 != null ? recipe.input1.getAmount() : 0, tooltip::add)));
 
         var slotOut0 = builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 12)
-                .addIngredient(ForgeTypes.FLUID_STACK, recipe.output0)
+                .addIngredient(NeoForgeTypes.FLUID_STACK, recipe.output0)
                 .setFluidRenderer(tankCapacity, false, 16, 47);
 
         slotOut0.addRichTooltipCallback((view, tooltip) ->
-                view.getDisplayedIngredient(ForgeTypes.FLUID_STACK)
+                view.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK)
                         .ifPresent(fs -> ITFluidInfoArea.fillTooltip(fs, recipe.output0.getAmount(), tooltip::add)));
 
         FluidStack out1 = (recipe.output1 != null && !recipe.output1.isEmpty()) ? recipe.output1 : FluidStack.EMPTY;
         var slotOut1 = builder.addSlot(RecipeIngredientRole.OUTPUT, 148, 12)
-                .addIngredient(ForgeTypes.FLUID_STACK, out1)
+                .addIngredient(NeoForgeTypes.FLUID_STACK, out1)
                 .setFluidRenderer(tankCapacity, false, 16, 47);
 
         slotOut1.addRichTooltipCallback((view, tooltip) ->
-                view.getDisplayedIngredient(ForgeTypes.FLUID_STACK)
+                view.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK)
                         .ifPresent(fs -> ITFluidInfoArea.fillTooltip(fs, recipe.output1 != null ? recipe.output1.getAmount() : 0, tooltip::add)));
     }
 
@@ -113,3 +113,4 @@ public class ITHeatExchangerCategory extends ITRecipeCategory<HeatExchangerRecip
         drops.draw(graphics, 73, 40);
     }
 }
+

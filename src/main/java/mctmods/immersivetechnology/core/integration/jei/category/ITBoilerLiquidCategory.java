@@ -5,7 +5,7 @@ import mctmods.immersivetechnology.common.multiblocks.metal.recipe.BoilerLiquidR
 import mctmods.immersivetechnology.core.integration.jei.JEIRecipeTypes;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
-import mezz.jei.api.forge.ForgeTypes;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -15,7 +15,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,11 +62,11 @@ public class ITBoilerLiquidCategory extends ITRecipeCategory<BoilerLiquidRecipe>
         }
 
         var inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 80, 20)
-                .addIngredients(ForgeTypes.FLUID_STACK, inputs)
+                .addIngredients(NeoForgeTypes.FLUID_STACK, inputs)
                 .setFluidRenderer(tankCapacity, false, 16, 47);
 
         inputSlot.addRichTooltipCallback((slotView, tooltip) ->
-                slotView.getDisplayedIngredient(ForgeTypes.FLUID_STACK).ifPresent(fs ->
+                slotView.getDisplayedIngredient(NeoForgeTypes.FLUID_STACK).ifPresent(fs ->
                         ITFluidInfoArea.fillTooltip(fs, tankCapacity, tooltip::add)));
     }
 
@@ -80,3 +80,4 @@ public class ITBoilerLiquidCategory extends ITRecipeCategory<BoilerLiquidRecipe>
         tankOverlay.draw(guiGraphics, 78, 18);
     }
 }
+

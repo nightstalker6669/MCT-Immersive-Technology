@@ -21,6 +21,7 @@ import mctmods.immersivetechnology.common.fluids.helper.ITArrayFluidHandler;
 import mctmods.immersivetechnology.common.fluids.helper.ITMarkableFluidTank;
 import mctmods.immersivetechnology.core.ITCommonConfig;
 import mctmods.immersivetechnology.core.ITServerConfig;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import mctmods.immersivetechnology.core.util.multiblock.PoIJSONSchema;
 import mctmods.immersivetechnology.core.util.solarregistry.SolarRegistry;
 import mctmods.immersivetechnology.core.lib.ITSound;
@@ -29,6 +30,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
@@ -38,15 +40,15 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidActionResult;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.fluids.FluidActionResult;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.IFluidTank;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -193,7 +195,7 @@ public class SolarTowerLogic implements IMultiblockLogic<SolarTowerLogic.State>,
             if (res.isSuccess()) {
                 ItemStack resultItem = res.getResult();
                 ItemStack inputEmpty = state.inventory.getStackInSlot(SLOT_INPUT_EMPTY);
-                if (inputEmpty.isEmpty() || (ItemHandlerHelper.canItemStacksStack(resultItem, inputEmpty) && inputEmpty.getCount() + resultItem.getCount() <= inputEmpty.getMaxStackSize())) {
+                if (inputEmpty.isEmpty() || (ItemStack.isSameItemSameComponents(resultItem, inputEmpty) && inputEmpty.getCount() + resultItem.getCount() <= inputEmpty.getMaxStackSize())) {
                     res = FluidUtil.tryEmptyContainer(inputFilled, state.tanks.input(), Integer.MAX_VALUE, null, true);
                     if (res.isSuccess()) { resultItem = res.getResult(); inputFilled.shrink(1); if (inputFilled.isEmpty()) { state.inventory.setStackInSlot(SLOT_INPUT_FILLED, ItemStack.EMPTY); } if (inputEmpty.isEmpty()) { state.inventory.setStackInSlot(SLOT_INPUT_EMPTY, resultItem); } else { inputEmpty.grow(resultItem.getCount()); } update = true; }
                 }
@@ -205,7 +207,7 @@ public class SolarTowerLogic implements IMultiblockLogic<SolarTowerLogic.State>,
             if (res.isSuccess()) {
                 ItemStack resultItem = res.getResult();
                 ItemStack outputFilled = state.inventory.getStackInSlot(SLOT_OUTPUT_FILLED);
-                if (outputFilled.isEmpty() || (ItemHandlerHelper.canItemStacksStack(resultItem, outputFilled) && outputFilled.getCount() + resultItem.getCount() <= outputFilled.getMaxStackSize())) {
+                if (outputFilled.isEmpty() || (ItemStack.isSameItemSameComponents(resultItem, outputFilled) && outputFilled.getCount() + resultItem.getCount() <= outputFilled.getMaxStackSize())) {
                     res = FluidUtil.tryFillContainer(outputEmpty, state.tanks.output(), Integer.MAX_VALUE, null, true);
                     if (res.isSuccess()) { resultItem = res.getResult(); outputEmpty.shrink(1); if (outputEmpty.isEmpty()) { state.inventory.setStackInSlot(SLOT_OUTPUT_EMPTY, ItemStack.EMPTY); } if (outputFilled.isEmpty()) { state.inventory.setStackInSlot(SLOT_OUTPUT_FILLED, resultItem); } else { outputFilled.grow(resultItem.getCount()); } update = true; }
                 }
@@ -328,7 +330,7 @@ public class SolarTowerLogic implements IMultiblockLogic<SolarTowerLogic.State>,
 
     public static int getSolarIncidenceAngleSection(Level level) { int skyDarken = level.getSkyDarken(); if (skyDarken == 3) { return 1; } else if (skyDarken == 2) { return 2; } else if (skyDarken == 1) { return 3; } else if (skyDarken == 0) { return 4; } return 0; }
 
-    @Override public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
+    public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
         State state = ctx.getState();
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
             if (position.equals(INPUT_FLUID_POI)) { return state.inputCap.cast(ctx); }
@@ -341,7 +343,14 @@ public class SolarTowerLogic implements IMultiblockLogic<SolarTowerLogic.State>,
 
     @Override public State createInitialState(IInitialMultiblockContext<State> ctx) { return new State(ctx); }
 
-    @Override public void dropExtraItems(State state, Consumer<ItemStack> drop) { Level level = state.levelSupplier.get(); if (level != null && !level.isClientSide) { detachReflectorPositions(state); SolarRegistry.unregisterTower(level, state.basePos); } ITMultiBlockInventoryUtils.dropItems(state.inventory, drop); state.inputCap.get(null).invalidate(); state.outputCap.get(null).invalidate(); }
+    @Override public void dropExtraItems(State state, Consumer<ItemStack> drop) {
+        Level level = state.levelSupplier.get();
+        if (level != null && !level.isClientSide) {
+            detachReflectorPositions(state);
+            SolarRegistry.unregisterTower(level, state.basePos);
+        }
+        ITMultiBlockInventoryUtils.dropItems(state.inventory, drop);
+    }
 
     public static class State implements ITISolarMultiblockState, ITDisplayContext {
         public final RedstoneControl.RSState rsState = RedstoneControl.RSState.enabledByDefault();
@@ -417,7 +426,7 @@ public class SolarTowerLogic implements IMultiblockLogic<SolarTowerLogic.State>,
 
         public ITSlotwiseItemHandler getInventory() { return inventory; }
 
-        @Override public void writeSaveNBT(CompoundTag nbt) {
+        @Override public void writeSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.put("tanks", this.tanks.toNBT());
             nbt.put("inventory", inventory.serializeNBT());
             nbt.putDouble("heatLevel", heatLevel);
@@ -426,14 +435,14 @@ public class SolarTowerLogic implements IMultiblockLogic<SolarTowerLogic.State>,
             nbt.putByteArray("dirCounts", dirCounts);
             nbt.putInt("processProgress", processProgress);
             nbt.putInt("totalProcessTime", totalProcessTime);
-            if (activeRecipe != null) { nbt.putString("activeRecipe", activeRecipe.getId().toString()); }
+            if (activeRecipe != null) { nbt.putString("activeRecipe", activeRecipe.id().toString()); }
             nbt.putBoolean("registered", registered);
             nbt.putBoolean("failVertical", failVertical);
             nbt.putInt("requiredMove", requiredMove);
             nbt.putBoolean("active", active);
         }
 
-        @Override public void readSaveNBT(CompoundTag nbt) {
+        @Override public void readSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             this.tanks.readNBT(nbt.getCompound("tanks"));
             this.inventory.deserializeNBT(nbt.getCompound("inventory"));
             heatLevel = nbt.getDouble("heatLevel");
@@ -468,14 +477,14 @@ public class SolarTowerLogic implements IMultiblockLogic<SolarTowerLogic.State>,
             }
         }
 
-        @Override public void writeSyncNBT(CompoundTag nbt) {
+        @Override public void writeSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             CompoundTag display = new CompoundTag();
-            writeDisplaySyncNBT(display);
+            writeDisplaySyncNBT(display, provider);
             nbt.put("display", display);
         }
 
-        @Override public void readSyncNBT(CompoundTag nbt) {
-            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display")); }
+        @Override public void readSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display"), provider); }
         }
 
         @Override public boolean isActive() { return active; }
@@ -505,3 +514,4 @@ public class SolarTowerLogic implements IMultiblockLogic<SolarTowerLogic.State>,
         }
     }
 }
+

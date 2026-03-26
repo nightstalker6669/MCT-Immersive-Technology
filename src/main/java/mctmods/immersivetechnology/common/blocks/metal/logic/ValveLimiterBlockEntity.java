@@ -20,8 +20,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 import static mctmods.immersivetechnology.common.blocks.metal.ValveLimiterBlock.OPEN;
@@ -106,8 +106,8 @@ public class ValveLimiterBlockEntity extends ValveCommonBlockEntity implements I
         return super.getCapability(capability, facing);
     }
 
-    @Override public void invalidateCaps() {
-        super.invalidateCaps();
+    @Override public void invalidateCapabilities() {
+        super.invalidateCapabilities();
         if (myCapability != null) { myCapability.invalidate(); myCapability = null; }
         if (dummyCapability != null) { dummyCapability.invalidate(); dummyCapability = null; }
     }
@@ -182,7 +182,7 @@ public class ValveLimiterBlockEntity extends ValveCommonBlockEntity implements I
         BlockPos dstPos = worldPosition.relative(blockFacing.getOpposite());
         BlockEntity dst = level.getBlockEntity(dstPos);
         if (dst != null) {
-            LazyOptional<IItemHandler> cap = dst.getCapability(ForgeCapabilities.ITEM_HANDLER, blockFacing);
+            LazyOptional<IItemHandler> cap = ForgeCapabilities.ITEM_HANDLER.get(dst, blockFacing);
             return cap.resolve().orElse(null);
         }
         return null;
@@ -195,7 +195,7 @@ public class ValveLimiterBlockEntity extends ValveCommonBlockEntity implements I
         BlockPos srcPos = worldPosition.relative(blockFacing);
         BlockEntity src = level.getBlockEntity(srcPos);
         if (src != null) {
-            LazyOptional<IItemHandler> cap = src.getCapability(ForgeCapabilities.ITEM_HANDLER, blockFacing.getOpposite());
+            LazyOptional<IItemHandler> cap = ForgeCapabilities.ITEM_HANDLER.get(src, blockFacing.getOpposite());
             return cap.resolve().orElse(null);
         }
         return null;

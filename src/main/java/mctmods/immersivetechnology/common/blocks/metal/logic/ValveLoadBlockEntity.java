@@ -26,8 +26,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -204,7 +204,7 @@ public class ValveLoadBlockEntity extends ValveCommonBlockEntity implements ITSe
         BlockPos srcPos = worldPosition.relative(inputDir);
         BlockEntity src = level.getBlockEntity(srcPos);
         if (src != null) {
-            LazyOptional<IEnergyStorage> cap = src.getCapability(ENERGY, inputDir.getOpposite());
+            LazyOptional<IEnergyStorage> cap = ENERGY.get(src, inputDir.getOpposite());
             return cap.resolve().orElse(null);
         }
         return null;
@@ -216,7 +216,7 @@ public class ValveLoadBlockEntity extends ValveCommonBlockEntity implements ITSe
         BlockPos dstPos = worldPosition.relative(outputDir);
         BlockEntity dst = level.getBlockEntity(dstPos);
         if (dst != null) {
-            LazyOptional<IEnergyStorage> cap = dst.getCapability(ENERGY, outputDir.getOpposite());
+            LazyOptional<IEnergyStorage> cap = ENERGY.get(dst, outputDir.getOpposite());
             return cap.resolve().orElse(null);
         }
         return null;

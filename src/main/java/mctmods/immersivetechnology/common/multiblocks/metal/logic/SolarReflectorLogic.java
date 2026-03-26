@@ -24,6 +24,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -34,9 +35,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.fluids.IFluidTank;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;
@@ -357,7 +358,7 @@ public class SolarReflectorLogic implements IMultiblockLogic<SolarReflectorLogic
         if (!state.isMirrorTaken) { SolarRegistry.updateDance(level); }
     }
 
-    @Override public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) { return LazyOptional.empty(); }
+    public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) { return LazyOptional.empty(); }
 
     @Override public Function<BlockPos, VoxelShape> shapeGetter(ShapeType shapeType) { return SolarReflectorShape.GETTER; }
 
@@ -501,13 +502,13 @@ public class SolarReflectorLogic implements IMultiblockLogic<SolarReflectorLogic
             }
         }
 
-        @Override public void writeSaveNBT(CompoundTag nbt) {
+        @Override public void writeSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.putBoolean("isMirrorTaken", isMirrorTaken);
             nbt.putLong("towerCollectorPosition", towerCollectorPosition.asLong());
             nbt.putBoolean("active", active);
         }
 
-        @Override public void readSaveNBT(CompoundTag nbt) {
+        @Override public void readSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             isMirrorTaken = nbt.getBoolean("isMirrorTaken");
             towerCollectorPosition = BlockPos.of(nbt.getLong("towerCollectorPosition"));
             active = nbt.getBoolean("active");
@@ -517,14 +518,14 @@ public class SolarReflectorLogic implements IMultiblockLogic<SolarReflectorLogic
             if (level != null && !level.isClientSide) { SolarRegistry.registerReflector(level, poiPos); }
         }
 
-        @Override public void writeSyncNBT(CompoundTag nbt) {
+        @Override public void writeSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             CompoundTag display = new CompoundTag();
-            writeDisplaySyncNBT(display);
+            writeDisplaySyncNBT(display, provider);
             nbt.put("display", display);
         }
 
-        @Override public void readSyncNBT(CompoundTag nbt) {
-            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display")); }
+        @Override public void readSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display"), provider); }
         }
 
         @Override public boolean isActive() { return active; }

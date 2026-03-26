@@ -21,9 +21,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.EnergyStorage;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.energy.EnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -275,8 +275,8 @@ public class AdvancedCokeOvenBaseHeaterBlockEntity extends ITBaseBlockEntity imp
     @Override public boolean canExtract() { return false; }
     @Override public boolean canReceive() { return true; }
 
-    @Override public void invalidateCaps() {
-        super.invalidateCaps();
+    @Override public void invalidateCapabilities() {
+        super.invalidateCapabilities();
         energyHandler.invalidate();
         dummyEnergyHandler.invalidate();
     }

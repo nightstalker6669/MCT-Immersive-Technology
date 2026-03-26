@@ -26,6 +26,7 @@ import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.lib.ITSound;
 import mctmods.immersivetechnology.core.registration.ITSounds;
 import mctmods.immersivetechnology.core.ITServerConfig;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -40,11 +41,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
@@ -162,7 +162,7 @@ public class BoilerSolidLogic implements IMultiblockLogic<BoilerSolidLogic.State
                 if (!fuelStack.isEmpty()) { recipe = BoilerSolidRecipe.findRecipe(level, fuelStack); }
                 ItemStack single = fuelStack.copy();
                 single.setCount(1);
-                int burnTimePerItem = ForgeHooks.getBurnTime(single, RecipeType.SMELTING);
+                int burnTimePerItem = single.getBurnTime(RecipeType.SMELTING);
                 double heatPerTick = DEFAULT_HEAT_PER_TICK;
                 double targetHeat = DEFAULT_WORKING_HEAT_LEVEL;
                 int consumeAmount = 1;
@@ -203,7 +203,7 @@ public class BoilerSolidLogic implements IMultiblockLogic<BoilerSolidLogic.State
     private void updateAllBlocks(IMultiblockContext<State> ctx, Level level, boolean active) {
         if (level.isClientSide) { return; }
         ResourceLocation boilerRL = ITLib.rl("boiler_solid");
-        Block boilerBlock = ForgeRegistries.BLOCKS.getValue(boilerRL);
+        Block boilerBlock = ForgeRegistries.BLOCKS.get(boilerRL);
         if (boilerBlock == null) { return; }
         for (int y = 0; y < HEIGHT; y++) for (int z = 0; z < LENGTH; z++) for (int x = 0; x < WIDTH; x++) {
             BlockPos relPos = new BlockPos(x, y, z);
@@ -216,12 +216,12 @@ public class BoilerSolidLogic implements IMultiblockLogic<BoilerSolidLogic.State
         }
     }
 
-    @Override public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
+    public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
         BlockPos localPos = position.posInMultiblock();
         RelativeBlockFace side = position.side();
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
             if (ITEM_INPUT_POI.contains(localPos) && (side == null || side == ITEM_INPUT_FACING)) { return ctx.getState().inputFuelCap.cast(ctx); }
-        } else if (cap == HeatCapabilities.HEAT_PROVIDER_CAPABILITY) {
+        } else if (cap == (Object)HeatCapabilities.HEAT_PROVIDER_CAPABILITY) {
             if (HEAT_OUTPUT_POI.contains(localPos) && (side == null || side == HEAT_OUTPUT_FACING)) { return ctx.getState().heatSourceCap.cast(ctx); }
         }
         return LazyOptional.empty();
@@ -246,7 +246,7 @@ public class BoilerSolidLogic implements IMultiblockLogic<BoilerSolidLogic.State
             ItemStack single = stack.copy(); single.setCount(1);
             Level l = levelSupplier != null ? levelSupplier.get() : null;
             if (l != null) {
-                if (ForgeHooks.getBurnTime(single, RecipeType.SMELTING) > 0) { return true; }
+                if (single.getBurnTime(RecipeType.SMELTING) > 0) { return true; }
                 return BoilerSolidRecipe.findRecipe(l, single) != null;
             } else { return true; }
         }
@@ -283,12 +283,12 @@ public class BoilerSolidLogic implements IMultiblockLogic<BoilerSolidLogic.State
             MultiblockFace heatMBFace = new MultiblockFace(HEAT_OUTPUT_FACING, HEAT_OUTPUT_POI.get(0));
             CapabilityPosition opposingCP = CapabilityPosition.opposing(heatMBFace);
             MultiblockFace opposingMBFace = new MultiblockFace(opposingCP.side(), opposingCP.posInMultiblock());
-            boilerInput = ctx.getCapabilityAt(HeatCapabilities.HEAT_CONSUMER_CAPABILITY, opposingMBFace);
+            boilerInput = CapabilityReference.of(ctx.getCapabilityAt(HeatCapabilities.HEAT_CONSUMER_CAPABILITY, opposingMBFace));
         }
 
         public double getWorkingHeatLevel() { return workingHeatLevel; }
 
-        @Override public void writeSaveNBT(CompoundTag nbt) {
+        @Override public void writeSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.putDouble("heatLevel", heatLevel);
             nbt.putInt("burnRemaining", burnRemaining);
             nbt.putInt("totalBurnTime", totalBurnTime);
@@ -298,7 +298,7 @@ public class BoilerSolidLogic implements IMultiblockLogic<BoilerSolidLogic.State
             nbt.put("inventory", inventory.serializeNBT());
         }
 
-        @Override public void readSaveNBT(CompoundTag nbt) {
+        @Override public void readSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             heatLevel = nbt.getDouble("heatLevel");
             burnRemaining = nbt.getInt("burnRemaining");
             totalBurnTime = nbt.getInt("totalBurnTime");
@@ -308,21 +308,21 @@ public class BoilerSolidLogic implements IMultiblockLogic<BoilerSolidLogic.State
             inventory.deserializeNBT(nbt.getCompound("inventory"));
         }
 
-        @Override public void writeSyncNBT(CompoundTag nbt) {
+        @Override public void writeSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             CompoundTag display = new CompoundTag();
-            writeDisplaySyncNBT(display);
+            writeDisplaySyncNBT(display, provider);
             nbt.put("display", display);
         }
 
-        @Override public void readSyncNBT(CompoundTag nbt) {
-            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display")); }
+        @Override public void readSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display"), provider); }
         }
 
         @Override public boolean isActive() { return active; }
 
         @Override public IItemHandlerModifiable getInventory() { return inventory; }
 
-        @Override public void writeDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void writeDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.putBoolean("active", active);
             nbt.putDouble("heatLevel", heatLevel);
             nbt.putBoolean("pilotLit", pilotLit);
@@ -332,7 +332,7 @@ public class BoilerSolidLogic implements IMultiblockLogic<BoilerSolidLogic.State
             nbt.putDouble("workingHeatLevel", workingHeatLevel);
         }
 
-        @Override public void readDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void readDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             active = nbt.getBoolean("active");
             heatLevel = nbt.getDouble("heatLevel");
             pilotLit = nbt.getBoolean("pilotLit");

@@ -3,6 +3,7 @@ package mctmods.immersivetechnology.common.blocks.helper;
 import com.google.common.base.Preconditions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -14,7 +15,9 @@ import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.minecraftforge.common.capabilities.Capability;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -29,37 +32,31 @@ public abstract class ITBaseBlockEntity extends BlockEntity implements ITBlockIn
 
     public ITBaseBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
 
-    @Override public void load(@NotNull CompoundTag nbtIn) {
-        super.load(nbtIn);
+    @Override protected void loadAdditional(@NotNull CompoundTag nbtIn, HolderLookup.Provider lookupProvider) {
+        super.loadAdditional(nbtIn, lookupProvider);
         readCustomNBT(nbtIn, false);
     }
 
     public abstract void readCustomNBT(CompoundTag nbt, boolean descPacket);
 
-    @Override protected void saveAdditional(@NotNull CompoundTag nbt) {
-        super.saveAdditional(nbt);
+    @Override protected void saveAdditional(@NotNull CompoundTag nbt, HolderLookup.Provider lookupProvider) {
+        super.saveAdditional(nbt, lookupProvider);
         writeCustomNBT(nbt, false);
     }
 
     public abstract void writeCustomNBT(CompoundTag nbt, boolean descPacket);
 
-    @Override public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this, be -> {
-            CompoundTag nbtTagCompound = new CompoundTag();
-            writeCustomNBT(nbtTagCompound, true);
-            return nbtTagCompound;
-        });
-    }
+    @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
 
-    @Override public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+    @Override public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
         CompoundTag nonNullTag = pkt.getTag() != null ? pkt.getTag() : new CompoundTag();
         readCustomNBT(nonNullTag, true);
     }
 
-    @Override public void handleUpdateTag(CompoundTag tag) { readCustomNBT(tag, true); }
+    @Override public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) { readCustomNBT(tag, true); }
 
-    @Override @NotNull public CompoundTag getUpdateTag() {
-        CompoundTag nbt = super.getUpdateTag();
+    @Override @NotNull public CompoundTag getUpdateTag(HolderLookup.Provider lookupProvider) {
+        CompoundTag nbt = super.getUpdateTag(lookupProvider);
         writeCustomNBT(nbt, true);
         return nbt;
     }
@@ -67,6 +64,8 @@ public abstract class ITBaseBlockEntity extends BlockEntity implements ITBlockIn
     public void receiveMessageFromClient(CompoundTag message) { }
 
     public void receiveMessageFromServer(CompoundTag message) { }
+
+    public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side) { return LazyOptional.empty(); }
 
     @Override public boolean triggerEvent(int id, int type) {
         if (id == 0 || id == 255) { markContainingBlockForUpdate(null); return true; }
@@ -94,7 +93,7 @@ public abstract class ITBaseBlockEntity extends BlockEntity implements ITBlockIn
         super.setRemoved();
     }
 
-    @Override public void invalidateCaps() { super.invalidateCaps(); }
+    @Override public void invalidateCapabilities() { super.invalidateCapabilities(); }
 
     private boolean isUnloaded = false;
 

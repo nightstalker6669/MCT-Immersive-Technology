@@ -1,21 +1,13 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
-import net.minecraftforge.gradle.common.tasks.SignJar
 
 plugins {
     id 'idea'
-    id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '6.0.+'
-    id 'org.spongepowered.mixin' version '0.7.+'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
-    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.6'
     id 'eclipse'
-}
-
-configurations.configureEach {
-    resolutionStrategy {
-        force 'com.google.guava:guava:32.1.3-jre'
-    }
+    id 'java-library'
+    id 'maven-publish'
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.6'
+    id 'net.neoforged.moddev' version '2.0.141'
 }
 
 def versionProps = new Properties()
@@ -25,351 +17,261 @@ def gradleProps = new Properties()
 file('gradle.properties').withInputStream { gradleProps.load(it) }
 
 version = versionProps.getProperty('version')
-ext.version_buildnumber = versionProps.getProperty('build_number')?.toInteger() ?: 0
-ext.stage = versionProps.getProperty('stage') ?: ''
-
-println "-> build.gradle applying version: $version (build ${version_buildnumber})"
-
 group = 'mctmods.immersivetechnology'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+def versionBuildNumber = versionProps.getProperty('build_number')?.toInteger() ?: 0
+def stage = versionProps.getProperty('stage') ?: ''
+def modId = gradleProps['mod_id']
+def minecraftVersion = versionProps['version_mc']
+def neoVersion = versionProps['version_neo']
+def jeiVersion = versionProps['version_jei']
+def ieVersion = versionProps['version_ie']
+def icVersion = versionProps['version_ic']
+
+def versionReplaces = {
+    [
+        'version'              : project.version,
+        'build_number'         : versionBuildNumber,
+        'stage'                : stage,
+        'version_mc'           : minecraftVersion,
+        'version_neo'          : neoVersion,
+        'version_ie'           : ieVersion,
+        'version_ic'           : icVersion,
+        'minecraft_version'    : gradleProps['minecraft_version'],
+        'minecraft_version_range': gradleProps['minecraft_version_range'],
+        'neo_version'          : gradleProps['neo_version'],
+        'neo_version_range'    : gradleProps['neo_version_range'],
+        'loader_version_range' : gradleProps['loader_version_range'],
+        'mod_id'               : modId,
+        'mod_name'             : gradleProps['mod_name'],
+        'mod_license'          : gradleProps['mod_license'],
+        'mod_version'          : gradleProps['mod_version'],
+        'mod_group_id'         : gradleProps['mod_group_id'],
+        'mod_authors'          : gradleProps['mod_authors'],
+        'mod_description'      : gradleProps['mod_description'],
+    ] as Map<String, Object>
+}
+
+base {
+    archivesName = "MCT-ImmersiveTechnology-${minecraftVersion}"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+}
 
 tasks.withType(Jar).configureEach {
     zip64 = true
 }
 
 sourceSets {
-    main {
-        java {
-            srcDirs = ["$rootDir/src/main/java"]
-        }
-        resources {
-            srcDirs = [
-                    "$rootDir/src/main/resources",
-                    "$rootDir/src/generated/resources",
-            ]
-        }
-    }
     datagen {
-        java {
-            srcDirs = ["$rootDir/src/datagen/java"]
-        }
-        resources {
-            srcDirs = ["$rootDir/src/datagen/resources"]
-        }
-        compileClasspath += main.compileClasspath
-        runtimeClasspath += main.runtimeClasspath
-        compileClasspath += main.output
-        runtimeClasspath += main.output
+        java.srcDir "$rootDir/src/datagen/java"
+        resources.srcDir "$rootDir/src/datagen/resources"
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
     }
     gametest {
-        java {
-            srcDirs = ["$rootDir/src/gametest/java"]
-        }
-        resources {
-            srcDirs = ["$rootDir/src/gametest/resources"]
-        }
-        compileClasspath += main.compileClasspath
-        runtimeClasspath += main.runtimeClasspath
-        compileClasspath += main.output
-        runtimeClasspath += main.output
+        java.srcDir "$rootDir/src/gametest/java"
+        resources.srcDir "$rootDir/src/gametest/resources"
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
     }
 }
 
-ext {
-    mod_id = gradleProps['mod_id']
-    version_minecraft = versionProps['version_mc']
-    version_forge = versionProps['version_forge']
-    version_jei = versionProps['version_jei']
-    version_parchment = versionProps['version_parchment']
-    version_ie = versionProps['version_ie']
-    version_ic = versionProps['version_ic']
-    mod_license = gradleProps['mod_license']
-    mod_name = gradleProps['mod_name']
-    mod_authors = gradleProps['mod_authors']
-    mod_description = gradleProps['mod_description']
-}
+neoForge {
+    version = neoVersion
+    validateAccessTransformers = true
 
-def version_replaces = { [
-        'version'      : project.version,
-        'build_number' : version_buildnumber,
-        'version_mc'   : version_minecraft,
-        'version_forge': version_forge,
-        'version_jei'  : version_jei,
-        'mod_license'  : mod_license,
-        'mod_name'     : mod_name,
-        'mod_authors'  : mod_authors,
-        'mod_description': mod_description,
-        'version_ie'   : version_ie,
-        'version_ic'   : version_ic,
-        'stage'        : stage,
-] as Map<String, Object> }
+    addModdingDependenciesTo sourceSets.datagen
+    addModdingDependenciesTo sourceSets.gametest
 
-def jsonPatterns = ["**/*.json", "**/*.mcmeta"]
-
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.FAIL
-    inputs.properties(version_replaces())
-    filesMatching("META-INF/mods.toml") {
-        expand version_replaces()
-    }
-    exclude ".cache"
-    doLast {
-        fileTree(dir: getOutputs().getFiles().getAsPath(), includes: jsonPatterns).each {
-            File file -> file.setText(JsonOutput.toJson(new JsonSlurper().parse(file, 'UTF-8')))
-        }
-    }
-}
-
-tasks.register('copyModsTomlForIntelliJ', Copy) {
-    from processResources.destinationDir
-    into "$projectDir/out/production/resources"
-    include "META-INF/mods.toml"
-    dependsOn processResources
-}
-
-def icJar = null
-def icDir = file('../ImmersiveConvergence/build/libs')
-def matchingJars = fileTree(icDir) {
-    include "ImmersiveConvergence-${version_minecraft}-*-dev.jar"
-    exclude "**/*-sources.jar"
-}.files
-
-if (!matchingJars.isEmpty()) {
-    icJar = matchingJars.sort { a, b -> b.lastModified() <=> a.lastModified() }.last()
-    logger.lifecycle("✅ Found IC deobf JAR: ${icJar.name}")
-} else {
-    logger.warn('⚠️  No IC deobf JAR found')
-}
-
-minecraft {
-    mappings channel: 'parchment', version: version_parchment + '-' + version_minecraft
-    accessTransformer { file('src/main/resources/META-INF/accesstransformer.cfg') }
     runs {
+        configureEach {
+            systemProperty 'neoforge.enabledGameTestNamespaces', modId
+            gameDirectory = project.file('run')
+        }
         client {
-            workingDirectory = project.file('run')
-            property 'forge.logging.markers', ''
-            property 'forge.enabledGameTestNamespaces', mod_id
-            ideaModule project.name + ".main"
-            mods {
-                immersivetechnology {
-                    source(sourceSets.main as SourceSet)
-                }
-            }
-            args '--username', 'tgstyle'
-            args '--width', '1920'
-            args '--height', '1080'
+            client()
+            sourceSet = sourceSets.main
+            programArguments.addAll '--username', 'tgstyle', '--width', '1920', '--height', '1080'
         }
         server {
-            workingDirectory = project.file('run')
-            property 'forge.logging.markers', ''
-            property 'forge.enabledGameTestNamespaces', mod_id
-            arg '-nogui'
-            mods {
-                immersivetechnology {
-                    source(sourceSets.main as SourceSet)
-                }
-            }
+            server()
+            sourceSet = sourceSets.main
+            programArgument '-nogui'
         }
         data {
-            workingDirectory = project.file('run')
-            property 'forge.logging.markers', ''
-            property 'fml.earlyprogresswindow', 'false'
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--validate',
-                    '--existing', sourceSets.main.resources.srcDirs.first()
-            ideaModule project.name + ".datagen"
-            mods {
-                immersivetechnology {
-                    source(sourceSets.main as SourceSet)
-                    source(sourceSets.datagen as SourceSet)
-                }
-            }
+            data()
+            sourceSet = sourceSets.datagen
+            programArguments.addAll '--mod', modId, '--all',
+                    '--output', file('src/generated/resources').absolutePath,
+                    '--existing', file('src/main/resources').absolutePath
         }
         gameTestServer {
-            workingDirectory = project.file('run')
-            property 'forge.logging.markers', ''
-            property 'forge.enabledGameTestNamespaces', mod_id
-            ideaModule project.name + ".gametest"
-            mods {
-                immersivetechnology {
-                    source(sourceSets.main as SourceSet)
-                    source(sourceSets.gametest as SourceSet)
-                }
-            }
+            type = "gameTestServer"
+            sourceSet = sourceSets.gametest
+        }
+    }
+
+    mods {
+        immersivetechnology {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.datagen
+            sourceSet sourceSets.gametest
         }
     }
 }
 
 repositories {
+    mavenCentral()
     maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
     maven {
-        name = 'Jared maven'
+        name = 'BlameJared'
         url = 'https://maven.blamejared.com/'
     }
     maven {
+        name = 'CurseMaven'
         url = 'https://www.cursemaven.com'
         content {
-            includeGroup "curse.maven"
-        }
-    }
-    maven {
-        url = "https://cfa2.cursemaven.com"
-        content {
-            includeGroup "curse.maven"
+            includeGroup 'curse.maven'
         }
     }
     maven {
         url = 'https://squiddev.cc/maven/'
         content {
-            includeGroup("cc.tweaked")
-            includeModule("org.squiddev", "Cobalt")
+            includeGroup 'cc.tweaked'
+            includeModule 'org.squiddev', 'Cobalt'
         }
     }
-    maven {
-        name = 'ParchmentMC'
-        url = 'https://ldtteam.jfrog.io/artifactory/parchmentmc-public/'
+}
+
+def icProjectDir = file('external/ImmersiveConvergence')
+def icLibDir = file("$icProjectDir/build/libs")
+def icJarPattern = "ImmersiveConvergence-${minecraftVersion}-*-dev.jar"
+def findMatchingIcJars = {
+    if (!icLibDir.exists()) {
+        return [] as Set<File>
+    }
+    fileTree(icLibDir) {
+        include icJarPattern
+        exclude '**/*-sources.jar'
+    }.files
+}
+def findLatestIcJar = {
+    def matchingIcJars = findMatchingIcJars()
+    matchingIcJars.isEmpty() ? null : matchingIcJars.sort { a, b -> b.lastModified() <=> a.lastModified() }.first()
+}
+
+def prepareImmersiveConvergence = tasks.register('prepareImmersiveConvergence') {
+    group = 'build setup'
+    description = 'Builds the Immersive Convergence submodule dev jar used for local development.'
+    outputs.upToDateWhen { false }
+
+    doLast {
+        if (!icProjectDir.exists()) {
+            throw new GradleException(
+                    "Immersive Convergence is missing at ${project.relativePath(icProjectDir)}. " +
+                            "Run `git submodule update --init --recursive` from the repo root."
+            )
+        }
+
+        def wrapperName = System.getProperty('os.name').toLowerCase().contains('windows') ? 'gradlew.bat' : 'gradlew'
+        def wrapper = new File(icProjectDir, wrapperName)
+        if (!wrapper.exists()) {
+            throw new GradleException(
+                    "Expected the Immersive Convergence Gradle wrapper at ${project.relativePath(wrapper)} but it was not found."
+            )
+        }
+
+        logger.lifecycle("Building Immersive Convergence dev jar from ${project.relativePath(icProjectDir)}")
+        try {
+            exec {
+                workingDir = icProjectDir
+                if (wrapperName.endsWith('.bat')) {
+                    commandLine 'cmd', '/c', wrapperName, 'devJar', '--no-daemon', '--stacktrace'
+                } else {
+                    commandLine "./${wrapperName}", 'devJar', '--no-daemon', '--stacktrace'
+                }
+            }
+        } catch (Exception ex) {
+            throw new GradleException(
+                    "Failed to build Immersive Convergence from ${project.relativePath(icProjectDir)}. " +
+                            "Port that submodule to Minecraft ${minecraftVersion} / NeoForge ${neoVersion} and rerun the build.",
+                    ex
+            )
+        }
+
+        def icJar = findLatestIcJar()
+        if (icJar == null) {
+            throw new GradleException(
+                    "Immersive Convergence did not produce ${icJarPattern} under ${project.relativePath(icLibDir)}. " +
+                            "The submodule still needs to target Minecraft ${minecraftVersion} and publish a matching dev jar."
+            )
+        }
+        logger.lifecycle("Prepared Immersive Convergence dev jar: ${icJar.name}")
     }
 }
 
-mixin {
-    add sourceSets.main, "${mod_id}.refmap.json"
-    config "mixins.${mod_id}.json"
+def icDependency = files({
+    def icJar = findLatestIcJar()
+    if (icJar == null) {
+        logger.warn(
+                "No local Immersive Convergence dev jar found under ${project.relativePath(icLibDir)}. " +
+                        "Tasks that depend on IC will build the submodule first."
+        )
+        return []
+    }
+    return icJar
+}).builtBy(prepareImmersiveConvergence)
+
+tasks.matching { it.name in ['compileJava', 'compileDatagenJava', 'runClient', 'runServer', 'runData'] }.configureEach {
+    dependsOn prepareImmersiveConvergence
 }
 
-project.ext.lwjglVersion = "3.3.6"
-project.ext.lwjglNatives = "natives-linux"
-
 dependencies {
-    minecraft "net.minecraftforge:forge:${version_minecraft}-${version_forge}"
+    compileOnly "mezz.jei:jei-${minecraftVersion}-neoforge-api:${jeiVersion}"
+    compileOnly "mezz.jei:jei-${minecraftVersion}-common-api:${jeiVersion}"
+    runtimeOnly "mezz.jei:jei-${minecraftVersion}-neoforge:${jeiVersion}"
 
-    compileOnly fg.deobf("mezz.jei:jei-1.20.1-forge-api:${version_jei}")
-    compileOnly fg.deobf("mezz.jei:jei-1.20.1-common-api:${version_jei}")
-
-    implementation fg.deobf("mezz.jei:jei-1.20.1-forge:${version_jei}")
-
-    implementation fg.deobf("curse.maven:immersive-engineering-231951:6206989")
-    implementation fg.deobf("curse.maven:engineered-schematics-1207780:6560826")
-
-    implementation fg.deobf("curse.maven:jade-324717:6855440")
-    implementation fg.deobf("curse.maven:the-one-probe-245211:6106996")
-
-    datagenImplementation("blusunrize.immersiveengineering:ImmersiveEngineering:${version_ie}:datagen")
+    implementation "curse.maven:immersive-engineering-231951:6466513"
+    implementation "curse.maven:jade-324717:6198776"
+    implementation "curse.maven:the-one-probe-245211:6106996"
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-    if (icJar != null) {
-        implementation files(icJar)
+    implementation icDependency
+}
+
+def jsonPatterns = ['**/*.json', '**/*.mcmeta']
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    inputs.properties(versionReplaces())
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand versionReplaces()
     }
-}
-
-def customGradle = rootProject.file('custom.gradle')
-if (customGradle.exists()) {
-    apply from: customGradle
-}
-
-tasks.register('bumpVersion') {
+    exclude '.cache'
     doLast {
-        def props = new Properties()
-        file('version.properties').withInputStream { props.load(it) }
-        def currentBuild = props['build_number'].toInteger()
-        def nextBuild = currentBuild + 1
-        props['build_number'] = nextBuild.toString()
-        file('version.properties').withOutputStream { props.store(it, null) }
-        ext.version_buildnumber = nextBuild
-        def stage = props['stage']
-        def newVersion = "${props['version']}-b${nextBuild}-${stage}"
-        project.version = newVersion
-        tasks.withType(Jar).configureEach {
-            it.archiveVersion.set(newVersion)
+        fileTree(dir: getOutputs().getFiles().getAsPath(), includes: jsonPatterns).each { File jsonFile ->
+            jsonFile.setText(JsonOutput.toJson(new JsonSlurper().parse(jsonFile, 'UTF-8')))
         }
     }
 }
 
-tasks.register('signJar', SignJar) {
-    onlyIf {
-        project.hasProperty('keyStore')
-    }
-    if (project.hasProperty('keyStore')) {
-        keyStore = project.keyStore
-        alias = project.storeAlias
-        storePass = project.storePass
-        keyPass = project.storePass
-        inputFile = jar.archiveFile.get().asFile
-        outputFile = jar.archiveFile.get().asFile
-    } else {
-        logger.warn("No key store found, not signing the output jar\n")
-    }
-}
-
-build.dependsOn bumpVersion, signJar
-
 tasks.register('datagenJar', Jar) {
-    dependsOn datagenClasses
-    archiveBaseName.set("MCT-ImmersiveTechnology-${version_minecraft}")
-    archiveClassifier = 'datagen'
+    dependsOn tasks.named('datagenClasses')
+    archiveBaseName.set("MCT-ImmersiveTechnology-${minecraftVersion}")
+    archiveClassifier.set('datagen')
     from sourceSets.datagen.output
     manifest {
-        attributes "FMLModType": "GAMELIBRARY"
+        attributes 'FMLModType': 'GAMELIBRARY'
     }
-}
-
-tasks.register('sourcesJar', Jar) {
-    dependsOn classes
-    archiveBaseName.set("MCT-ImmersiveTechnology-${version_minecraft}")
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-    from sourceSets.datagen.allSource
 }
 
 artifacts {
-    archives sourcesJar
-    archives datagenJar
-}
-
-void minimizePNGFile(File file) {
-    long size = file.length()
-    ExecOperations execOps = project.services.get(ExecOperations)
-    try {
-        execOps.exec {
-            executable 'optipng'
-            args '-q', '-o7', '-zm1-9', '-strip', 'all', file.absolutePath
-        }
-        long newSize = file.length()
-        if (newSize < size) {
-            System.out.format("Reduced File size of %s from %d bytes to %d bytes (reduced by %.2f%%)\n",
-                    file, size, newSize, ((double) (size - newSize)) / ((double) size) * 100.0)
-        }
-    } catch (Exception ignored) {
-        System.out.println("optipng not found, skipping optimization for ${file}")
-    }
-}
-
-tasks.register('optimizePng') {
-    def pngPatterns = ["**/*.png"]
-    doLast {
-        for (dir in sourceSets.main.resources.srcDirs) {
-            fileTree(dir: dir, includes: pngPatterns).each { minimizePNGFile(it) }
-        }
-    }
-    onlyIf { gradle.taskGraph.hasTask(tasks.jar) }
-}
-
-tasks.register('genIntellijRunsDummy')
-
-tasks.withType(Task).configureEach {
-    if (it.name == "genIntellijRuns") {
-        genIntellijRunsDummy.dependsOn it
-    } else if (it.name == "runServer") {
-        it.standardInput = System.in
-    }
-}
-
-processResources.dependsOn bumpVersion, optimizePng
-jar.dependsOn bumpVersion
-datagenJar.dependsOn bumpVersion
-sourcesJar.dependsOn bumpVersion
-
-jar {
-    archiveBaseName.set("MCT-ImmersiveTechnology-${version_minecraft}")
-    archiveClassifier.set('')
+    archives tasks.named('datagenJar')
 }

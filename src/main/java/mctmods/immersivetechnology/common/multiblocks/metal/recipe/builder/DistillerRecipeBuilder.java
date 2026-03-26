@@ -4,7 +4,7 @@ import blusunrize.immersiveengineering.api.crafting.FluidTagInput;
 import blusunrize.immersiveengineering.api.crafting.builders.IEFinishedRecipe;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.DistillerRecipe;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import java.util.Objects;
 

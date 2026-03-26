@@ -1,0 +1,3 @@
+[submodule "external/ImmersiveConvergence"]
+	path = external/ImmersiveConvergence
+	url = https://github.com/nightstalker6669/Immersive-Convergence.git

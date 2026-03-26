@@ -23,6 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
@@ -43,7 +44,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -179,7 +179,7 @@ public abstract class ITTemplateMultiblock extends TemplateMultiblock {
             if (breakingPlayer != null) {
                 Vec3 eyePos = breakingPlayer.getEyePosition();
                 Vec3 look = breakingPlayer.getViewVector(1.0F);
-                double reach = breakingPlayer.getAttributeValue(ForgeMod.BLOCK_REACH.get());
+                double reach = breakingPlayer.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE);
                 Vec3 end = eyePos.add(look.scale(reach + 2));
                 ClipContext ctx = new ClipContext(eyePos, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, breakingPlayer);
                 BlockHitResult hit = serverLevel.clip(ctx);

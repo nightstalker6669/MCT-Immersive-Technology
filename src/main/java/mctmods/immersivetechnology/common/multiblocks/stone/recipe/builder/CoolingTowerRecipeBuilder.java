@@ -6,7 +6,7 @@ import mctmods.immersivetechnology.common.multiblocks.stone.recipe.CoolingTowerR
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.Objects;
 

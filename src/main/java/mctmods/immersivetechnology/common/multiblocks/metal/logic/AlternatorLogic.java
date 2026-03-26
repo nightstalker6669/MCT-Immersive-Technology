@@ -36,8 +36,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -48,7 +48,7 @@ import java.util.function.Function;
 
 public class AlternatorLogic implements IMultiblockLogic<AlternatorLogic.State>, IServerTickableComponent<AlternatorLogic.State>, IClientTickableComponent<AlternatorLogic.State> {
 
-    private static final int MAX_SPEED = MechanicalCapabilities.MAX_RPM;
+    private static int getMaxSpeed() { return MechanicalCapabilities.getMaxRpm(); }
     private static final List<PoIJSONSchema> RAW_POIS = ImmutableList.copyOf(AlternatorShape.DATA.pointsOfInterest);
 
     public static final BlockPos RUNNING_SOUND_POI = getPosList("running_sound").get(0);
@@ -101,14 +101,14 @@ public class AlternatorLogic implements IMultiblockLogic<AlternatorLogic.State>,
         int turbineSpeed = 0;
         float turbineTorque = 1f;
         boolean hasProvider = false;
-        int providerMaxSpeed = MAX_SPEED;
+        int providerMaxSpeed = getMaxSpeed();
         Direction inputFacing = ctx.getLevel().toAbsolute(ROTATIONAL_INPUT_FACING);
         BlockPos inputPortAbs = ctx.getLevel().toAbsolute(ROTATIONAL_INPUT_POI);
         assert inputFacing != null;
         BlockPos providerAbsolutePos = inputPortAbs.relative(inputFacing);
         BlockEntity entity = level.getBlockEntity(providerAbsolutePos);
         if (entity != null) {
-            LazyOptional<IMechanicalEnergyProvider> providerCap = entity.getCapability(MechanicalCapabilities.MECHANICAL_PROVIDER_CAPABILITY, inputFacing.getOpposite());
+            LazyOptional<IMechanicalEnergyProvider> providerCap = LazyOptional.ofNullable(level.getCapability(MechanicalCapabilities.MECHANICAL_PROVIDER_CAPABILITY, providerAbsolutePos, entity.getBlockState(), entity, inputFacing.getOpposite()));
             if (providerCap.isPresent()) {
                 IMechanicalEnergyProvider provider = providerCap.orElseThrow(RuntimeException::new);
                 turbineSpeed = provider.getSpeed();
@@ -118,7 +118,8 @@ public class AlternatorLogic implements IMultiblockLogic<AlternatorLogic.State>,
                 if (turbineSpeed > 0) { state.active = true; }
             }
         }
-        int effectiveMax = hasProvider ? Math.min(MAX_SPEED, providerMaxSpeed) : MAX_SPEED;
+        int configuredMax = getMaxSpeed();
+        int effectiveMax = hasProvider ? Math.min(configuredMax, providerMaxSpeed) : configuredMax;
         state.effectiveMaxSpeed = effectiveMax;
         if (hasProvider) {
             state.speed = Math.min(turbineSpeed, effectiveMax);
@@ -138,7 +139,7 @@ public class AlternatorLogic implements IMultiblockLogic<AlternatorLogic.State>,
     }
 
     private void generateAndPushEnergy(State state, IMultiblockContext<State> ctx, Level level) {
-        double ratio = (double) state.speed / MAX_SPEED;
+        double ratio = (double) state.speed / getMaxSpeed();
         double powerFactor = Math.max(0.0D, ITServerConfig.alternatorPowerFactor);
         int generatedThisTick = (int) Math.round(ratio * state.torqueMultiplier * ITServerConfig.alternatorMaxOutput * powerFactor);
         List<IEnergyStorage> connected = getConnectedHandlers(ctx, level);
@@ -175,7 +176,7 @@ public class AlternatorLogic implements IMultiblockLogic<AlternatorLogic.State>,
             assert side != null;
             BlockEntity adjacent = level.getBlockEntity(absolutePos.relative(side));
             if (adjacent != null) {
-                LazyOptional<IEnergyStorage> handlerOpt = adjacent.getCapability(ForgeCapabilities.ENERGY, side.getOpposite());
+                LazyOptional<IEnergyStorage> handlerOpt = ForgeCapabilities.ENERGY.get(level, absolutePos.relative(side), adjacent.getBlockState(), adjacent, side.getOpposite());
                 if (handlerOpt.isPresent()) {
                     connected.add(handlerOpt.orElseThrow(RuntimeException::new));
                 }
@@ -187,7 +188,7 @@ public class AlternatorLogic implements IMultiblockLogic<AlternatorLogic.State>,
             assert side != null;
             BlockEntity adjacent = level.getBlockEntity(absolutePos.relative(side));
             if (adjacent != null) {
-                LazyOptional<IEnergyStorage> handlerOpt = adjacent.getCapability(ForgeCapabilities.ENERGY, side.getOpposite());
+                LazyOptional<IEnergyStorage> handlerOpt = ForgeCapabilities.ENERGY.get(level, absolutePos.relative(side), adjacent.getBlockState(), adjacent, side.getOpposite());
                 if (handlerOpt.isPresent()) {
                     connected.add(handlerOpt.orElseThrow(RuntimeException::new));
                 }
@@ -196,7 +197,7 @@ public class AlternatorLogic implements IMultiblockLogic<AlternatorLogic.State>,
         return connected;
     }
 
-    @Override public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
+    public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
         State state = ctx.getState();
         if (cap == ForgeCapabilities.ENERGY) {
             BlockPos localPos = position.posInMultiblock();
@@ -221,7 +222,7 @@ public class AlternatorLogic implements IMultiblockLogic<AlternatorLogic.State>,
     private static class MechanicalEnergyConsumer implements IMechanicalEnergyConsumer {
         @Override public double getMass() { return ITServerConfig.alternatorBaseMass; }
         @Override public double getFriction() { return ITServerConfig.alternatorFriction; }
-        @Override public int getMaxSpeed() { return MechanicalCapabilities.MAX_RPM; }
+        @Override public int getMaxSpeed() { return MechanicalCapabilities.getMaxRpm(); }
     }
 
     public static class State implements IMultiblockState, ITDisplayContext {
@@ -229,7 +230,7 @@ public class AlternatorLogic implements IMultiblockLogic<AlternatorLogic.State>,
         public boolean active = false;
         public int speed = 0;
         public float torqueMultiplier = 1f;
-        public int effectiveMaxSpeed = MAX_SPEED;
+        public int effectiveMaxSpeed = getMaxSpeed();
         public BooleanSupplier isSoundPlaying = () -> false;
         private final StoredCapability<IEnergyStorage> energyCap;
 

@@ -4,8 +4,8 @@ import blusunrize.immersiveengineering.common.util.Utils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import java.util.Iterator;
@@ -36,7 +36,7 @@ public class ITSlotwiseItemHandler implements IItemHandlerModifiable, Iterable<I
         if (!allowInsert) return stack;
         ItemStack current = getStackInSlot(slot);
         if (!current.isEmpty()) {
-            if (!ItemStack.isSameItemSameTags(current, stack)) return stack;
+            if (!ItemStack.isSameItemSameComponents(current, stack)) return stack;
         }
         ItemStack result = rawHandler.insertItem(slot, stack, simulate);
         if (!simulate) {
@@ -67,9 +67,9 @@ public class ITSlotwiseItemHandler implements IItemHandlerModifiable, Iterable<I
         rawHandler.setStackInSlot(slot, toSet);
     }
 
-    public Tag serializeNBT() { return rawHandler.serializeNBT(); }
+    public Tag serializeNBT() { return rawHandler.serializeNBT(mctmods.immersivetechnology.core.util.ITUtils.serverRegistryAccess()); }
 
-    public void deserializeNBT(CompoundTag nbt) { rawHandler.deserializeNBT(nbt); }
+    public void deserializeNBT(CompoundTag nbt) { rawHandler.deserializeNBT(mctmods.immersivetechnology.core.util.ITUtils.serverRegistryAccess(), nbt); }
 
     public ItemStackHandler getRawHandler() { return rawHandler; }
 

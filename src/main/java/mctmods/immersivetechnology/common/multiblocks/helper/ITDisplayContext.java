@@ -2,9 +2,10 @@ package mctmods.immersivetechnology.common.multiblocks.helper;
 
 import blusunrize.immersiveengineering.api.energy.AveragingEnergyStorage;
 import blusunrize.immersiveengineering.common.blocks.multiblocks.process.ProcessContext;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.fluids.IFluidTank;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import java.util.List;
 
@@ -22,4 +23,8 @@ public interface ITDisplayContext {
     default void writeDisplaySyncNBT(CompoundTag nbt) { }
 
     default void readDisplaySyncNBT(CompoundTag nbt) { }
+
+    default void writeDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) { writeDisplaySyncNBT(nbt); }
+
+    default void readDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) { readDisplaySyncNBT(nbt); }
 }

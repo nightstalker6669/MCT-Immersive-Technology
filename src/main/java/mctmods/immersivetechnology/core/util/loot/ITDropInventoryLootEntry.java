@@ -1,7 +1,7 @@
 package mctmods.immersivetechnology.core.util.loot;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 
@@ -17,10 +17,16 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+
+import java.util.List;
 
 public class ITDropInventoryLootEntry extends LootPoolSingletonContainer {
-    protected ITDropInventoryLootEntry(int weightIn, int qualityIn, LootItemCondition[] conditionsIn, LootItemFunction[] functionsIn) { super(weightIn, qualityIn, conditionsIn, functionsIn); }
+    public static final MapCodec<ITDropInventoryLootEntry> CODEC = RecordCodecBuilder.mapCodec(
+            instance -> singletonFields(instance).apply(instance, ITDropInventoryLootEntry::new)
+    );
+
+    protected ITDropInventoryLootEntry(int weightIn, int qualityIn, List<LootItemCondition> conditionsIn, List<LootItemFunction> functionsIn) { super(weightIn, qualityIn, conditionsIn, functionsIn); }
 
     protected void createItemStack(@Nonnull Consumer<ItemStack> output, LootContext context) {
         if (context.hasParam(LootContextParams.BLOCK_ENTITY)) {
@@ -32,7 +38,7 @@ public class ITDropInventoryLootEntry extends LootPoolSingletonContainer {
                 if (itInvBE.getDroppedItems() != null) { itInvBE.getDroppedItems().forEach(output); return; }
             }
             if (te != null) {
-                IItemHandler itemHandler = te.getCapability(ForgeCapabilities.ITEM_HANDLER).resolve().orElse(null);
+                IItemHandler itemHandler = ForgeCapabilities.ITEM_HANDLER.get(te, null).resolve().orElse(null);
                 if (itemHandler instanceof ITInventoryHandler itHandler) {
                     for (int i = 0; i < itHandler.getSlots(); ++i) {
                         if (!itHandler.getStackInSlot(i).isEmpty()) {
@@ -48,8 +54,4 @@ public class ITDropInventoryLootEntry extends LootPoolSingletonContainer {
     public static LootPoolSingletonContainer.Builder<?> builder() { return simpleBuilder(ITDropInventoryLootEntry::new); }
 
     @Nonnull public LootPoolEntryType getType() { return ITLootFunctions.DROP_INVENTORY.get(); }
-
-    public static class Serializer extends LootPoolSingletonContainer.Serializer<ITDropInventoryLootEntry> {
-        @Nonnull protected ITDropInventoryLootEntry deserialize(@Nonnull JsonObject json, @Nonnull JsonDeserializationContext context, int weight, int quality, @Nonnull LootItemCondition[] conditions, @Nonnull LootItemFunction[] functions) { return new ITDropInventoryLootEntry(weight, quality, conditions, functions); }
-    }
 }

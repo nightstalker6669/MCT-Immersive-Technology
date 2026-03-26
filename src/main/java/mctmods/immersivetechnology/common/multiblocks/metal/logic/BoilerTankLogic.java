@@ -21,10 +21,12 @@ import mctmods.immersivetechnology.common.multiblocks.metal.shapes.BoilerTankSha
 import mctmods.immersivetechnology.common.fluids.helper.ITArrayFluidHandler;
 import mctmods.immersivetechnology.common.fluids.helper.ITMarkableFluidTank;
 import mctmods.immersivetechnology.core.ITCommonConfig;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import mctmods.immersivetechnology.core.util.multiblock.PoIJSONSchema;
 import mctmods.immersivetechnology.core.ITServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
@@ -32,15 +34,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidActionResult;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.fluids.FluidActionResult;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.IFluidTank;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -144,7 +146,7 @@ public class BoilerTankLogic implements IMultiblockLogic<BoilerTankLogic.State>,
         if (!simResult.isSuccess()) { return false; }
         ItemStack emptyContainer = simResult.getResult();
         ItemStack outputStack = inv.getStackInSlot(BoilerTankLogic.INPUT_SLOT_EMPTY);
-        if (!outputStack.isEmpty() && !ItemHandlerHelper.canItemStacksStack(outputStack, emptyContainer)) { return false; }
+        if (!outputStack.isEmpty() && !ItemStack.isSameItemSameComponents(outputStack, emptyContainer)) { return false; }
         if (outputStack.getCount() + emptyContainer.getCount() > emptyContainer.getMaxStackSize()) { return false; }
         FluidActionResult execResult = FluidUtils.tryEmptyContainer(filledContainer, tank, FluidType.BUCKET_VOLUME, FluidAction.EXECUTE);
         filledContainer.shrink(1);
@@ -154,13 +156,13 @@ public class BoilerTankLogic implements IMultiblockLogic<BoilerTankLogic.State>,
         return true;
     }
 
-    @Override public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
+    public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
         BlockPos localPos = position.posInMultiblock();
         RelativeBlockFace side = position.side();
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
             if (FLUID_INPUT_POI.contains(localPos) && (side == null || side == FLUID_INPUT_FACING)) { return ctx.getState().inputCap.cast(ctx); }
             if (FLUID_OUTPUT_POI.contains(localPos) && (side == null || side == FLUID_OUTPUT_FACING)) { return ctx.getState().outputCap.cast(ctx); }
-        } else if (cap == HeatCapabilities.HEAT_CONSUMER_CAPABILITY) {
+        } else if (cap == (Object)HeatCapabilities.HEAT_CONSUMER_CAPABILITY) {
             if (HEAT_INPUT_POI.contains(localPos) && (side == null || side == HEAT_INPUT_FACING)) { return ctx.getState().boilerInputCap.cast(ctx); }
         }
         return LazyOptional.empty();
@@ -206,33 +208,33 @@ public class BoilerTankLogic implements IMultiblockLogic<BoilerTankLogic.State>,
             MultiblockFace heatMBFace = new MultiblockFace(HEAT_INPUT_FACING, HEAT_INPUT_POI.get(0));
             CapabilityPosition heatOpposingCP = CapabilityPosition.opposing(heatMBFace);
             MultiblockFace heatOpposingMBFace = new MultiblockFace(heatOpposingCP.side(), heatOpposingCP.posInMultiblock());
-            heatSource = ctx.getCapabilityAt(HeatCapabilities.HEAT_PROVIDER_CAPABILITY, heatOpposingMBFace);
+            heatSource = CapabilityReference.of(ctx.getCapabilityAt(HeatCapabilities.HEAT_PROVIDER_CAPABILITY, heatOpposingMBFace));
         }
 
         public double getWorkingHeatLevel() { return workingHeatLevel; }
 
-        @Override public void writeSaveNBT(CompoundTag nbt) {
-            nbt.put("tanks", tanks.toNBT());
+        @Override public void writeSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            nbt.put("tanks", tanks.toNBT(provider));
             nbt.putInt("recipeTimeRemaining", recipeTimeRemaining);
             nbt.putInt("totalProcessTime", totalProcessTime);
             nbt.put("inventory", inventory.serializeNBT());
         }
 
-        @Override public void readSaveNBT(CompoundTag nbt) {
-            tanks.readNBT(nbt.getCompound("tanks"));
+        @Override public void readSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            tanks.readNBT(provider, nbt.getCompound("tanks"));
             recipeTimeRemaining = nbt.getInt("recipeTimeRemaining");
             totalProcessTime = nbt.getInt("totalProcessTime");
             inventory.deserializeNBT(nbt.getCompound("inventory"));
         }
 
-        @Override public void writeSyncNBT(CompoundTag nbt) {
+        @Override public void writeSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             CompoundTag display = new CompoundTag();
-            writeDisplaySyncNBT(display);
+            writeDisplaySyncNBT(display, provider);
             nbt.put("display", display);
         }
 
-        @Override public void readSyncNBT(CompoundTag nbt) {
-            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display")); }
+        @Override public void readSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display"), provider); }
         }
 
         @Override public boolean isActive() { return active; }
@@ -241,19 +243,19 @@ public class BoilerTankLogic implements IMultiblockLogic<BoilerTankLogic.State>,
 
         @Override public IFluidTank[] getInternalTanks() { return new IFluidTank[]{tanks.input, tanks.output}; }
 
-        @Override public void writeDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void writeDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.putBoolean("active", active);
             nbt.putDouble("heatLevel", heatLevel);
-            nbt.put("tanks", tanks.toNBT());
+            nbt.put("tanks", tanks.toNBT(provider));
             nbt.putDouble("workingHeatLevel", getWorkingHeatLevel());
             nbt.putInt("recipeTimeRemaining", recipeTimeRemaining);
             nbt.putInt("totalProcessTime", totalProcessTime);
         }
 
-        @Override public void readDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void readDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             active = nbt.getBoolean("active");
             heatLevel = nbt.getDouble("heatLevel");
-            tanks.readNBT(nbt.getCompound("tanks"));
+            tanks.readNBT(provider, nbt.getCompound("tanks"));
             recipeTimeRemaining = nbt.getInt("recipeTimeRemaining");
             totalProcessTime = nbt.getInt("totalProcessTime");
         }
@@ -272,18 +274,27 @@ public class BoilerTankLogic implements IMultiblockLogic<BoilerTankLogic.State>,
         public static BoilerTanks makeClient() { return new BoilerTanks(v -> {}); }
 
         public CompoundTag toNBT() {
+            return toNBT(ITUtils.serverRegistryAccess());
+        }
+
+        public CompoundTag toNBT(HolderLookup.Provider provider) {
             CompoundTag tag = new CompoundTag();
-            tag.put("input", this.input.writeToNBT(new CompoundTag()));
-            tag.put("output", this.output.writeToNBT(new CompoundTag()));
+            tag.put("input", this.input.writeToNBT(provider, new CompoundTag()));
+            tag.put("output", this.output.writeToNBT(provider, new CompoundTag()));
             return tag;
         }
 
         public void readNBT(CompoundTag tag) {
-            this.input.readFromNBT(tag.getCompound("input"));
-            this.output.readFromNBT(tag.getCompound("output"));
+            readNBT(ITUtils.serverRegistryAccess(), tag);
+        }
+
+        public void readNBT(HolderLookup.Provider provider, CompoundTag tag) {
+            this.input.readFromNBT(provider, tag.getCompound("input"));
+            this.output.readFromNBT(provider, tag.getCompound("output"));
         }
 
         @SuppressWarnings("unused")
         public int getCapacity() { return TANK_CAPACITY; }
     }
 }
+

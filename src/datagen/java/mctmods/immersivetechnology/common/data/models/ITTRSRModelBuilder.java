@@ -2,8 +2,8 @@ package mctmods.immersivetechnology.common.data.models;
 
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.model.generators.ModelBuilder;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.client.model.generators.ModelBuilder;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import javax.annotation.Nonnull;
 
 public class ITTRSRModelBuilder extends ModelBuilder<ITTRSRModelBuilder> {

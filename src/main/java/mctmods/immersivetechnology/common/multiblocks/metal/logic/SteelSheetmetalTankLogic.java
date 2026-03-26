@@ -20,25 +20,28 @@ import mctmods.immersivetechnology.common.multiblocks.helper.ITPressurizedFluidO
 import mctmods.immersivetechnology.common.multiblocks.metal.shapes.SteelSheetmetalTankShape;
 import mctmods.immersivetechnology.core.util.TranslationKey;
 import mctmods.immersivetechnology.common.fluids.helper.ITMarkableFluidTank;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import mctmods.immersivetechnology.core.util.multiblock.PoIJSONSchema;
 import mctmods.immersivetechnology.core.ITServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.IFluidTank;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -178,31 +181,37 @@ public class SteelSheetmetalTankLogic implements IServerTickableComponent<SteelS
 
         @Override public IFluidTank[] getInternalTanks() { return new IFluidTank[]{tank}; }
 
-        @Override public void writeDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void writeDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.putBoolean("active", active);
-            nbt.put("tank", tank.writeToNBT(new CompoundTag()));
+            nbt.put("tank", tank.writeToNBT(provider, new CompoundTag()));
         }
 
-        @Override public void readDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void readDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             active = nbt.getBoolean("active");
-            tank.readFromNBT(nbt.getCompound("tank"));
+            tank.readFromNBT(provider, nbt.getCompound("tank"));
         }
 
-        @Override public void writeSaveNBT(CompoundTag nbt) {
-            nbt.put("tank", tank.writeToNBT(new CompoundTag()));
+        @Override public void writeSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            nbt.put("tank", tank.writeToNBT(provider, new CompoundTag()));
             CompoundTag rsTag = new CompoundTag();
             rsState.writeSaveNBT(rsTag);
             nbt.put("rsState", rsTag);
         }
 
-        @Override public void readSaveNBT(CompoundTag nbt) {
-            tank.readFromNBT(nbt.getCompound("tank"));
+        @Override public void readSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            tank.readFromNBT(provider, nbt.getCompound("tank"));
             rsState.readSaveNBT(nbt.getCompound("rsState"));
         }
 
-        @Override public void writeSyncNBT(CompoundTag nbt) { writeSaveNBT(nbt); nbt.putBoolean("active", active); }
+        @Override public void writeSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            writeSaveNBT(nbt, provider);
+            nbt.putBoolean("active", active);
+        }
 
-        @Override public void readSyncNBT(CompoundTag nbt) { readSaveNBT(nbt); active = nbt.getBoolean("active"); }
+        @Override public void readSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            readSaveNBT(nbt, provider);
+            active = nbt.getBoolean("active");
+        }
     }
 
     @Override public void tickServer(IMultiblockContext<State> ctx) {
@@ -216,7 +225,7 @@ public class SteelSheetmetalTankLogic implements IServerTickableComponent<SteelS
 
     @Override public State createInitialState(IInitialMultiblockContext<State> capabilitySource) { return new State(capabilitySource); }
 
-    @Override public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
+    public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) {
         State state = ctx.getState();
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
             BlockPos posIn = position.posInMultiblock();
@@ -236,7 +245,7 @@ public class SteelSheetmetalTankLogic implements IServerTickableComponent<SteelS
 
     @Override public Function<BlockPos, VoxelShape> shapeGetter(ShapeType forType) { return SteelSheetmetalTankShape.GETTER; }
 
-    @Override public InteractionResult click(IMultiblockContext<State> ctx, BlockPos posInMultiblock, Player player, InteractionHand hand, BlockHitResult absoluteHit, boolean isClient) {
+    @Override public ItemInteractionResult click(IMultiblockContext<State> ctx, BlockPos posInMultiblock, Player player, InteractionHand hand, BlockHitResult absoluteHit, boolean isClient) {
         if (posInMultiblock.equals(REDSTONE_POI) && player.getItemInHand(hand).is(IETags.screwdrivers)) {
             if (!isClient) {
                 State state = ctx.getState();
@@ -252,8 +261,11 @@ public class SteelSheetmetalTankLogic implements IServerTickableComponent<SteelS
                     throw new RuntimeException("Failed to invert RSState", e);
                 }
             }
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         }
-        if (FluidUtils.interactWithFluidHandler(player, hand, ctx.getState().tank)) { ctx.markDirtyAndSync(); return InteractionResult.SUCCESS; } else return InteractionResult.PASS;
+        if (FluidUtils.interactWithFluidHandler(player, hand, ctx.getState().tank)) {
+            ctx.markDirtyAndSync();
+            return ItemInteractionResult.SUCCESS;
+        } else return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 }
