@@ -6,7 +6,6 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
-import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -99,13 +98,10 @@ public class ITQueueProcessor {
             levelChunk.setUnsaved(true);
 
             List<ServerPlayer> players = chunkMap.getPlayers(chunk, false);
-            players.forEach(p -> p.connection.send(new ClientboundForgetLevelChunkPacket(chunk.x, chunk.z)));
+            players.forEach(p -> p.connection.send(new ClientboundForgetLevelChunkPacket(chunk)));
 
             ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(levelChunk, lightEngine, null, null);
             players.forEach(p -> p.connection.send(packet));
-
-            ChunkHolder holder = chunkMap.getUpdatingChunkIfPresent(chunk.toLong());
-            if (holder != null) { holder.broadcastChanges(levelChunk); }
         }
 
         affectedChunks.clear();

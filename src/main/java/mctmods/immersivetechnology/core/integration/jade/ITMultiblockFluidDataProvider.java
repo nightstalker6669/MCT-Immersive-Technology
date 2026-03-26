@@ -4,6 +4,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockBEH
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockBE;
 import mctmods.immersivetechnology.common.multiblocks.helper.ITDisplayContext;
 import mctmods.immersivetechnology.core.lib.ITLib;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -32,7 +33,7 @@ public class ITMultiblockFluidDataProvider implements IServerExtensionProvider<C
                 List<CompoundTag> list = new ArrayList<>();
                 for (IFluidTank tank : tanks) {
                     FluidStack fs = tank.getFluid();
-                    JadeFluidObject fluidObject = JadeFluidObject.of(fs.getFluid(), fs.getAmount(), fs.getTag());
+                    JadeFluidObject fluidObject = JadeFluidObject.of(fs.getFluid(), fs.getAmount(), fs.getComponentsPatch());
                     CompoundTag tag = FluidView.writeDefault(fluidObject, tank.getCapacity());
                     list.add(tag);
                 }

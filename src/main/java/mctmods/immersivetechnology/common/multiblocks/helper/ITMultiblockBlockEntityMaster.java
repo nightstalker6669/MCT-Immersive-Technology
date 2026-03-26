@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,11 +50,9 @@ public class ITMultiblockBlockEntityMaster<State extends IMultiblockState> exten
         return common.getModelData();
     }
 
-    @Override public AABB getRenderBoundingBox() {
-        IMultiblockContext<State> ctx = getHelper().getContext();
-        BlockPos min = ctx.getLevel().toAbsolute(BlockPos.ZERO);
-        Vec3i size = getHelper().getSize(ctx.getLevel().getRawLevel());
-        BlockPos max = ctx.getLevel().toAbsolute(new BlockPos(size.getX() - 1, size.getY() - 1, size.getZ() - 1));
-        return new AABB(min, max.offset(1, 1, 1)).inflate(1);
+    public AABB getRenderBoundingBox() {
+        BlockPos min = getBlockPos();
+        BlockPos max = getBlockPos().offset(1, 1, 1);
+        return new AABB(Vec3.atLowerCornerOf(min), Vec3.atLowerCornerOf(max)).inflate(8);
     }
 }

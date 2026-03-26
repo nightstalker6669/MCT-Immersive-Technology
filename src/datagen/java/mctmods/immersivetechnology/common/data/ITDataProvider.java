@@ -39,8 +39,9 @@ public class ITDataProvider {
             generator.addProvider(true, new ITItemModelProvider(generator, helper));
             generator.addProvider(true, new ITItemTags(out, lookup, blockTags.contentsGetter(), helper));
             generator.addProvider(true, new ITParticleProvider(out));
-            generator.addProvider(true, new ITRecipes(out));
-            generator.addProvider(true, new LootTableProvider(out, Collections.emptySet(), List.of(new LootTableProvider.SubProviderEntry(ITBlockLootProvider::new, LootContextParamSets.BLOCK))));
+            generator.addProvider(true, new ITRecipes(out, lookup));
+            generator.addProvider(true, new ITCustomRecipes(out));
+            generator.addProvider(true, new LootTableProvider(out, Collections.emptySet(), List.of(new LootTableProvider.SubProviderEntry(ITBlockLootProvider::new, LootContextParamSets.BLOCK)), lookup));
         }
     }
 }

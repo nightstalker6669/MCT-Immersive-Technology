@@ -3,15 +3,15 @@ package mctmods.immersivetechnology.core.registration;
 import mctmods.immersivetechnology.common.blocks.metal.logic.*;
 import mctmods.immersivetechnology.common.blocks.wooden.logic.CrateCreativeBlockEntity;
 import mctmods.immersivetechnology.core.lib.ITLib;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 @SuppressWarnings("ConstantConditions")
 public class ITBlockEntities {
-    public static final DeferredRegister<BlockEntityType<?>> REGISTER = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ITLib.MODID);
+    public static final DeferredRegister<BlockEntityType<?>> REGISTER = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, ITLib.MODID);
 
 
     public static final RegistryObject<BlockEntityType<AdvancedCokeOvenBaseHeaterBlockEntity>> ADVANCED_COKE_OVEN_BASEHEATER = REGISTER.register(

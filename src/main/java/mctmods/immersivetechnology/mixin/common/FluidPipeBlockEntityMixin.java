@@ -1,9 +1,9 @@
 package mctmods.immersivetechnology.mixin.common;
 
-import blusunrize.immersiveengineering.api.utils.CapabilityReference;
+import mctmods.immersivetechnology.compat.ie.util.CapabilityReference;
 import blusunrize.immersiveengineering.common.blocks.metal.FluidPipeBlockEntity;
 import net.minecraft.core.Direction;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

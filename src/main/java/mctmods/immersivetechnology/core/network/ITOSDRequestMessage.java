@@ -14,7 +14,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ITOSDRequestMessage(BlockPos pos) implements CustomPacketPayload {
     public static final Type<ITOSDRequestMessage> TYPE = new Type<>(ITLib.rl("osd_request"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ITOSDRequestMessage> STREAM_CODEC = StreamCodec.of(ITOSDRequestMessage::write, ITOSDRequestMessage::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ITOSDRequestMessage> STREAM_CODEC = StreamCodec.of(
+            (RegistryFriendlyByteBuf buf, ITOSDRequestMessage message) -> message.write(buf),
+            ITOSDRequestMessage::new
+    );
 
     public ITOSDRequestMessage(RegistryFriendlyByteBuf buf) { this(buf.readBlockPos()); }
 

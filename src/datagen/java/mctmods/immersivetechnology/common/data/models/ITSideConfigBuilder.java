@@ -14,7 +14,7 @@ public class ITSideConfigBuilder<T extends ModelBuilder<T>> extends CustomLoader
     }
 
     protected ITSideConfigBuilder(T parent, ExistingFileHelper existingFileHelper) {
-        super(ITModelConfigurableSides.Loader.NAME, parent, existingFileHelper);
+        super(ITModelConfigurableSides.Loader.NAME, parent, existingFileHelper, false);
     }
 
     private ITModelConfigurableSides.Type type;

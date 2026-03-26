@@ -1,11 +1,11 @@
 package mctmods.immersivetechnology.common.multiblocks.metal.recipe.builder;
 
-import blusunrize.immersiveengineering.api.crafting.FluidTagInput;
-import blusunrize.immersiveengineering.api.crafting.builders.IEFinishedRecipe;
+import mctmods.immersivetechnology.compat.ie.crafting.FluidTagInput;
+import mctmods.immersivetechnology.compat.ie.crafting.builders.IEFinishedRecipe;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.DistillerRecipe;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
 import java.util.Objects;
 
 public class DistillerRecipeBuilder extends IEFinishedRecipe<DistillerRecipeBuilder> {
@@ -18,10 +18,14 @@ public class DistillerRecipeBuilder extends IEFinishedRecipe<DistillerRecipeBuil
         return new DistillerRecipeBuilder().addFluidTag("input", fluidIn).addFluid("result", primaryFluidOutput).setTime(time).setEnergy(energy);
     }
 
+    public DistillerRecipeBuilder setTime(int time) { return addWriter(json -> json.addProperty("time", time)); }
+
+    public DistillerRecipeBuilder setEnergy(int energy) { return addWriter(json -> json.addProperty("energy", energy)); }
+
     public DistillerRecipeBuilder addItemOutput(ItemStack item, float chance) {
         return this.addWriter(jsonObject -> {
             com.google.gson.JsonObject itemJson = new com.google.gson.JsonObject();
-            itemJson.addProperty("item", Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.getItem())).toString());
+            itemJson.addProperty("item", Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.getItem())).toString());
             if (item.getCount() > 1) itemJson.addProperty("count", item.getCount());
             itemJson.addProperty("chance", chance);
             jsonObject.add("item_output", itemJson);

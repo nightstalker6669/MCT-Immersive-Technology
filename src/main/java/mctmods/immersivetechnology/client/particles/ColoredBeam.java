@@ -104,6 +104,10 @@ public class ColoredBeam {
     }
 
     private static void addVertex(Matrix4f pose, Matrix3f normal, VertexConsumer consumer, float g, float a, float y, float x, float z, float u, float v) {
-        consumer.vertex(pose, x, y, z).color(1.0F, g, 0.0F, a).uv(u, v).uv2(15728880).normal(normal, 0.0F, 1.0F, 0.0F).endVertex();
+        consumer.addVertex(pose, x, y, z)
+                .setColor(1.0F, g, 0.0F, a)
+                .setUv(u, v)
+                .setLight(15728880)
+                .setNormal(0.0F, 1.0F, 0.0F);
     }
 }

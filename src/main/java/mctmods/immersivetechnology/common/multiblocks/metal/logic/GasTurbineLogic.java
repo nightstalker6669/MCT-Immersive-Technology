@@ -10,7 +10,8 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockCon
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockLogic;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockState;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.*;
-import blusunrize.immersiveengineering.api.utils.CapabilityReference;
+import mctmods.immersivetechnology.compat.ie.multiblocks.StoredCapability;
+import mctmods.immersivetechnology.compat.ie.util.CapabilityReference;
 import blusunrize.immersiveengineering.common.util.CachedRecipe;
 import com.google.common.collect.ImmutableList;
 import com.immersiveconvergence.api.MechanicalCapabilities;
@@ -46,7 +47,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.IFluidTank;

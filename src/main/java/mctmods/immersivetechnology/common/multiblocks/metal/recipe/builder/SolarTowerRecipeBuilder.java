@@ -1,6 +1,6 @@
 package mctmods.immersivetechnology.common.multiblocks.metal.recipe.builder;
 
-import blusunrize.immersiveengineering.api.crafting.builders.IEFinishedRecipe;
+import mctmods.immersivetechnology.compat.ie.crafting.builders.IEFinishedRecipe;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.SolarTowerRecipe;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
@@ -17,7 +17,7 @@ public class SolarTowerRecipeBuilder extends IEFinishedRecipe<SolarTowerRecipeBu
 
     public SolarTowerRecipeBuilder addOutput(Fluid fluid, int amount) { return addOutput(new FluidStack(fluid, amount)); }
 
-    public SolarTowerRecipeBuilder setTime(int time) { return super.setTime(time); }
+    public SolarTowerRecipeBuilder setTime(int time) { return addWriter(json -> json.addProperty("time", time)); }
 
     public SolarTowerRecipeBuilder setRequiredTemp(double temp) { return addWriter(json -> json.addProperty("requiredTemp", temp)); }
 }

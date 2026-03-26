@@ -3,6 +3,8 @@ package mctmods.immersivetechnology.client.models.split.geometry;
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
+import com.mojang.blaze3d.vertex.VertexFormatElement.Type;
+import com.mojang.blaze3d.vertex.VertexFormatElement.Usage;
 import com.mojang.math.Transformation;
 import mctmods.immersivetechnology.client.models.util.ITModelUtils;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -25,19 +27,19 @@ public class ITPolygonUtils {
 
     static {
         VERTEX_SIZE_INTS = DefaultVertexFormat.BLOCK.getVertexSize() / 4;
-        POS_OFFSET = getOffset(DefaultVertexFormat.ELEMENT_POSITION) / 4;
-        UV_OFFSET = getOffset(DefaultVertexFormat.ELEMENT_UV) / 4;
-        NORMAL_OFFSET = getOffset(DefaultVertexFormat.ELEMENT_NORMAL) / 4;
-        COLOR_OFFSET = getOffset(DefaultVertexFormat.ELEMENT_COLOR) / 4;
+        POS_OFFSET = getOffset(Usage.POSITION, Type.FLOAT) / 4;
+        UV_OFFSET = getOffset(Usage.UV, Type.FLOAT) / 4;
+        NORMAL_OFFSET = getOffset(Usage.NORMAL, Type.BYTE) / 4;
+        COLOR_OFFSET = getOffset(Usage.COLOR, Type.UBYTE) / 4;
     }
 
-    private static int getOffset(VertexFormatElement element) {
+    private static int getOffset(Usage usage, Type type) {
         int off = 0;
         for (VertexFormatElement e : DefaultVertexFormat.BLOCK.getElements()) {
-            if (e == element) { return off; }
-            off += e.getByteSize();
+            if (e.usage()==usage && e.type()==type) { return off; }
+            off += e.byteSize();
         }
-        throw new IllegalStateException("Element not found: " + element);
+        throw new IllegalStateException("Element not found: " + usage);
     }
 
     public static ITPolygon<ExtraQuadData> toPolygon(BakedQuad quad) {

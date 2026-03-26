@@ -28,7 +28,8 @@ public class OneProbeHelper {
     private static final double solarWorkingHeatLevel = ITCommonConfig.solarTowerWorkingHeatLevel;
     private static final double solarMelterWorkingHeatLevel = ITCommonConfig.solarMelterWorkingHeatLevel;
 
-    public static void register(ITheOneProbe top) {
+    public static void register(Object topApi) {
+        ITheOneProbe top = (ITheOneProbe) topApi;
         top.registerProvider(new AlternatorProvider());
         top.registerProvider(new BoilerLiquidProvider());
         top.registerProvider(new BoilerSolidProvider());

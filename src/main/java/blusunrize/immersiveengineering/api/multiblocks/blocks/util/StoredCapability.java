@@ -1,6 +1,6 @@
-package blusunrize.immersiveengineering.api.multiblocks.blocks.util;
+package mctmods.immersivetechnology.compat.ie.multiblocks;
 
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import org.jetbrains.annotations.Nullable;
 
 public final class StoredCapability<T> {

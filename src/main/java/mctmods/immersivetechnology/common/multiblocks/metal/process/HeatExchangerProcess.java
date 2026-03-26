@@ -2,8 +2,10 @@ package mctmods.immersivetechnology.common.multiblocks.metal.process;
 
 import blusunrize.immersiveengineering.common.blocks.multiblocks.process.MultiblockProcessInMachine;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.HeatExchangerRecipe;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -13,11 +15,11 @@ import java.util.function.BiFunction;
 
 public class HeatExchangerProcess extends MultiblockProcessInMachine<HeatExchangerRecipe> {
     public HeatExchangerProcess(HeatExchangerRecipe recipe) {
-        super(recipe);
+        super(new RecipeHolder<>(recipe.id(), recipe));
         this.setInputTanks(0, 1);
     }
 
-    public HeatExchangerProcess(BiFunction<Level, ResourceLocation, HeatExchangerRecipe> getRecipe, CompoundTag data) {
+    public HeatExchangerProcess(BiFunction<Level, ResourceLocation, HeatExchangerRecipe> getRecipe, CompoundTag data, HolderLookup.Provider provider) {
         super(getRecipe, data);
         this.setInputTanks(0, 1);
     }

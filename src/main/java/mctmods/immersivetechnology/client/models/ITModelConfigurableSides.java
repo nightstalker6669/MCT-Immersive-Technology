@@ -176,7 +176,8 @@ public class ITModelConfigurableSides extends ITBakedModel {
     }
 
     public record ConfigSidesModelBase(String name, String type, Map<String, Material> textures) implements IUnbakedGeometry<ConfigSidesModelBase> {
-        public BakedModel bake(IGeometryBakingContext owner, ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation) {
+        @Override
+        public BakedModel bake(IGeometryBakingContext owner, ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides) {
             Map<Direction, Map<ITEnums.IOSideConfig, TextureAtlasSprite>> tex = new EnumMap<>(Direction.class);
             for (Direction f : DirectionUtils.VALUES) {
                 Map<ITEnums.IOSideConfig, TextureAtlasSprite> forSide = new EnumMap<>(ITEnums.IOSideConfig.class);

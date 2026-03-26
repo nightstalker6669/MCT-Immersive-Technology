@@ -8,7 +8,8 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockCon
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockLogic;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockState;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.*;
-import blusunrize.immersiveengineering.api.utils.CapabilityReference;
+import mctmods.immersivetechnology.compat.ie.multiblocks.StoredCapability;
+import mctmods.immersivetechnology.compat.ie.util.CapabilityReference;
 import com.google.common.collect.ImmutableList;
 import com.immersiveconvergence.api.HeatCapabilities;
 import com.immersiveconvergence.api.capability.IHeatConsumer;
@@ -43,7 +44,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;

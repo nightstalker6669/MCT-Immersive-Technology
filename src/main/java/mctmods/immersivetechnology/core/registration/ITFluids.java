@@ -133,7 +133,7 @@ public class ITFluids {
             Mutable<ITFluids.FluidEntry> thisMutable = new MutableObject<>();
             RegistryObject<ITFluid> still = REGISTER.register(name, () -> ITFluid.makeFluid(makeStill, thisMutable.getValue()));
             RegistryObject<ITFluid> flowing = REGISTER.register(name+"_flowing", () -> ITFluid.makeFluid(makeFlowing, thisMutable.getValue()));
-            ITBlocks.BlockEntry<ITFluidBlock> block = new ITBlocks.BlockEntry<>(name+"_fluid_block", () -> BlockBehaviour.Properties.copy(Blocks.WATER), p -> new ITFluidBlock(thisMutable.getValue(), p));
+            ITBlocks.BlockEntry<ITFluidBlock> block = new ITBlocks.BlockEntry<>(name+"_fluid_block", () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WATER), p -> new ITFluidBlock(thisMutable.getValue(), p));
             RegistryObject<BucketItem> bucket = ITItems.REGISTER.register(name+"_bucket", () -> makeBucket(still, burnTime));
             ITFluids.FluidEntry entry = new ITFluids.FluidEntry(flowing, still, block, bucket, type, properties, tintColor);
             thisMutable.setValue(entry);
@@ -163,7 +163,7 @@ public class ITFluids {
         public BucketItem getBucket() { return bucket.get(); }
 
         private static BucketItem makeBucket(RegistryObject<ITFluid> still, int burnTime) {
-            return new BucketItem(still, new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET)) {
+            return new BucketItem(still.get(), new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET)) {
                 @Override public int getBurnTime(ItemStack itemStack, RecipeType<?> type) {return burnTime;}
 
                 @SuppressWarnings("unused")

@@ -14,6 +14,7 @@ import mctmods.immersivetechnology.core.ITServerConfig;
 import mctmods.immersivetechnology.core.registration.ITBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
@@ -31,12 +32,11 @@ import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.SoundActions;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
@@ -51,7 +51,7 @@ public class BarrelCreativeBlockEntity extends OSDCommonBlockEntity implements I
 
         @Override @NotNull public FluidStack getFluidInTank(int tank) {
             if (selectedFluid.isEmpty()) { return FluidStack.EMPTY; }
-            return new FluidStack(selectedFluid, Integer.MAX_VALUE);
+            return selectedFluid.copyWithAmount(Integer.MAX_VALUE);
         }
 
         @Override public int getTankCapacity(int tank) { return Integer.MAX_VALUE; }
@@ -62,12 +62,12 @@ public class BarrelCreativeBlockEntity extends OSDCommonBlockEntity implements I
 
         @Override @NotNull public FluidStack drain(FluidStack resource, FluidAction action) {
             if (selectedFluid.isEmpty() || !selectedFluid.isFluidEqual(resource)) { return FluidStack.EMPTY; }
-            return new FluidStack(selectedFluid, resource.getAmount());
+            return selectedFluid.copyWithAmount(resource.getAmount());
         }
 
         @Override public @NotNull FluidStack drain(int maxDrain, FluidAction action) {
             if (selectedFluid.isEmpty()) { return FluidStack.EMPTY; }
-            return new FluidStack(selectedFluid, maxDrain);
+            return selectedFluid.copyWithAmount(maxDrain);
         }
     });
 
@@ -105,13 +105,16 @@ public class BarrelCreativeBlockEntity extends OSDCommonBlockEntity implements I
 
     @Override public void readCustomNBT(@NotNull CompoundTag nbt, boolean descPacket) {
         if (nbt.contains("SelectedFluid")) {
-            selectedFluid = FluidStack.loadFluidStackFromNBT(nbt.getCompound("SelectedFluid"));
-            if (selectedFluid == null) selectedFluid = FluidStack.EMPTY;
+            HolderLookup.Provider lookupProvider = level!=null?level.registryAccess(): ITUtils.serverRegistryAccess();
+            selectedFluid = FluidStack.parseOptional(lookupProvider, nbt.getCompound("SelectedFluid"));
         }
     }
 
     @Override public void writeCustomNBT(@NotNull CompoundTag nbt, boolean descPacket) {
-        if (!selectedFluid.isEmpty()) { nbt.put("SelectedFluid", selectedFluid.writeToNBT(new CompoundTag())); }
+        if (!selectedFluid.isEmpty()) {
+            HolderLookup.Provider lookupProvider = level!=null?level.registryAccess(): ITUtils.serverRegistryAccess();
+            nbt.put("SelectedFluid", selectedFluid.saveOptional(lookupProvider));
+        }
     }
 
     @Override public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
@@ -125,7 +128,7 @@ public class BarrelCreativeBlockEntity extends OSDCommonBlockEntity implements I
             setOutputFluid(contained);
             if (level != null && !level.isClientSide) {
                 SoundEvent sound = contained.getFluid().getFluidType().getSound(player, level, worldPosition, SoundActions.BUCKET_EMPTY);
-                if (sound == null) { sound = ForgeRegistries.FLUIDS.getHolder(contained.getFluid()).map(holder -> holder.is(FluidTags.LAVA)).orElse(false) ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY; }
+                if (sound == null) { sound = contained.is(FluidTags.LAVA) ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY; }
                 level.playSound(null, worldPosition, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
             return true;
@@ -155,7 +158,8 @@ public class BarrelCreativeBlockEntity extends OSDCommonBlockEntity implements I
     @Override public void getBlockEntityDrop(@NotNull LootContext context, @NotNull Consumer<ItemStack> drop) {
         ItemStack stack = new ItemStack(getBlockState().getBlock(), 1);
         CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
+        HolderLookup.Provider lookupProvider = level!=null?level.registryAccess(): ITUtils.serverRegistryAccess();
+        saveAdditional(tag, lookupProvider);
         if (!tag.isEmpty()) { ITUtils.setItemCustomTag(stack, tag); }
         drop.accept(stack);
     }
@@ -172,24 +176,23 @@ public class BarrelCreativeBlockEntity extends OSDCommonBlockEntity implements I
         setChanged();
     }
 
-    @Override protected void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
-        if (!selectedFluid.isEmpty()) { tag.put("SelectedFluid", selectedFluid.writeToNBT(new CompoundTag())); }
+    @Override protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.saveAdditional(tag, lookupProvider);
+        if (!selectedFluid.isEmpty()) { tag.put("SelectedFluid", selectedFluid.saveOptional(lookupProvider)); }
     }
 
-    @Override public void load(@NotNull CompoundTag tag) {
-        super.load(tag);
+    @Override protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.loadAdditional(tag, lookupProvider);
         if (tag.contains("SelectedFluid")) {
-            selectedFluid = FluidStack.loadFluidStackFromNBT(tag.getCompound("SelectedFluid"));
-            if (selectedFluid == null) selectedFluid = FluidStack.EMPTY;
+            selectedFluid = FluidStack.parseOptional(lookupProvider, tag.getCompound("SelectedFluid"));
         }
     }
 
     public void onBEPlaced(ItemStack stack) {
         CompoundTag tag = ITUtils.getItemCustomTag(stack);
         if (tag.contains("SelectedFluid")) {
-            selectedFluid = FluidStack.loadFluidStackFromNBT(tag.getCompound("SelectedFluid"));
-            if (selectedFluid == null) selectedFluid = FluidStack.EMPTY;
+            HolderLookup.Provider lookupProvider = level!=null?level.registryAccess(): ITUtils.serverRegistryAccess();
+            selectedFluid = FluidStack.parseOptional(lookupProvider, tag.getCompound("SelectedFluid"));
         }
     }
 

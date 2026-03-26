@@ -1,8 +1,8 @@
-package blusunrize.immersiveengineering.api.crafting.builders;
+package mctmods.immersivetechnology.compat.ie.crafting.builders;
 
-import blusunrize.immersiveengineering.api.crafting.FluidTagInput;
 import blusunrize.immersiveengineering.api.crafting.IngredientWithSize;
 import com.google.gson.JsonObject;
+import mctmods.immersivetechnology.compat.ie.crafting.FluidTagInput;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -75,6 +75,7 @@ public class IEFinishedRecipe<T extends IEFinishedRecipe<T>> {
     public void build(Consumer out, ResourceLocation id) {
         JsonObject json = new JsonObject();
         json.addProperty("type", Objects.requireNonNull(BuiltInRegistries.RECIPE_SERIALIZER.getKey(serializer)).toString());
+        json.addProperty("id", id.toString());
         for (Consumer<JsonObject> writer : writers) {
             writer.accept(json);
         }

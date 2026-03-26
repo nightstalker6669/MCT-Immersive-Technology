@@ -10,7 +10,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockS
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.CapabilityPosition;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.RelativeBlockFace;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.ShapeType;
-import blusunrize.immersiveengineering.api.multiblocks.blocks.util.StoredCapability;
+import mctmods.immersivetechnology.compat.ie.multiblocks.StoredCapability;
 import com.google.common.collect.ImmutableList;
 import com.immersiveconvergence.api.MechanicalCapabilities;
 import com.immersiveconvergence.api.capability.IMechanicalEnergyConsumer;
@@ -27,6 +27,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
@@ -36,7 +37,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -205,7 +206,7 @@ public class AlternatorLogic implements IMultiblockLogic<AlternatorLogic.State>,
             if (ENERGY_LEFT_POI.contains(localPos) && (side == null || side == ENERGY_LEFT_FACING)) { return state.energyCap.cast(ctx); }
             if (ENERGY_RIGHT_POI.contains(localPos) && (side == null || side == ENERGY_RIGHT_FACING)) { return state.energyCap.cast(ctx); }
         }
-        if (cap == MechanicalCapabilities.MECHANICAL_CONSUMER_CAPABILITY) {
+        if (cap == (Object)MechanicalCapabilities.MECHANICAL_CONSUMER_CAPABILITY) {
             CapabilityPosition checkPos = position;
             if (position.posInMultiblock().equals(BlockPos.ZERO)) { checkPos = new CapabilityPosition(ROTATIONAL_INPUT_POI, position.side()); }
             if (checkPos.posInMultiblock().equals(ROTATIONAL_INPUT_POI) && (checkPos.side() == null || checkPos.side() == ROTATIONAL_INPUT_FACING || checkPos.side() == ROTATIONAL_INPUT_FACING.getOpposite())) { return LazyOptional.of(MechanicalEnergyConsumer::new).cast(); }
@@ -242,46 +243,46 @@ public class AlternatorLogic implements IMultiblockLogic<AlternatorLogic.State>,
             this.energyCap = new StoredCapability<>(this.energy);
         }
 
-        @Override public void writeSaveNBT(CompoundTag nbt) {
-            nbt.put("energy", energy.serializeNBT());
+        @Override public void writeSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            nbt.put("energy", energy.serializeNBT(provider));
             nbt.putBoolean("active", active);
             nbt.putInt("speed", speed);
             nbt.putFloat("torqueMultiplier", torqueMultiplier);
             nbt.putInt("effectiveMaxSpeed", effectiveMaxSpeed);
         }
 
-        @Override public void readSaveNBT(CompoundTag nbt) {
-            energy.deserializeNBT(nbt.get("energy"));
+        @Override public void readSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            energy.deserializeNBT(provider, nbt.get("energy"));
             active = nbt.getBoolean("active");
             speed = nbt.getInt("speed");
             torqueMultiplier = nbt.getFloat("torqueMultiplier");
             effectiveMaxSpeed = nbt.getInt("effectiveMaxSpeed");
         }
 
-        @Override public void writeSyncNBT(CompoundTag nbt) {
+        @Override public void writeSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             CompoundTag display = new CompoundTag();
-            writeDisplaySyncNBT(display);
+            writeDisplaySyncNBT(display, provider);
             nbt.put("display", display);
         }
 
-        @Override public void readSyncNBT(CompoundTag nbt) {
-            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display")); }
+        @Override public void readSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display"), provider); }
         }
 
-        @Override public void writeDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void writeDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.putBoolean("active", active);
             nbt.putInt("speed", speed);
             nbt.putFloat("torqueMultiplier", torqueMultiplier);
-            nbt.put("energy", energy.serializeNBT());
+            nbt.put("energy", energy.serializeNBT(provider));
             nbt.putInt("effectiveMaxSpeed", effectiveMaxSpeed);
         }
 
-        @Override public void readDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void readDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             active = nbt.getBoolean("active");
             speed = nbt.getInt("speed");
             torqueMultiplier = nbt.getFloat("torqueMultiplier");
             if (energy == null) { energy = new SyncEnergyStorage(ITServerConfig.alternatorEnergyCapacity, () -> {}); }
-            energy.deserializeNBT(nbt.get("energy"));
+            energy.deserializeNBT(provider, nbt.get("energy"));
             effectiveMaxSpeed = nbt.getInt("effectiveMaxSpeed");
         }
 

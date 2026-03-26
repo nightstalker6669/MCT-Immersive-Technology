@@ -15,6 +15,7 @@ import blusunrize.immersiveengineering.common.blocks.multiblocks.logic.interface
 import blusunrize.immersiveengineering.common.util.LayeredComparatorOutput;
 import blusunrize.immersiveengineering.common.util.Utils;
 import com.google.common.collect.ImmutableList;
+import mctmods.immersivetechnology.compat.ie.multiblocks.StoredCapability;
 import mctmods.immersivetechnology.common.multiblocks.helper.ITDisplayContext;
 import mctmods.immersivetechnology.common.multiblocks.helper.ITPressurizedFluidOutput;
 import mctmods.immersivetechnology.common.multiblocks.metal.shapes.SteelSheetmetalTankShape;
@@ -37,7 +38,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.IFluidTank;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -194,13 +195,13 @@ public class SteelSheetmetalTankLogic implements IServerTickableComponent<SteelS
         @Override public void writeSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.put("tank", tank.writeToNBT(provider, new CompoundTag()));
             CompoundTag rsTag = new CompoundTag();
-            rsState.writeSaveNBT(rsTag);
+            rsState.writeSaveNBT(rsTag, provider);
             nbt.put("rsState", rsTag);
         }
 
         @Override public void readSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             tank.readFromNBT(provider, nbt.getCompound("tank"));
-            rsState.readSaveNBT(nbt.getCompound("rsState"));
+            rsState.readSaveNBT(nbt.getCompound("rsState"), provider);
         }
 
         @Override public void writeSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {

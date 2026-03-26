@@ -6,7 +6,6 @@ import java.util.function.Function;
 
 import mctmods.immersivetechnology.common.multiblocks.helper.ITQueueProcessor;
 import mctmods.immersivetechnology.common.multiblocks.helper.ITTemplateMultiblock;
-import mctmods.immersivetechnology.core.integration.top.OneProbeHelper;
 import mctmods.immersivetechnology.core.util.loot.ITLootFunctions;
 import mctmods.immersivetechnology.core.ITClientConfig;
 import mctmods.immersivetechnology.core.ITCommonConfig;
@@ -61,10 +60,19 @@ public class ImmersiveTechnology {
 
     private void enqueueIMC(final InterModEnqueueEvent event) {
         if (ModList.get().isLoaded("theoneprobe")) {
-            InterModComms.sendTo("theoneprobe", "getTheOneProbe", () -> (Function<mcjty.theoneprobe.api.ITheOneProbe, Void>) top -> {
-                OneProbeHelper.register(top);
+            InterModComms.sendTo("theoneprobe", "getTheOneProbe", () -> (Function<Object, Void>) top -> {
+                invokeTopRegistration(top);
                 return null;
             });
+        }
+    }
+
+    private static void invokeTopRegistration(Object top) {
+        try {
+            Class<?> helperClass = Class.forName("mctmods.immersivetechnology.core.integration.top.OneProbeHelper");
+            helperClass.getMethod("register", Object.class).invoke(null, top);
+        } catch (ReflectiveOperationException exception) {
+            throw new RuntimeException("Failed to register The One Probe integration", exception);
         }
     }
 

@@ -14,7 +14,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ITMessageTileSync(BlockPos pos, CompoundTag nbt) implements CustomPacketPayload {
     public static final Type<ITMessageTileSync> TYPE = new Type<>(ITLib.rl("tile_sync"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ITMessageTileSync> STREAM_CODEC = StreamCodec.of(ITMessageTileSync::write, ITMessageTileSync::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ITMessageTileSync> STREAM_CODEC = StreamCodec.of(
+            (RegistryFriendlyByteBuf buf, ITMessageTileSync message) -> message.write(buf),
+            ITMessageTileSync::new
+    );
 
     public ITMessageTileSync(RegistryFriendlyByteBuf buf) {
         this(buf.readBlockPos(), buf.readNbt());

@@ -35,7 +35,7 @@ public class BoilerLiquidProcess implements IMultiblockComponent<BoilerLiquidLog
         state.heatLevel = BoilerLiquidLogic.PILOT_HEAT;
         level.playSound(null, ctx.getLevel().toAbsolute(BoilerLiquidLogic.IGNITION_POI.get(0)), ITSounds.gasIgnite.get(), SoundSource.BLOCKS, 0.5f, 1.0f);
         if (held.is(ITTags.igniters_consume)) { held.shrink(1); }
-        else if (held.getMaxDamage() > 0) { held.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand)); }
+        else if (held.getMaxDamage() > 0) { held.hurtAndBreak(1, player, player.getEquipmentSlotForItem(held)); }
         ctx.markMasterDirty();
         ctx.requestMasterBESync();
         return ItemInteractionResult.CONSUME;

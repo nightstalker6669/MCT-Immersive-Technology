@@ -12,7 +12,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ITMessageContainerUpdate(int windowId, CompoundTag nbt) implements CustomPacketPayload {
     public static final Type<ITMessageContainerUpdate> TYPE = new Type<>(ITLib.rl("container_update"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ITMessageContainerUpdate> STREAM_CODEC = StreamCodec.of(ITMessageContainerUpdate::write, ITMessageContainerUpdate::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ITMessageContainerUpdate> STREAM_CODEC = StreamCodec.of(
+            (RegistryFriendlyByteBuf buf, ITMessageContainerUpdate message) -> message.write(buf),
+            ITMessageContainerUpdate::new
+    );
 
     public ITMessageContainerUpdate(RegistryFriendlyByteBuf buf) {
         this(buf.readVarInt(), buf.readNbt());

@@ -146,12 +146,12 @@ public class ITBlocks {
         private static void init() {
             REINFORCED_COKE_BRICK = new BlockEntry<>(
                     "reinforced_coke_brick",
-                    () -> BlockBehaviour.Properties.copy(Blocks.STONE),
+                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE),
                     ReinforcedCokeBrick::new
             );
             SLAB_REINFORCED_COKE_BRICK = new BlockEntry<>(
                     "slab_reinforced_coke_brick",
-                    () -> BlockBehaviour.Properties.copy(Blocks.STONE),
+                    () -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE),
                     SlabReinforcedCokeBrick::new
             );
         }

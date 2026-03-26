@@ -1,6 +1,6 @@
 package mctmods.immersivetechnology.common.multiblocks.metal.recipe;
 
-import blusunrize.immersiveengineering.api.crafting.FluidTagInput;
+import mctmods.immersivetechnology.compat.ie.crafting.FluidTagInput;
 import blusunrize.immersiveengineering.api.crafting.IERecipeSerializer;
 import blusunrize.immersiveengineering.api.crafting.MultiblockRecipe;
 import blusunrize.immersiveengineering.api.crafting.TagOutput;

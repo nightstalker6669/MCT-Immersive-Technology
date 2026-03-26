@@ -1,7 +1,8 @@
-package blusunrize.immersiveengineering.api.crafting;
+package mctmods.immersivetechnology.compat.ie.crafting;
 
 import com.google.gson.JsonObject;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -9,6 +10,8 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
+
+import java.util.List;
 
 public class FluidTagInput {
     private final TagKey<Fluid> tag;
@@ -59,5 +62,12 @@ public class FluidTagInput {
 
     public int getAmount() {
         return amount;
+    }
+
+    public List<FluidStack> getMatchingFluidStacks() {
+        return BuiltInRegistries.FLUID.stream()
+                .filter(fluid -> BuiltInRegistries.FLUID.wrapAsHolder(fluid).is(tag))
+                .map(fluid -> new FluidStack(fluid, amount))
+                .toList();
     }
 }

@@ -4,6 +4,7 @@ import mctmods.immersivetechnology.core.util.loot.ITBEDropLootEntry;
 import mctmods.immersivetechnology.core.registration.ITBlocks;
 import mctmods.immersivetechnology.core.registration.ITFluids;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
@@ -17,7 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ITBlockLootProvider extends BlockLootSubProvider {
-    public ITBlockLootProvider() { super(Set.of(), FeatureFlags.REGISTRY.allFlags()); }
+    public ITBlockLootProvider(HolderLookup.Provider provider) { super(Set.of(), FeatureFlags.REGISTRY.allFlags(), provider); }
 
     @Override protected void generate() {
         registerEntity(ITBlocks.Metal.BARREL_CREATIVE.getRegObject());

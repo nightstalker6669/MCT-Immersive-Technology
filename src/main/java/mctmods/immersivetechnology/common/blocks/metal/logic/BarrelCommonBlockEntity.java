@@ -1,6 +1,6 @@
 package mctmods.immersivetechnology.common.blocks.metal.logic;
 
-import blusunrize.immersiveengineering.api.utils.CapabilityReference;
+import mctmods.immersivetechnology.compat.ie.util.CapabilityReference;
 import blusunrize.immersiveengineering.common.util.Utils;
 import com.google.common.collect.ImmutableMap;
 import mctmods.immersivetechnology.common.blocks.helper.ITBaseBlockEntity;
@@ -13,6 +13,7 @@ import mctmods.immersivetechnology.core.util.ITUtils;
 import mctmods.immersivetechnology.core.util.TranslationKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -27,7 +28,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -158,20 +159,20 @@ public abstract class BarrelCommonBlockEntity extends ITBaseBlockEntity implemen
 
     protected abstract void updateState();
 
-    @Override @NotNull public CompoundTag getUpdateTag() {
-        CompoundTag tag = super.getUpdateTag();
+    @Override @NotNull public CompoundTag getUpdateTag(HolderLookup.Provider lookupProvider) {
+        CompoundTag tag = super.getUpdateTag(lookupProvider);
         writeCustomNBT(tag, true);
         return tag;
     }
 
-    @Override public void handleUpdateTag(CompoundTag tag) {
-        super.handleUpdateTag(tag);
+    @Override public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.handleUpdateTag(tag, lookupProvider);
         readCustomNBT(tag, true);
     }
 
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }
 
-    @Override public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+    @Override public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
         assert pkt.getTag() != null;
         readCustomNBT(pkt.getTag(), true);
     }

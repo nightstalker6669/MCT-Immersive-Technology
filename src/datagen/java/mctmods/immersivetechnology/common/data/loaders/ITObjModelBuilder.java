@@ -24,7 +24,7 @@ public class ITObjModelBuilder<T extends ModelBuilder<T>> extends CustomLoaderBu
     private String renderType;
     private final Map<String, Boolean> visibility = new HashMap<>();
 
-    public ITObjModelBuilder(T parent, ExistingFileHelper existingFileHelper) { super(ITLib.rl("obj"), parent, existingFileHelper); }
+    public ITObjModelBuilder(T parent, ExistingFileHelper existingFileHelper) { super(ITLib.rl("obj"), parent, existingFileHelper, false); }
 
     public ITObjModelBuilder<T> modelLocation(ResourceLocation modelLocation) { this.modelLocation = modelLocation; return this; }
     public ITObjModelBuilder<T> automaticCulling(boolean automaticCulling) { this.automaticCulling = automaticCulling; return this; }

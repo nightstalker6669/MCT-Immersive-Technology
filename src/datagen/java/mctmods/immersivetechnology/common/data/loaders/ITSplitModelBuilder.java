@@ -18,7 +18,7 @@ public class ITSplitModelBuilder<T extends ModelBuilder<T>> extends CustomLoader
     private ModelBuilder<?> modelToSplit;
     private boolean isDynamic;
 
-    protected ITSplitModelBuilder(T parent, ExistingFileHelper existingFileHelper) { super(ITSplitModelLoader.LOCATION, parent, existingFileHelper); }
+    protected ITSplitModelBuilder(T parent, ExistingFileHelper existingFileHelper) { super(ITSplitModelLoader.LOCATION, parent, existingFileHelper, false); }
 
     public ITSplitModelBuilder<T> parts(List<Vec3i> parts) { Preconditions.checkNotNull(parts); Preconditions.checkState(this.parts == null); this.parts = parts; return this; }
 

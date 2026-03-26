@@ -13,10 +13,10 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -53,7 +53,7 @@ public class ITBoilerLiquidCategory extends ITRecipeCategory<BoilerLiquidRecipe>
 
         if (inputs.isEmpty()) {
             ResourceLocation biodieselRl = ResourceLocation.fromNamespaceAndPath("immersiveengineering", "biodiesel");
-            var biodieselFluid = ForgeRegistries.FLUIDS.getValue(biodieselRl);
+            var biodieselFluid = BuiltInRegistries.FLUID.get(biodieselRl);
             FluidStack dummy = new FluidStack(
                     biodieselFluid != null && biodieselFluid != Fluids.EMPTY ? biodieselFluid : Fluids.LAVA,
                     tankCapacity

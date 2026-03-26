@@ -37,6 +37,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -486,7 +487,7 @@ public class ITBlockStateProvider extends BlockStateProvider {
         try {
             final Resource resource = existingFileHelper.getResource(shortLoc, PackType.SERVER_DATA, "", prefix);
             try (final InputStream input = resource.open()) {
-                final CompoundTag nbt = NbtIo.readCompressed(input);
+                final CompoundTag nbt = NbtIo.readCompressed(input, NbtAccounter.unlimitedHeap());
                 final StructureTemplate template = new StructureTemplate();
                 template.load(VanillaRegistries.createLookup().lookupOrThrow(Registries.BLOCK), nbt);
                 ITTemplateMultiblock.SYNCED_CLIENT_TEMPLATES.put(name, template);

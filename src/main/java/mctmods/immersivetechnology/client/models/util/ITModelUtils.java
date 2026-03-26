@@ -63,7 +63,7 @@ public class ITModelUtils {
 
     public static class ITBakedQuadBuilder {
         public static final VertexFormat FORMAT = DefaultVertexFormat.BLOCK;
-        private static final int INTS_PER_VERTEX = FORMAT.getIntegerSize();
+        private static final int INTS_PER_VERTEX = FORMAT.getVertexSize()/4;
 
         private static final int POS_OFFSET = 0;
         private static final int COLOR_OFFSET = 3;

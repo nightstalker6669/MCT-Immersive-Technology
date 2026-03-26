@@ -58,8 +58,8 @@ public class ITObjLoader implements IGeometryLoader<ITObjLoader.ITObjModel> {
 
     public record ITObjModel(ObjModel inner, Map<String, Boolean> defaultVisibility) implements IUnbakedGeometry<ITObjModel> {
 
-        @Override public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
-            return inner.bake(context, baker, spriteGetter, modelState, overrides, modelLocation);
+        @Override public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
+            return inner.bake(context, baker, spriteGetter, modelState, overrides);
         }
     }
 }

@@ -32,6 +32,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.fluids.IFluidTank;
 import org.jetbrains.annotations.NotNull;
 
@@ -344,21 +345,21 @@ public class JEIIntegration implements IModPlugin {
         assert Minecraft.getInstance().level != null;
         Level level = Minecraft.getInstance().level;
         AdvancedCokeOvenRecipe.copyIECokeOvenRecipes(level);
-        return new ArrayList<>(CokeOvenRecipe.RECIPES.getRecipes(level));
+        return CokeOvenRecipe.RECIPES.getRecipes(level).stream().map(RecipeHolder::value).toList();
     }
     private List<AdvancedCokeOvenRecipe> getAdvancedCokeOvenCustomRecipes() {
         assert Minecraft.getInstance().level != null;
-        return new ArrayList<>(AdvancedCokeOvenRecipe.RECIPES.getRecipes(Minecraft.getInstance().level));
+        return AdvancedCokeOvenRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList();
     }
-    private List<BoilerLiquidRecipe> getBoilerLiquidRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(BoilerLiquidRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
-    private List<BoilerSolidRecipe> getBoilerSolidRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(BoilerSolidRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
-    private List<BoilerTankRecipe> getBoilerRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(BoilerTankRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
-    private List<CoolingTowerRecipe> getCoolingTowerRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(CoolingTowerRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
-    private List<DistillerRecipe> getDistillerRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(DistillerRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
-    private List<GasTurbineRecipe> getGasTurbineRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(GasTurbineRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
-    private List<HeatExchangerRecipe> getHeatExchangerRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(HeatExchangerRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
-    private List<SolarMelterRecipe> getSolarMelterRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(SolarMelterRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
-    private List<SolarTowerRecipe> getSolarTowerRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(SolarTowerRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
-    private List<SteamTurbineRecipe> getSteamTurbineRecipes() { assert Minecraft.getInstance().level != null; return new ArrayList<>(SteamTurbineRecipe.RECIPES.getRecipes(Minecraft.getInstance().level)); }
+    private List<BoilerLiquidRecipe> getBoilerLiquidRecipes() { assert Minecraft.getInstance().level != null; return BoilerLiquidRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList(); }
+    private List<BoilerSolidRecipe> getBoilerSolidRecipes() { assert Minecraft.getInstance().level != null; return BoilerSolidRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList(); }
+    private List<BoilerTankRecipe> getBoilerRecipes() { assert Minecraft.getInstance().level != null; return BoilerTankRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList(); }
+    private List<CoolingTowerRecipe> getCoolingTowerRecipes() { assert Minecraft.getInstance().level != null; return CoolingTowerRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList(); }
+    private List<DistillerRecipe> getDistillerRecipes() { assert Minecraft.getInstance().level != null; return DistillerRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList(); }
+    private List<GasTurbineRecipe> getGasTurbineRecipes() { assert Minecraft.getInstance().level != null; return GasTurbineRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList(); }
+    private List<HeatExchangerRecipe> getHeatExchangerRecipes() { assert Minecraft.getInstance().level != null; return HeatExchangerRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList(); }
+    private List<SolarMelterRecipe> getSolarMelterRecipes() { assert Minecraft.getInstance().level != null; return SolarMelterRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList(); }
+    private List<SolarTowerRecipe> getSolarTowerRecipes() { assert Minecraft.getInstance().level != null; return SolarTowerRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList(); }
+    private List<SteamTurbineRecipe> getSteamTurbineRecipes() { assert Minecraft.getInstance().level != null; return SteamTurbineRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList(); }
 }
 

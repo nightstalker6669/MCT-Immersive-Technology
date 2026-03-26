@@ -75,7 +75,7 @@ public abstract class ITTemplateMultiblock extends TemplateMultiblock {
         if (sortedStructureBlocks != null) { return; }
 
         List<StructureBlockInfo> nonAir = data.blocksWithoutAir();
-        sortedStructureBlocks = new ArrayList<>(data.template().palettes.get(0).blocks());
+        sortedStructureBlocks = new ArrayList<>(nonAir);
         sortedStructureBlocks.sort(Comparator.comparingInt(info -> -info.pos().getY()));
 
         triggerStateMap = new HashMap<>();
@@ -350,10 +350,9 @@ public abstract class ITTemplateMultiblock extends TemplateMultiblock {
     }
 
     protected void form(Level world, BlockPos origin, Rotation rot, Mirror mirrorForSettings, Direction side) {
-        StructureTemplate template = getTemplate(world).template();
         StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(rot).setMirror(mirrorForSettings);
         boolean mirrored = mirrorForSettings != Mirror.NONE;
-        for (StructureBlockInfo info : template.palettes.get(0).blocks()) {
+        for (StructureBlockInfo info : getStructure(world)) {
             BlockPos actualPos = origin.offset(StructureTemplate.calculateRelativePosition(settings, info.pos()));
             Vec3i offsetFromMaster = info.pos().subtract(masterFromOrigin);
             replaceStructureBlock(info, world, actualPos, mirrored, side, offsetFromMaster);

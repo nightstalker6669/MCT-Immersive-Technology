@@ -1,8 +1,9 @@
-package net.neoforged.neoforge.common.util;
+package mctmods.immersivetechnology.core.util.compat;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.Nullable;
 
 public final class LazyOptional<T> {
     private static final LazyOptional<?> EMPTY = new LazyOptional<>(null, false);

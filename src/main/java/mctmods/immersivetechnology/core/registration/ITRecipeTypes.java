@@ -18,7 +18,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class ITRecipeTypes {
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, ITLib.MODID);
-    private static final DeferredRegister<RecipeType<?>> REGISTER = DeferredRegister.create(Registries.RECIPE_TYPE, ITLib.MODID);
+    private static final net.neoforged.neoforge.registries.DeferredRegister<RecipeType<?>> REGISTER = net.neoforged.neoforge.registries.DeferredRegister.create(Registries.RECIPE_TYPE, ITLib.MODID);
 
     public static final TypeWithClass<AdvancedCokeOvenRecipe> ADVANCED_COKE_OVEN = register("advanced_coke_oven", AdvancedCokeOvenRecipe.class);
     public static final TypeWithClass<BoilerLiquidRecipe> BOILER_LIQUID = register("boiler_liquid", BoilerLiquidRecipe.class);

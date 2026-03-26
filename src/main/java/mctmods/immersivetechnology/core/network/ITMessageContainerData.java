@@ -15,7 +15,10 @@ import java.util.List;
 
 public record ITMessageContainerData(List<Pair<Integer, DataPair<?>>> synced) implements CustomPacketPayload {
     public static final Type<ITMessageContainerData> TYPE = new Type<>(ITLib.rl("container_data"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ITMessageContainerData> STREAM_CODEC = StreamCodec.of(ITMessageContainerData::write, ITMessageContainerData::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ITMessageContainerData> STREAM_CODEC = StreamCodec.of(
+            (RegistryFriendlyByteBuf buf, ITMessageContainerData message) -> message.write(buf),
+            ITMessageContainerData::new
+    );
 
     public ITMessageContainerData(RegistryFriendlyByteBuf buf) { this(readSynced(buf)); }
 

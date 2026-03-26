@@ -21,16 +21,16 @@ public class ITRenderTypes extends RenderStateShard {
 
     protected static final RenderStateShard.TextureStateShard BLOCK_SHEET_MIPPED = new RenderStateShard.TextureStateShard(InventoryMenu.BLOCK_ATLAS, false, true);
     protected static final RenderStateShard.ShaderStateShard RENDERTYPE_POSITION_COLOR = RENDERTYPE_LIGHTNING_SHADER;
-    protected static final RenderStateShard.ShaderStateShard POSITION_COLOR_TEX_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorTexShader);
+    protected static final RenderStateShard.ShaderStateShard POSITION_COLOR_TEX_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader);
 
     private static final Function<ResourceLocation, RenderType> GUI_CUTOUT = Util.memoize(texture -> {
         RenderType.CompositeState.CompositeStateBuilder builder = makeGuiState(texture);
-        return createDefault("gui_" + texture, DefaultVertexFormat.POSITION_COLOR_TEX, builder.createCompositeState(false));
+        return createDefault("gui_" + texture, DefaultVertexFormat.POSITION_TEX_COLOR, builder.createCompositeState(false));
     });
 
     private static final Function<ResourceLocation, RenderType> GUI_TRANSLUCENT = Util.memoize(texture -> {
         RenderType.CompositeState.CompositeStateBuilder builder = makeGuiState(texture).setTransparencyState(TRANSLUCENT_TRANSPARENCY);
-        return createDefault("gui_translucent_" + texture, DefaultVertexFormat.POSITION_COLOR_TEX, builder.createCompositeState(false));
+        return createDefault("gui_translucent_" + texture, DefaultVertexFormat.POSITION_TEX_COLOR, builder.createCompositeState(false));
     });
 
     static {

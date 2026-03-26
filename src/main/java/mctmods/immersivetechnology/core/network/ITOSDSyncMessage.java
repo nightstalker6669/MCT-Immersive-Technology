@@ -13,7 +13,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record ITOSDSyncMessage(BlockPos pos, long lastAccepted, long average, int packetAverage) implements CustomPacketPayload {
     public static final Type<ITOSDSyncMessage> TYPE = new Type<>(ITLib.rl("osd_sync"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ITOSDSyncMessage> STREAM_CODEC = StreamCodec.of(ITOSDSyncMessage::write, ITOSDSyncMessage::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ITOSDSyncMessage> STREAM_CODEC = StreamCodec.of(
+            (RegistryFriendlyByteBuf buf, ITOSDSyncMessage message) -> message.write(buf),
+            ITOSDSyncMessage::new
+    );
 
     public ITOSDSyncMessage(RegistryFriendlyByteBuf buf) {
         this(buf.readBlockPos(), buf.readLong(), buf.readLong(), buf.readInt());

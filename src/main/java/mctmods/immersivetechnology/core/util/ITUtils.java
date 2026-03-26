@@ -12,12 +12,16 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import blusunrize.immersiveengineering.api.fluid.FluidUtils;
-
 public class ITUtils {
     public static void dropStackAtPos(Level world, BlockPos pos, ItemStack stack) { Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack); }
 
-    public static FluidStack copyFluidStackWithAmount(FluidStack stack, int amount, boolean stripPressure) { return FluidUtils.copyFluidStackWithAmount(stack, amount, stripPressure); }
+    public static FluidStack copyFluidStackWithAmount(FluidStack stack, int amount, boolean stripPressure) {
+        FluidStack copy = stack.copyWithAmount(amount);
+        if (stripPressure) {
+            removeFluidCustomTag(copy, "pressurized");
+        }
+        return copy;
+    }
 
     public static boolean fluidHasCustomTag(FluidStack stack, String key) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().contains(key);

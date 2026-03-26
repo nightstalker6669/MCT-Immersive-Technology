@@ -1,4 +1,4 @@
-package blusunrize.immersiveengineering.api.utils;
+package mctmods.immersivetechnology.compat.ie.util;
 
 import java.util.function.Supplier;
 import net.minecraft.core.Direction;

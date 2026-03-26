@@ -256,7 +256,7 @@ public class ITFluid extends FlowingFluid {
 
     private boolean myCanHoldFluid(BlockGetter pLevel, BlockPos pPos, BlockState pState, Fluid pFluid) {
         Block block = pState.getBlock();
-        if (block instanceof LiquidBlockContainer) { return ((LiquidBlockContainer)block).canPlaceLiquid(pLevel, pPos, pState, pFluid); }
+        if (block instanceof LiquidBlockContainer) { return ((LiquidBlockContainer)block).canPlaceLiquid(null, pLevel, pPos, pState, pFluid); }
         else if (!(block instanceof net.minecraft.world.level.block.DoorBlock) && !pState.is(net.minecraft.tags.BlockTags.SIGNS) && !pState.is(Blocks.LADDER) && !pState.is(Blocks.SUGAR_CANE) && !pState.is(Blocks.BUBBLE_COLUMN)) {
             if (!pState.is(Blocks.NETHER_PORTAL) && !pState.is(Blocks.END_PORTAL) && !pState.is(Blocks.END_GATEWAY) && !pState.is(Blocks.STRUCTURE_VOID)) {
                 VoxelShape shape = pState.getCollisionShape(pLevel, pPos, CollisionContext.empty());

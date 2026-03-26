@@ -12,6 +12,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockL
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.*;
 import blusunrize.immersiveengineering.common.blocks.multiblocks.blockimpl.InitialMultiblockContext;
 import com.google.common.collect.ImmutableList;
+import mctmods.immersivetechnology.compat.ie.multiblocks.StoredCapability;
 import mctmods.immersivetechnology.client.particles.ColoredSmoke;
 import mctmods.immersivetechnology.common.multiblocks.helper.*;
 import mctmods.immersivetechnology.common.fluids.helper.ITSolarTank;
@@ -43,7 +44,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;

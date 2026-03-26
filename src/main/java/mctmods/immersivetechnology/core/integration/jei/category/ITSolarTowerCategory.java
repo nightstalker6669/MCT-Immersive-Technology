@@ -16,6 +16,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
@@ -57,7 +58,7 @@ public class ITSolarTowerCategory extends ITRecipeCategory<SolarTowerRecipe> {
 
         if (inputs.isEmpty()) {
             ResourceLocation biodieselRl = ResourceLocation.fromNamespaceAndPath("immersiveengineering", "biodiesel");
-            var biodieselFluid = net.minecraftforge.registries.ForgeRegistries.FLUIDS.getValue(biodieselRl);
+            var biodieselFluid = BuiltInRegistries.FLUID.get(biodieselRl);
             FluidStack dummy = new FluidStack(
                     biodieselFluid != null && biodieselFluid != net.minecraft.world.level.material.Fluids.EMPTY ? biodieselFluid : net.minecraft.world.level.material.Fluids.LAVA,
                     recipe.input.getAmount()

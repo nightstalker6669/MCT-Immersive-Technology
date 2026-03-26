@@ -13,7 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -44,11 +44,11 @@ public class ITMultiblockBlockEntityCommon<State extends IMultiblockState> imple
         Vec3 hitVec = new Vec3(hitX, hitY, hitZ);
         BlockHitResult absoluteHit = new BlockHitResult(hitVec, side, BlockPos.ZERO, false);
         boolean isClient = levelSupplier.get().isClientSide;
-        InteractionResult result = InteractionResult.PASS;
+        ItemInteractionResult result = ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         for (MultiblockRegistration.ExtraComponent<State, ?> extra : multiblock.extraComponents()) {
             @SuppressWarnings("unchecked")
             IMultiblockComponent<State> component = (IMultiblockComponent<State>) extra.component();
-            InteractionResult componentResult = component.click(ctx, posInMultiblock, player, hand, absoluteHit, isClient);
+            ItemInteractionResult componentResult = component.click(ctx, posInMultiblock, player, hand, absoluteHit, isClient);
             if (componentResult.consumesAction()) {
                 result = componentResult;
                 break;
@@ -67,15 +67,9 @@ public class ITMultiblockBlockEntityCommon<State extends IMultiblockState> imple
         BlockPos posInMB = helperSupplier.get().getPositionInMB();
         BlockPos masterOffset = multiblock.masterPosInMB();
         BlockPos offset = posInMB;
-        if (state != null && state.hasProperty(ITProperties.MIRRORED) && state.getValue(ITProperties.MIRRORED)) {
-            Level level = levelSupplier.get();
-            if (level != null) {
-                Vec3i realSize = helperSupplier.get().getSize(level);
-                if (realSize != null) {
-                    int x = realSize.getX() - 1 - posInMB.getX();
-                    offset = new BlockPos(x, posInMB.getY(), posInMB.getZ());
-                }
-            }
+        if (state != null && state.hasProperty(ITProperties.MIRRORED) && state.getValue(ITProperties.MIRRORED) && size != null && !Vec3i.ZERO.equals(size)) {
+            int x = size.getX() - 1 - posInMB.getX();
+            offset = new BlockPos(x, posInMB.getY(), posInMB.getZ());
         }
         offset = offset.subtract(masterOffset);
         return offset;

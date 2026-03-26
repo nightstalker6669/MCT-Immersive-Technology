@@ -18,7 +18,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraftforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import java.lang.reflect.Field;
@@ -33,6 +33,11 @@ public class ITMultiblockBuilder<S extends IMultiblockState> extends MultiblockR
     public ITMultiblockBuilder<S> gui(ITMenuTypes.MultiblockContainer<S, ?> menu) { return component(new ITMultiblockGui<>(menu)); }
 
     public ITMultiblockBuilder<S> redstone(IMultiblockComponent.StateWrapper<S, RedstoneControl.RSState> getState, BlockPos... positions) { redstoneAware(); return selfWrappingComponent(new RedstoneControl<>(getState, positions)); }
+
+    @SuppressWarnings("ConstantConditions")
+    public ITMultiblockBuilder<S> customBEs(net.minecraftforge.registries.DeferredRegister<BlockEntityType<?>> register) {
+        return customBEs(register.unwrap());
+    }
 
     @SuppressWarnings("ConstantConditions")
     public ITMultiblockBuilder<S> customBEs(DeferredRegister<BlockEntityType<?>> register) {
@@ -69,14 +74,31 @@ public class ITMultiblockBuilder<S extends IMultiblockState> extends MultiblockR
         return this;
     }
 
+    public ITMultiblockBuilder<S> customBlock(net.minecraftforge.registries.DeferredRegister<Block> register, net.minecraftforge.registries.DeferredRegister<Item> blockItemRegister, Function<MultiblockRegistration<S>, ? extends MultiblockPartBlock<S>> make, Function<Block, Item> makeItem) {
+        return customBlock(register.unwrap(), blockItemRegister.unwrap(), make, makeItem);
+    }
+
     @Override public ITMultiblockBuilder<S> defaultBlock(DeferredRegister<Block> register, DeferredRegister<Item> blockItemRegister, BlockBehaviour.Properties properties) {
         super.defaultBlock(register, blockItemRegister, properties);
         return this;
+    }
+
+    public ITMultiblockBuilder<S> defaultBEs(net.minecraftforge.registries.DeferredRegister<BlockEntityType<?>> register) {
+        super.defaultBEs(register.unwrap());
+        return this;
+    }
+
+    public ITMultiblockBuilder<S> defaultBlock(net.minecraftforge.registries.DeferredRegister<Block> register, net.minecraftforge.registries.DeferredRegister<Item> blockItemRegister, BlockBehaviour.Properties properties) {
+        return defaultBlock(register.unwrap(), blockItemRegister.unwrap(), properties);
     }
 
     @Override public <CS, C extends IMultiblockComponent<CS> & IMultiblockComponent.StateWrapper<S, CS>> ITMultiblockBuilder<S> selfWrappingComponent(C extraComponent) { Preconditions.checkArgument(!(extraComponent instanceof ComparatorManager<?>)); return super.selfWrappingComponent(extraComponent); }
 
     @Override protected ITMultiblockBuilder<S> self() { return this; }
 
-    @Override public MultiblockRegistration<S> build() { MultiblockRegistration<S> reg = super.build(); regSupplier = () -> reg; return reg; }
+    public MultiblockRegistration<S> build() {
+        MultiblockRegistration<S> reg = super.build(ignored -> {});
+        regSupplier = () -> reg;
+        return reg;
+    }
 }

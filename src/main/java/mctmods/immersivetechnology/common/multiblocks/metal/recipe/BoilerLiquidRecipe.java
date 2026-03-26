@@ -3,6 +3,7 @@ package mctmods.immersivetechnology.common.multiblocks.metal.recipe;
 import blusunrize.immersiveengineering.api.crafting.*;
 import blusunrize.immersiveengineering.api.crafting.cache.CachedRecipeList;
 import com.immersiveconvergence.api.HeatCapabilities;
+import mctmods.immersivetechnology.compat.ie.crafting.FluidTagInput;
 import mctmods.immersivetechnology.core.registration.ITRecipeTypes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;

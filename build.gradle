@@ -72,13 +72,17 @@ sourceSets {
         java.srcDir "$rootDir/src/datagen/java"
         resources.srcDir "$rootDir/src/datagen/resources"
         compileClasspath += sourceSets.main.output
+        compileClasspath += sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath
     }
     gametest {
         java.srcDir "$rootDir/src/gametest/java"
         resources.srcDir "$rootDir/src/gametest/resources"
         compileClasspath += sourceSets.main.output
+        compileClasspath += sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath
     }
 }
 
@@ -148,6 +152,41 @@ repositories {
         }
     }
 }
+
+def ieEmbeddedJarDir = layout.buildDirectory.dir('embedded-libs')
+def prepareIEDualCodecs = tasks.register('prepareIEDualCodecs') {
+    group = 'build setup'
+    description = 'Extracts IE embedded codec libraries needed on the compile classpath.'
+    outputs.dir(ieEmbeddedJarDir)
+
+    doLast {
+        def ieCacheDir = file("${System.properties['user.home']}/.gradle/caches/modules-2/files-2.1/curse.maven/immersive-engineering-231951/6466513")
+        def ieJar = fileTree(ieCacheDir) {
+            include '**/*.jar'
+        }.files.find { it.name == 'immersive-engineering-231951-6466513.jar' }
+        if (ieJar == null) {
+            throw new GradleException("Could not find the resolved Immersive Engineering jar needed to extract embedded DualCodecs.")
+        }
+
+        copy {
+            from(zipTree(ieJar)) {
+                include 'META-INF/jarjar/DualCodecs-*.jar'
+                eachFile { details -> details.path = details.name }
+            }
+            into ieEmbeddedJarDir
+        }
+    }
+}
+
+def ieEmbeddedDependencies = files({
+    def dir = ieEmbeddedJarDir.get().asFile
+    if (!dir.exists()) {
+        return []
+    }
+    return fileTree(dir) {
+        include 'DualCodecs-*.jar'
+    }
+}).builtBy(prepareIEDualCodecs)
 
 def icProjectDir = file('external/ImmersiveConvergence')
 def icLibDir = file("$icProjectDir/build/libs")
@@ -230,6 +269,7 @@ def icDependency = files({
 
 tasks.matching { it.name in ['compileJava', 'compileDatagenJava', 'runClient', 'runServer', 'runData'] }.configureEach {
     dependsOn prepareImmersiveConvergence
+    dependsOn prepareIEDualCodecs
 }
 
 dependencies {
@@ -239,11 +279,12 @@ dependencies {
 
     implementation "curse.maven:immersive-engineering-231951:6466513"
     implementation "curse.maven:jade-324717:6198776"
-    implementation "curse.maven:the-one-probe-245211:6106996"
+    compileOnly "curse.maven:the-one-probe-245211:6106996"
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     implementation icDependency
+    compileOnly ieEmbeddedDependencies
 }
 
 def jsonPatterns = ['**/*.json', '**/*.mcmeta']

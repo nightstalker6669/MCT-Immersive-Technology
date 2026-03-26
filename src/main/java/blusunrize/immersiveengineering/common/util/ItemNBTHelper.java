@@ -1,4 +1,4 @@
-package blusunrize.immersiveengineering.common.util;
+package mctmods.immersivetechnology.compat.ie.util;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;

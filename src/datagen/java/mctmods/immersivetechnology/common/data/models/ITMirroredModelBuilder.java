@@ -14,7 +14,7 @@ public class ITMirroredModelBuilder<T extends ModelBuilder<T>> extends CustomLoa
     private ITNongeneratedModels.ITNongeneratedModel inner;
 
     protected ITMirroredModelBuilder(T parent, ExistingFileHelper existingFileHelper) {
-        super(ITMirroredModelLoader.ID, parent, existingFileHelper);
+        super(ITMirroredModelLoader.ID, parent, existingFileHelper, false);
     }
 
     public ITMirroredModelBuilder<T> inner(ITNongeneratedModels.ITNongeneratedModel inner) {

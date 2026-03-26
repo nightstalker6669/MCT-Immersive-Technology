@@ -9,6 +9,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockL
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockState;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.*;
 import com.google.common.collect.ImmutableList;
+import mctmods.immersivetechnology.compat.ie.multiblocks.StoredCapability;
 import mctmods.immersivetechnology.common.multiblocks.helper.ITDisplayContext;
 import mctmods.immersivetechnology.common.multiblocks.helper.ITPressurizedFluidOutput;
 import mctmods.immersivetechnology.common.multiblocks.stone.process.CoolingTowerProcess;
@@ -24,6 +25,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.RandomSource;
@@ -32,7 +34,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.IFluidTank;
@@ -133,7 +135,7 @@ public class CoolingTowerLogic implements IMultiblockLogic<CoolingTowerLogic.Sta
                     if (!recipe.fluidOutput1.isEmpty()) { canOutput &= state.tanks.output1.fill(recipe.fluidOutput1, FluidAction.SIMULATE) >= recipe.fluidOutput1.getAmount(); }
                     if (!recipe.fluidOutput2.isEmpty()) { canOutput &= state.tanks.output2.fill(recipe.fluidOutput2, FluidAction.SIMULATE) >= recipe.fluidOutput2.getAmount(); }
                     if (canOutput) {
-                        CoolingTowerRecipe useRecipe = swapped ? new CoolingTowerRecipe(recipe.getId(), recipe.fluidOutput0, recipe.fluidOutput1, recipe.fluidOutput2, recipe.input1, recipe.input0, recipe.totalProcessTime) : recipe;
+                        CoolingTowerRecipe useRecipe = swapped ? new CoolingTowerRecipe(recipe.id(), recipe.fluidOutput0, recipe.fluidOutput1, recipe.fluidOutput2, recipe.input1, recipe.input0, recipe.totalProcessTime) : recipe;
                         state.processQueue.add(new CoolingTowerProcess(useRecipe));
                     }
                 }
@@ -212,40 +214,40 @@ public class CoolingTowerLogic implements IMultiblockLogic<CoolingTowerLogic.Sta
             this.output2Cap = new StoredCapability<>(ITArrayFluidHandler.drainOnly(tanks.output2, () -> onChanged.accept(null)));
         }
 
-        @Override public void writeSaveNBT(CompoundTag nbt) {
-            nbt.put("tanks", tanks.toNBT());
+        @Override public void writeSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            nbt.put("tanks", tanks.toNBT(provider));
             nbt.putBoolean("active", active);
         }
 
-        @Override public void readSaveNBT(CompoundTag nbt) {
-            tanks.readNBT(nbt.getCompound("tanks"));
+        @Override public void readSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            tanks.readNBT(provider, nbt.getCompound("tanks"));
             active = nbt.getBoolean("active");
         }
 
-        @Override public void writeSyncNBT(CompoundTag nbt) {
+        @Override public void writeSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             CompoundTag display = new CompoundTag();
-            writeDisplaySyncNBT(display);
+            writeDisplaySyncNBT(display, provider);
             nbt.put("display", display);
         }
 
-        @Override public void readSyncNBT(CompoundTag nbt) {
-            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display")); }
+        @Override public void readSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display"), provider); }
         }
 
         @Override public boolean isActive() { return active; }
 
         @Override public IFluidTank[] getInternalTanks() { return new IFluidTank[]{tanks.input0, tanks.input1, tanks.output0, tanks.output1, tanks.output2}; }
 
-        @Override public void writeDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void writeDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.putBoolean("active", active);
-            nbt.put("tanks", tanks.toNBT());
+            nbt.put("tanks", tanks.toNBT(provider));
             nbt.putInt("processProgress", processProgress);
             nbt.putInt("totalProcessTime", totalProcessTime);
         }
 
-        @Override public void readDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void readDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             active = nbt.getBoolean("active");
-            tanks.readNBT(nbt.getCompound("tanks"));
+            tanks.readNBT(provider, nbt.getCompound("tanks"));
             processProgress = nbt.getInt("processProgress");
             totalProcessTime = nbt.getInt("totalProcessTime");
         }
@@ -260,21 +262,25 @@ public class CoolingTowerLogic implements IMultiblockLogic<CoolingTowerLogic.Sta
         public static CoolingTowerTanks makeClient() { return new CoolingTowerTanks(v -> {}); }
 
         public CompoundTag toNBT() {
+            return toNBT(mctmods.immersivetechnology.core.util.ITUtils.serverRegistryAccess());
+        }
+
+        public CompoundTag toNBT(HolderLookup.Provider provider) {
             CompoundTag tag = new CompoundTag();
-            tag.put("input0", input0.writeToNBT(new CompoundTag()));
-            tag.put("input1", input1.writeToNBT(new CompoundTag()));
-            tag.put("output0", output0.writeToNBT(new CompoundTag()));
-            tag.put("output1", output1.writeToNBT(new CompoundTag()));
-            tag.put("output2", output2.writeToNBT(new CompoundTag()));
+            tag.put("input0", input0.writeToNBT(provider, new CompoundTag()));
+            tag.put("input1", input1.writeToNBT(provider, new CompoundTag()));
+            tag.put("output0", output0.writeToNBT(provider, new CompoundTag()));
+            tag.put("output1", output1.writeToNBT(provider, new CompoundTag()));
+            tag.put("output2", output2.writeToNBT(provider, new CompoundTag()));
             return tag;
         }
 
-        public void readNBT(CompoundTag tag) {
-            input0.readFromNBT(tag.getCompound("input0"));
-            input1.readFromNBT(tag.getCompound("input1"));
-            output0.readFromNBT(tag.getCompound("output0"));
-            output1.readFromNBT(tag.getCompound("output1"));
-            output2.readFromNBT(tag.getCompound("output2"));
+        public void readNBT(HolderLookup.Provider provider, CompoundTag tag) {
+            input0.readFromNBT(provider, tag.getCompound("input0"));
+            input1.readFromNBT(provider, tag.getCompound("input1"));
+            output0.readFromNBT(provider, tag.getCompound("output0"));
+            output1.readFromNBT(provider, tag.getCompound("output1"));
+            output2.readFromNBT(provider, tag.getCompound("output2"));
         }
     }
 }

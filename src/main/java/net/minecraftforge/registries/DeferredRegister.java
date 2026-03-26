@@ -45,4 +45,8 @@ public class DeferredRegister<T> {
     public Collection<RegistryObject<? extends T>> getEntries() {
         return entriesView;
     }
+
+    public net.neoforged.neoforge.registries.DeferredRegister<T> unwrap() {
+        return delegate;
+    }
 }

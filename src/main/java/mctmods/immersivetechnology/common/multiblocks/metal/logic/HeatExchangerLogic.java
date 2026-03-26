@@ -9,6 +9,7 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockCon
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockLogic;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockState;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.*;
+import mctmods.immersivetechnology.compat.ie.multiblocks.StoredCapability;
 import blusunrize.immersiveengineering.common.blocks.multiblocks.process.MultiblockProcessor;
 import blusunrize.immersiveengineering.common.blocks.multiblocks.process.ProcessContext;
 import com.google.common.collect.ImmutableList;
@@ -26,6 +27,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
@@ -34,7 +36,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.IFluidTank;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -231,31 +233,31 @@ public class HeatExchangerLogic implements IMultiblockLogic<HeatExchangerLogic.S
             processor = new MultiblockProcessor.InMachineProcessor<>(1, 0f, 1, markDirty, HeatExchangerRecipe.RECIPES::getById);
         }
 
-        @Override public void writeSaveNBT(CompoundTag nbt) {
-            nbt.put("tanks", tanks.toNBT());
-            nbt.put("energy", energy.serializeNBT());
-            nbt.put("processor", processor.toNBT());
+        @Override public void writeSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            nbt.put("tanks", tanks.toNBT(provider));
+            nbt.put("energy", energy.serializeNBT(provider));
+            nbt.put("processor", processor.toNBT(provider));
             nbt.putInt("processProgress", processProgress);
             nbt.putInt("totalProcessTime", totalProcessTime);
-            rsState.writeSaveNBT(nbt);
+            rsState.writeSaveNBT(nbt, provider);
         }
 
-        @Override public void readSaveNBT(CompoundTag nbt) {
-            tanks.readNBT(nbt.getCompound("tanks"));
-            energy.deserializeNBT(nbt.getCompound("energy"));
-            processor.fromNBT(nbt.getList("processor", Tag.TAG_COMPOUND), HeatExchangerProcess::new);
+        @Override public void readSaveNBT(CompoundTag nbt, HolderLookup.Provider provider) {
+            tanks.readNBT(provider, nbt.getCompound("tanks"));
+            energy.deserializeNBT(provider, nbt.get("energy"));
+            processor.fromNBT(nbt.getList("processor", Tag.TAG_COMPOUND), (getRecipe, data, providerIn) -> new HeatExchangerProcess(getRecipe, data, providerIn), provider);
             processProgress = nbt.getInt("processProgress");
             totalProcessTime = nbt.getInt("totalProcessTime");
-            rsState.readSaveNBT(nbt);
+            rsState.readSaveNBT(nbt, provider);
         }
 
-        @Override public void writeSyncNBT(CompoundTag nbt) {
+        @Override public void writeSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             CompoundTag display = new CompoundTag();
-            writeDisplaySyncNBT(display);
+            writeDisplaySyncNBT(display, provider);
             nbt.put("display", display);
         }
 
-        @Override public void readSyncNBT(CompoundTag nbt) { if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display")); } }
+        @Override public void readSyncNBT(CompoundTag nbt, HolderLookup.Provider provider) { if (nbt.contains("display", Tag.TAG_COMPOUND)) { readDisplaySyncNBT(nbt.getCompound("display"), provider); } }
 
         @Override public boolean isActive() { return active; }
 
@@ -263,19 +265,19 @@ public class HeatExchangerLogic implements IMultiblockLogic<HeatExchangerLogic.S
 
         @Override public List<AveragingEnergyStorage> getEnergies() { return List.of(energy); }
 
-        @Override public void writeDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void writeDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             nbt.putBoolean("active", active);
-            nbt.put("tanks", tanks.toNBT());
-            nbt.put("energy", energy.serializeNBT());
+            nbt.put("tanks", tanks.toNBT(provider));
+            nbt.put("energy", energy.serializeNBT(provider));
             nbt.putInt("processProgress", processProgress);
             nbt.putInt("totalProcessTime", totalProcessTime);
         }
 
-        @Override public void readDisplaySyncNBT(CompoundTag nbt) {
+        @Override public void readDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) {
             active = nbt.getBoolean("active");
-            tanks.readNBT(nbt.getCompound("tanks"));
+            tanks.readNBT(provider, nbt.getCompound("tanks"));
             if (energy == null) { energy = new SyncEnergyStorage(ENERGY_CAPACITY, ENERGY_MAX_IO, () -> {}); }
-            energy.deserializeNBT(nbt.get("energy"));
+            energy.deserializeNBT(provider, nbt.get("energy"));
             processProgress = nbt.getInt("processProgress");
             totalProcessTime = nbt.getInt("totalProcessTime");
         }
@@ -333,19 +335,23 @@ public class HeatExchangerLogic implements IMultiblockLogic<HeatExchangerLogic.S
         }
 
         public CompoundTag toNBT() {
+            return toNBT(mctmods.immersivetechnology.core.util.ITUtils.serverRegistryAccess());
+        }
+
+        public CompoundTag toNBT(HolderLookup.Provider provider) {
             CompoundTag tag = new CompoundTag();
-            tag.put("input0", this.input0.writeToNBT(new CompoundTag()));
-            tag.put("input1", this.input1.writeToNBT(new CompoundTag()));
-            tag.put("output0", this.output0.writeToNBT(new CompoundTag()));
-            tag.put("output1", this.output1.writeToNBT(new CompoundTag()));
+            tag.put("input0", this.input0.writeToNBT(provider, new CompoundTag()));
+            tag.put("input1", this.input1.writeToNBT(provider, new CompoundTag()));
+            tag.put("output0", this.output0.writeToNBT(provider, new CompoundTag()));
+            tag.put("output1", this.output1.writeToNBT(provider, new CompoundTag()));
             return tag;
         }
 
-        public void readNBT(CompoundTag tag) {
-            this.input0.readFromNBT(tag.getCompound("input0"));
-            this.input1.readFromNBT(tag.getCompound("input1"));
-            this.output0.readFromNBT(tag.getCompound("output0"));
-            this.output1.readFromNBT(tag.getCompound("output1"));
+        public void readNBT(HolderLookup.Provider provider, CompoundTag tag) {
+            this.input0.readFromNBT(provider, tag.getCompound("input0"));
+            this.input1.readFromNBT(provider, tag.getCompound("input1"));
+            this.output0.readFromNBT(provider, tag.getCompound("output0"));
+            this.output1.readFromNBT(provider, tag.getCompound("output1"));
         }
     }
 }

@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
@@ -87,7 +87,7 @@ public class AdvancedCokeOvenBaseHeaterBlockEntity extends ITBaseBlockEntity imp
         facing = Direction.from3DDataValue(nbt.getInt("facing"));
         energyStorage.receiveEnergy(nbt.getInt("energy"), false);
         active = nbt.getBoolean("active");
-        if (nbt.contains("masterPos")) masterPos = NbtUtils.readBlockPos(nbt.getCompound("masterPos"));
+        if (nbt.contains("masterPos")) masterPos = NbtUtils.readBlockPos(nbt, "masterPos").orElse(null);
         cachedMaster = null;
         if (descPacket) markContainingBlockForUpdate(null);
     }
