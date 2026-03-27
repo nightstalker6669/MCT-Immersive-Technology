@@ -2,7 +2,6 @@ package mctmods.immersivetechnology.common.data.generators;
 
 import mctmods.immersivetechnology.core.util.loot.ITBEDropLootEntry;
 import mctmods.immersivetechnology.core.registration.ITBlocks;
-import mctmods.immersivetechnology.core.registration.ITFluids;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
@@ -15,6 +14,7 @@ import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
+import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
 public class ITBlockLootProvider extends BlockLootSubProvider {
@@ -41,7 +41,6 @@ public class ITBlockLootProvider extends BlockLootSubProvider {
 
         registerMultiblocksNoDrop();
 
-        ITFluids.ALL_ENTRIES.forEach(entry -> add(entry.getBlock(), noDrop()));
     }
 
     private void registerEntity(RegistryObject<? extends Block> block) {
@@ -50,23 +49,50 @@ public class ITBlockLootProvider extends BlockLootSubProvider {
     }
 
     private void registerMultiblocksNoDrop() {
-        add(ITMultiblockProvider.ADVANCED_COKE_OVEN.block().get(), noDrop());
-        add(ITMultiblockProvider.ALTERNATOR.block().get(), noDrop());
-        add(ITMultiblockProvider.BOILER_LIQUID.block().get(), noDrop());
-        add(ITMultiblockProvider.BOILER_SOLID.block().get(), noDrop());
-        add(ITMultiblockProvider.BOILER_TANK.block().get(), noDrop());
-        add(ITMultiblockProvider.COOLING_TOWER.block().get(), noDrop());
-        add(ITMultiblockProvider.DISTILLER.block().get(), noDrop());
-        add(ITMultiblockProvider.GAS_TURBINE.block().get(), noDrop());
-        add(ITMultiblockProvider.HEAT_EXCHANGER.block().get(), noDrop());
-        add(ITMultiblockProvider.SOLAR_MELTER.block().get(), noDrop());
-        add(ITMultiblockProvider.SOLAR_REFLECTOR.block().get(), noDrop());
-        add(ITMultiblockProvider.SOLAR_TOWER.block().get(), noDrop());
-        add(ITMultiblockProvider.STEAM_TURBINE.block().get(), noDrop());
-        add(ITMultiblockProvider.STEEL_SHEETMETAL_TANK.block().get(), noDrop());
+        add(ITMultiblockProvider.ADVANCED_COKE_OVEN.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.ALTERNATOR.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.BOILER_LIQUID.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.BOILER_SOLID.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.BOILER_TANK.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.COOLING_TOWER.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.DISTILLER.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.GAS_TURBINE.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.HEAT_EXCHANGER.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.SOLAR_MELTER.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.SOLAR_REFLECTOR.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.SOLAR_TOWER.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.STEAM_TURBINE.block().get(), emptyLootTable());
+        add(ITMultiblockProvider.STEEL_SHEETMETAL_TANK.block().get(), emptyLootTable());
     }
 
     private LootPool.Builder createPoolBuilder() { return LootPool.lootPool().when(ExplosionCondition.survivesExplosion()); }
 
-    @Override @NotNull protected Set<Block> getKnownBlocks() { return ITBlocks.REGISTER.getEntries().stream().map(RegistryObject::get).collect(Collectors.toSet()); }
+    private LootTable.Builder emptyLootTable() {
+        return LootTable.lootTable();
+    }
+
+    @Override
+    @NotNull
+    protected Set<Block> getKnownBlocks() {
+        Stream<Block> registeredBlocks = ITBlocks.REGISTER.getEntries().stream().map(RegistryObject::get);
+        Stream<Block> multiblockBlocks = Stream.of(
+                ITMultiblockProvider.ADVANCED_COKE_OVEN.block().get(),
+                ITMultiblockProvider.ALTERNATOR.block().get(),
+                ITMultiblockProvider.BOILER_LIQUID.block().get(),
+                ITMultiblockProvider.BOILER_SOLID.block().get(),
+                ITMultiblockProvider.BOILER_TANK.block().get(),
+                ITMultiblockProvider.COOLING_TOWER.block().get(),
+                ITMultiblockProvider.DISTILLER.block().get(),
+                ITMultiblockProvider.GAS_TURBINE.block().get(),
+                ITMultiblockProvider.HEAT_EXCHANGER.block().get(),
+                ITMultiblockProvider.SOLAR_MELTER.block().get(),
+                ITMultiblockProvider.SOLAR_REFLECTOR.block().get(),
+                ITMultiblockProvider.SOLAR_TOWER.block().get(),
+                ITMultiblockProvider.STEAM_TURBINE.block().get(),
+                ITMultiblockProvider.STEEL_SHEETMETAL_TANK.block().get()
+        );
+        return Stream.of(registeredBlocks, multiblockBlocks)
+                .flatMap(stream -> stream)
+                .collect(Collectors.toSet());
+    }
 }

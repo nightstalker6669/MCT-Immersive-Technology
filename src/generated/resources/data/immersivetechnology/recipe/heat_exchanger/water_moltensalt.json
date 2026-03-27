@@ -1,0 +1,22 @@
+{
+  "type": "immersivetechnology:heat_exchanger",
+  "id": "immersivetechnology:heat_exchanger/water_moltensalt",
+  "input0": {
+    "tag": "minecraft:water",
+    "amount": 250
+  },
+  "output0": {
+    "fluid": "immersivetechnology:steam",
+    "amount": 450
+  },
+  "energy": 640,
+  "time": 10,
+  "input1": {
+    "tag": "immersivetechnology:molten_salt",
+    "amount": 80
+  },
+  "output1": {
+    "fluid": "immersivetechnology:heated_salt_slurry",
+    "amount": 80
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "immersivetechnology:solar_melter",
+  "id": "immersivetechnology:solar_melter/heated_salt",
+  "input": {
+    "tag": "immersivetechnology:heated_salt_slurry",
+    "amount": 1000
+  },
+  "output": {
+    "fluid": "immersivetechnology:molten_salt",
+    "amount": 500
+  },
+  "time": 20,
+  "requiredTemp": 1000.0
+}

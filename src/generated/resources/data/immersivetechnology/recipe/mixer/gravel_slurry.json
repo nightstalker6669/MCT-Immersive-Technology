@@ -1,0 +1,21 @@
+{
+  "type": "immersiveengineering:mixer",
+  "id": "immersivetechnology:mixer/gravel_slurry",
+  "fluid": {
+    "tag": "minecraft:water",
+    "amount": 1000
+  },
+  "inputs": [
+    {
+      "basePredicate": {
+        "item": "minecraft:gravel"
+      },
+      "count": 4
+    }
+  ],
+  "result": {
+    "fluid": "immersivetechnology:gravel_slurry",
+    "amount": 1000
+  },
+  "energy": 3200
+}

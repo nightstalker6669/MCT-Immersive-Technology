@@ -1,0 +1,11 @@
+{
+  "type": "immersivetechnology:boiler_liquid",
+  "id": "immersivetechnology:boiler_liquid/kerosene",
+  "input": {
+    "tag": "forge:kerosene",
+    "amount": 9
+  },
+  "time": 10,
+  "heatPerTick": 0.1,
+  "targetHeat": 100.0
+}

@@ -1,0 +1,14 @@
+{
+  "type": "immersivetechnology:boiler_tank",
+  "id": "immersivetechnology:boiler_tank/distilled_water",
+  "input": {
+    "tag": "immersivetechnology:distilled_water",
+    "amount": 250
+  },
+  "result": {
+    "fluid": "immersivetechnology:steam",
+    "amount": 500
+  },
+  "time": 10,
+  "requiredHeat": 100.0
+}

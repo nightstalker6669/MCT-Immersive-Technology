@@ -1,0 +1,14 @@
+{
+  "type": "immersivetechnology:solar_tower",
+  "id": "immersivetechnology:solar_tower/water",
+  "input": {
+    "tag": "minecraft:water",
+    "amount": 250
+  },
+  "output": {
+    "fluid": "immersivetechnology:steam",
+    "amount": 450
+  },
+  "time": 10,
+  "requiredTemp": 100.0
+}

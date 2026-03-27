@@ -1,0 +1,14 @@
+{
+  "type": "immersivetechnology:solar_tower",
+  "id": "immersivetechnology:solar_tower/salt_slurry",
+  "input": {
+    "tag": "immersivetechnology:salt_slurry",
+    "amount": 1000
+  },
+  "output": {
+    "fluid": "immersivetechnology:heated_salt_slurry",
+    "amount": 500
+  },
+  "time": 10,
+  "requiredTemp": 400.0
+}

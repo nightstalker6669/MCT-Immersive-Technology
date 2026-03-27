@@ -1,0 +1,14 @@
+{
+  "type": "immersivetechnology:solar_melter",
+  "id": "immersivetechnology:solar_melter/heated_gravel_slurry",
+  "input": {
+    "tag": "immersivetechnology:heated_gravel_slurry",
+    "amount": 1000
+  },
+  "output": {
+    "fluid": "minecraft:lava",
+    "amount": 500
+  },
+  "time": 20,
+  "requiredTemp": 1000.0
+}

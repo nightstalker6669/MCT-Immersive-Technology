@@ -71,7 +71,7 @@ public class ITItemModelProvider extends ItemModelProvider {
 
     private void createBucket(ITFluids.FluidEntry entry) {
         boolean isGas = entry.type().get().getDensity() < 0;
-        withExistingParent(name(entry.getBucket()), forgeLoc()).customLoader(DynamicFluidContainerModelBuilder::begin).fluid(entry.getStill()).flipGas(isGas);
+        withExistingParent(name(entry.getBucket()), neoForgeLoc()).customLoader(DynamicFluidContainerModelBuilder::begin).fluid(entry.getStill()).flipGas(isGas);
     }
 
     @Override protected void registerModels() {
@@ -99,5 +99,5 @@ public class ITItemModelProvider extends ItemModelProvider {
 
     private String name(ItemLike item) { return Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.asItem())).getPath(); }
 
-    private ResourceLocation forgeLoc() { return ResourceLocation.fromNamespaceAndPath("forge", "item/bucket"); }
+    private ResourceLocation neoForgeLoc() { return ResourceLocation.fromNamespaceAndPath("neoforge", "item/bucket"); }
 }

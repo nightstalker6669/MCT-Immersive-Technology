@@ -332,8 +332,9 @@ public class ITBlockStateProvider extends BlockStateProvider {
         VariantBlockStateBuilder rotorBuilder = getVariantBuilder(ITBlocks.Metal.ROTOR_CREATIVE.get());
         ModelFile rotorNS = new ModelFile.UncheckedModelFile(modLoc("dynamic/rotor"));
         ModelFile rotorEW = new ModelFile.UncheckedModelFile(modLoc("dynamic/rotor_east_west"));
+        Property<Direction> rotorFacing = resolveProperty(ITBlocks.Metal.ROTOR_CREATIVE.get(), ITProperties.FACING_HORIZONTAL);
         rotorBuilder.forAllStates(state -> {
-            Direction facing = state.getValue(ITProperties.FACING_HORIZONTAL);
+            Direction facing = state.getValue(rotorFacing);
             ModelFile modelFile = (facing == Direction.NORTH || facing == Direction.SOUTH) ? rotorNS : rotorEW;
             int yRot = 0;
             if (facing == Direction.SOUTH || facing == Direction.WEST) yRot = 180;
@@ -559,6 +560,21 @@ public class ITBlockStateProvider extends BlockStateProvider {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private static <T extends Comparable<T>> @Nullable Property<T> resolveProperty(Block block, @Nullable Property<T> preferred) {
+        if (preferred == null) {
+            return null;
+        }
+        return (Property<T>) block.getStateDefinition().getProperties().stream()
+                .filter(property -> property == preferred)
+                .findFirst()
+                .or(() -> block.getStateDefinition().getProperties().stream()
+                .filter(property -> property.getName().equals(preferred.getName()))
+                .filter(property -> property.getValueClass().equals(preferred.getValueClass()))
+                .findFirst())
+                .orElse(preferred);
+    }
+
     private ModelFile createValveObjModel(String baseName, String objFolder, boolean isOpen, String baseVisibility) {
         String modelName = "block/metal/" + baseName + (isOpen ? "_open" : "_closed");
         BlockModelBuilder builder = models().getBuilder(modelName);
@@ -579,18 +595,27 @@ public class ITBlockStateProvider extends BlockStateProvider {
     }
 
     private void createMultiblockVariant(Supplier<? extends Block> b, ModelFile defaultMaster, @Nullable ModelFile activeMaster, @Nullable ModelFile defaultMirrored, @Nullable ModelFile activeMirrored, @Nullable Property<Boolean> mirroredState, @Nullable Property<Boolean> activeState) {
-        unsplitModels.put(b.get(), defaultMaster);
+        Block block = b.get();
+        unsplitModels.put(block, defaultMaster);
         Preconditions.checkArgument((defaultMirrored == null) == (mirroredState == null));
         Preconditions.checkArgument((activeMaster == null) == (activeState == null));
-        VariantBlockStateBuilder builder = getVariantBuilder(b.get());
-        EnumProperty<Direction> facing = ITProperties.FACING_HORIZONTAL;
+        VariantBlockStateBuilder builder = getVariantBuilder(block);
+        Property<Direction> facing = resolveProperty(block, ITProperties.FACING_HORIZONTAL);
+        Property<Boolean> resolvedMirrored = resolveProperty(block, mirroredState);
+        Property<Boolean> resolvedActive = resolveProperty(block, activeState);
         builder.forAllStates(state -> {
-            Direction dir = state.getValue(facing);
-            int angleY = getAngle(dir);
             int angleX = 0;
-            if (facing.getPossibleValues().contains(Direction.UP)) { angleX = -90 * dir.getStepY(); angleY = dir.getAxis() != Direction.Axis.Y ? getAngle(dir) : 0; }
-            boolean mirrored = (mirroredState != null) ? state.getValue(mirroredState) : false;
-            boolean active = (activeState != null) ? state.getValue(activeState) : false;
+            int angleY = 0;
+            if (facing != null) {
+                Direction dir = state.getValue(facing);
+                angleY = getAngle(dir);
+                if (facing.getPossibleValues().contains(Direction.UP)) {
+                    angleX = -90 * dir.getStepY();
+                    angleY = dir.getAxis() != Direction.Axis.Y ? getAngle(dir) : 0;
+                }
+            }
+            boolean mirrored = (resolvedMirrored != null) && state.getValue(resolvedMirrored);
+            boolean active = (resolvedActive != null) && state.getValue(resolvedActive);
             ModelFile baseModel = active ? activeMaster : defaultMaster;
             ModelFile model = mirrored ? (active ? activeMirrored : defaultMirrored) : baseModel;
             assert model != null;

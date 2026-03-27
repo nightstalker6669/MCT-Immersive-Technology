@@ -1,0 +1,9 @@
+{
+  "type": "immersivetechnology:boiler_solid",
+  "id": "immersivetechnology:boiler_solid/coal",
+  "input": {
+    "tag": "minecraft:coals"
+  },
+  "heatPerTick": 0.1,
+  "targetHeat": 100.0
+}

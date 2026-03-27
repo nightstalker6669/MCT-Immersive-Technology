@@ -1,0 +1,14 @@
+{
+  "type": "immersivetechnology:solar_tower",
+  "id": "immersivetechnology:solar_tower/distilled_water",
+  "input": {
+    "tag": "immersivetechnology:distilled_water",
+    "amount": 250
+  },
+  "output": {
+    "fluid": "immersivetechnology:steam",
+    "amount": 500
+  },
+  "time": 10,
+  "requiredTemp": 100.0
+}

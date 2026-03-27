@@ -1,0 +1,19 @@
+{
+  "type": "immersivetechnology:gas_turbine",
+  "id": "immersivetechnology:gas_turbine/gasoline",
+  "input": {
+    "tag": "forge:gasoline",
+    "amount": 800
+  },
+  "output": {
+    "fluid": "immersivetechnology:flue_gas",
+    "amount": 1000
+  },
+  "time": 10,
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "immersivepetroleum"
+    }
+  ]
+}

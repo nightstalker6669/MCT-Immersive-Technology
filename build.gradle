@@ -68,6 +68,9 @@ tasks.withType(Jar).configureEach {
 }
 
 sourceSets {
+    main {
+        resources.srcDir "$rootDir/src/generated/resources"
+    }
     datagen {
         java.srcDir "$rootDir/src/datagen/java"
         resources.srcDir "$rootDir/src/datagen/resources"
