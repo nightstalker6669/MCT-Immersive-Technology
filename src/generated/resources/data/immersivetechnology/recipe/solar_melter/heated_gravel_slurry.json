@@ -6,7 +6,7 @@
     "amount": 1000
   },
   "output": {
-    "fluid": "minecraft:lava",
+    "id": "minecraft:lava",
     "amount": 500
   },
   "time": 20,

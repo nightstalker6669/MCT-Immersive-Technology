@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -14,6 +15,18 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class ITUtils {
     public static void dropStackAtPos(Level world, BlockPos pos, ItemStack stack) { Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack); }
+
+    public static boolean sameFluidComponents(FluidStack first, FluidStack second) {
+        return FluidStack.isSameFluidSameComponents(first, second);
+    }
+
+    public static boolean sameFluidComponentsAndAmount(FluidStack first, FluidStack second) {
+        return FluidStack.matches(first, second);
+    }
+
+    public static Component fluidDisplayName(FluidStack stack) {
+        return stack.getHoverName();
+    }
 
     public static FluidStack copyFluidStackWithAmount(FluidStack stack, int amount, boolean stripPressure) {
         FluidStack copy = stack.copyWithAmount(amount);

@@ -6,7 +6,7 @@
     "amount": 250
   },
   "result": {
-    "fluid": "immersivetechnology:steam",
+    "id": "immersivetechnology:steam",
     "amount": 500
   },
   "time": 10,

@@ -8,6 +8,7 @@ import mctmods.immersivetechnology.common.blocks.helper.ITBlock;
 import mctmods.immersivetechnology.common.blocks.helper.ITBaseBlock;
 import mctmods.immersivetechnology.common.blocks.helper.ITProperties;
 import mctmods.immersivetechnology.core.lib.ITLib;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -46,8 +47,8 @@ public class ITBlockItem extends BlockItem {
         super.appendHoverText(stack, tooltipContext, tooltip, advanced);
         if (ItemNBTHelper.hasKey(stack, EnergyHelper.ENERGY_KEY)) tooltip.add(TextUtils.applyFormat(Component.translatable(ITLib.DESC_INFO + "energyStored", ItemNBTHelper.getInt(stack, EnergyHelper.ENERGY_KEY)), ChatFormatting.GRAY));
         if (ItemNBTHelper.hasKey(stack, "tank")) {
-            FluidStack fs = FluidStack.parseOptional(mctmods.immersivetechnology.core.util.ITUtils.serverRegistryAccess(), ItemNBTHelper.getTagCompound(stack, "tank"));
-            if (!fs.isEmpty()) tooltip.add(TextUtils.applyFormat(Component.translatable(ITLib.DESC_INFO + "fluidStored", fs.getDisplayName(), fs.getAmount()), ChatFormatting.GRAY));
+            FluidStack fs = FluidStack.parseOptional(ITUtils.serverRegistryAccess(), ItemNBTHelper.getTagCompound(stack, "tank"));
+            if (!fs.isEmpty()) tooltip.add(TextUtils.applyFormat(Component.translatable(ITLib.DESC_INFO + "fluidStored", ITUtils.fluidDisplayName(fs), fs.getAmount()), ChatFormatting.GRAY));
         }
     }
 

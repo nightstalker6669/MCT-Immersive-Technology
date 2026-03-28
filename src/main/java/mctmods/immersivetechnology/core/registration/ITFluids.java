@@ -4,6 +4,9 @@ import com.google.common.collect.ImmutableList;
 import mctmods.immersivetechnology.common.fluids.ITFluid;
 import mctmods.immersivetechnology.common.fluids.ITFluidBlock;
 import mctmods.immersivetechnology.core.lib.ITLib;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -24,6 +27,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.minecraftforge.registries.DeferredRegister;
@@ -40,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static mctmods.immersivetechnology.core.lib.ITLib.rl;
 
+@EventBusSubscriber(modid = ITLib.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ITFluids {
     public static final DeferredRegister<Fluid> REGISTER = DeferredRegister.create(ForgeRegistries.FLUIDS, ITLib.MODID);
     public static final DeferredRegister<FluidType> TYPE_REGISTER = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, ITLib.MODID);
@@ -112,7 +117,7 @@ public class ITFluids {
 
     public static List<? extends Fluid> getITFluids() { return REGISTER.getEntries().stream().map(RegistryObject::get).collect(Collectors.toList()); }
 
-    public record FluidEntry(RegistryObject<ITFluid> flowing, RegistryObject<ITFluid> still, ITBlocks.BlockEntry<ITFluidBlock> block, RegistryObject<BucketItem> bucket, RegistryObject<FluidType> type, List<Property<?>> properties, int tintColor) {
+    public record FluidEntry(RegistryObject<ITFluid> flowing, RegistryObject<ITFluid> still, ITBlocks.BlockEntry<ITFluidBlock> block, RegistryObject<BucketItem> bucket, RegistryObject<FluidType> type, List<Property<?>> properties, int tintColor, ResourceLocation stillTexture, ResourceLocation flowingTexture) {
         @SuppressWarnings("unused")
         private static ITFluids.FluidEntry make(String name, ResourceLocation stillTex, ResourceLocation flowingTex) { return make(name, 0, stillTex, flowingTex, null, -1); }
 
@@ -135,7 +140,7 @@ public class ITFluids {
             RegistryObject<ITFluid> flowing = REGISTER.register(name+"_flowing", () -> ITFluid.makeFluid(makeFlowing, thisMutable.getValue()));
             ITBlocks.BlockEntry<ITFluidBlock> block = new ITBlocks.BlockEntry<>(name+"_fluid_block", () -> BlockBehaviour.Properties.ofFullCopy(Blocks.WATER), p -> new ITFluidBlock(thisMutable.getValue(), p));
             RegistryObject<BucketItem> bucket = ITItems.REGISTER.register(name+"_bucket", () -> makeBucket(still, burnTime));
-            ITFluids.FluidEntry entry = new ITFluids.FluidEntry(flowing, still, block, bucket, type, properties, tintColor);
+            ITFluids.FluidEntry entry = new ITFluids.FluidEntry(flowing, still, block, bucket, type, properties, tintColor, stillTex, flowingTex);
             thisMutable.setValue(entry);
             ALL_FLUID_BLOCKS.add(block);
             ALL_ENTRIES.add(entry);
@@ -143,14 +148,6 @@ public class ITFluids {
         }
 
         private static FluidType makeTypeWithTextures(FluidType.Properties builder, ResourceLocation stillTex, ResourceLocation flowingTex, int tintColor) { return new FluidType(builder) {
-            @Override public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) { consumer.accept(new IClientFluidTypeExtensions() {
-                @Override public ResourceLocation getStillTexture() { return stillTex; }
-
-                @Override public ResourceLocation getFlowingTexture() { return flowingTex; }
-
-                @Override public int getTintColor() { return tintColor; }
-            });
-            }
         };
         }
 
@@ -182,5 +179,18 @@ public class ITFluids {
         }
 
         public RegistryObject<ITFluid> getStillGetter() { return still; }
+    }
+
+    @SubscribeEvent
+    public static void registerClientFluidExtensions(RegisterClientExtensionsEvent event) {
+        for (FluidEntry entry : ALL_ENTRIES) {
+            event.registerFluidType(new IClientFluidTypeExtensions() {
+                @Override public ResourceLocation getStillTexture() { return entry.stillTexture(); }
+
+                @Override public ResourceLocation getFlowingTexture() { return entry.flowingTexture(); }
+
+                @Override public int getTintColor() { return entry.tintColor(); }
+            }, entry.type().get());
+        }
     }
 }

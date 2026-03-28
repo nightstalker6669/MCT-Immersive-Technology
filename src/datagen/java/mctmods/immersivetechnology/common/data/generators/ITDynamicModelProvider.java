@@ -2,6 +2,7 @@ package mctmods.immersivetechnology.common.data.generators;
 
 import mctmods.immersivetechnology.common.data.loaders.ITObjModelBuilder;
 import mctmods.immersivetechnology.core.lib.ITLib;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -9,7 +10,6 @@ import net.neoforged.neoforge.client.model.generators.ModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.ModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class ITDynamicModelProvider extends ModelProvider<ITDynamicModelProvider
 
     @Override protected void registerModels() {
         for(Map.Entry<Block, ModelFile> multiblock : multiblocks.unsplitModels.entrySet()) {
-            withExistingParent(Objects.requireNonNull(ForgeRegistries.BLOCKS.getKey(multiblock.getKey())).getPath(), multiblock.getValue().getLocation());
+            withExistingParent(Objects.requireNonNull(BuiltInRegistries.BLOCK.getKey(multiblock.getKey())).getPath(), multiblock.getValue().getLocation());
         }
         getBuilder("dynamic/advanced_coke_oven_baseheater_fan")
                 .customLoader(ITObjModelBuilder::new)

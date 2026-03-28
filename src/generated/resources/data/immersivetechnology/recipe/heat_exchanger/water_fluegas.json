@@ -6,7 +6,7 @@
     "amount": 250
   },
   "output0": {
-    "fluid": "immersivetechnology:steam",
+    "id": "immersivetechnology:steam",
     "amount": 450
   },
   "energy": 640,

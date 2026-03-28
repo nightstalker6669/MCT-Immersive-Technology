@@ -10,6 +10,7 @@ import mctmods.immersivetechnology.common.multiblocks.metal.recipe.SolarTowerRec
 import mctmods.immersivetechnology.common.multiblocks.stone.logic.*;
 import mctmods.immersivetechnology.core.ITCommonConfig;
 import mctmods.immersivetechnology.core.lib.ITLib;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -47,7 +48,7 @@ public class OneProbeHelper {
     private static void addFluidTankDisplay(IProbeInfo probeInfo, FluidTank tank) {
         FluidStack fluid = tank.getFluid();
         int amount = !fluid.isEmpty() ? fluid.getAmount() : 0;
-        String fluidName = !fluid.isEmpty() ? fluid.getDisplayName().getString() : "Empty";
+        String fluidName = !fluid.isEmpty() ? ITUtils.fluidDisplayName(fluid).getString() : "Empty";
         int color = getFluidColor(fluid);
         probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER).spacing(2))
                 .progress(amount, tank.getCapacity(), probeInfo.defaultProgressStyle().suffix(" mB").numberFormat(NumberFormat.COMPACT).filledColor(color).alternateFilledColor(color).backgroundColor(0xff000000).borderColor(0xffffffff))

@@ -99,21 +99,23 @@ neoForge {
     runs {
         configureEach {
             systemProperty 'neoforge.enabledGameTestNamespaces', modId
-            gameDirectory = project.file('run')
         }
         client {
             client()
             sourceSet = sourceSets.main
+            gameDirectory = project.file('run/client')
             programArguments.addAll '--username', 'tgstyle', '--width', '1920', '--height', '1080'
         }
         server {
             server()
             sourceSet = sourceSets.main
+            gameDirectory = project.file('run/server')
             programArgument '-nogui'
         }
         data {
             data()
             sourceSet = sourceSets.datagen
+            gameDirectory = project.file('run/data')
             programArguments.addAll '--mod', modId, '--all',
                     '--output', file('src/generated/resources').absolutePath,
                     '--existing', file('src/main/resources').absolutePath
@@ -121,6 +123,7 @@ neoForge {
         gameTestServer {
             type = "gameTestServer"
             sourceSet = sourceSets.gametest
+            gameDirectory = project.file('run/gametest')
         }
     }
 
@@ -293,6 +296,7 @@ dependencies {
 def jsonPatterns = ['**/*.json', '**/*.mcmeta']
 
 processResources {
+    doNotTrackState("Resource outputs are normalized in-place after copy, which conflicts with Gradle's tracked-state checks across consecutive runData and runtime tasks.")
     duplicatesStrategy = DuplicatesStrategy.FAIL
     inputs.properties(versionReplaces())
     filesMatching('META-INF/neoforge.mods.toml') {
@@ -305,6 +309,34 @@ processResources {
         }
     }
 }
+
+def refreshGeneratedResources = tasks.register('refreshGeneratedResources') {
+    inputs.dir("$rootDir/src/generated/resources")
+    outputs.dir(layout.buildDirectory.dir('resources/main'))
+    doLast {
+        copy {
+            from("$rootDir/src/generated/resources")
+            into(layout.buildDirectory.dir('resources/main'))
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        }
+        fileTree(dir: layout.buildDirectory.dir('resources/main').get().asFile, includes: jsonPatterns).each { File jsonFile ->
+            jsonFile.setText(JsonOutput.toJson(new JsonSlurper().parse(jsonFile, 'UTF-8')))
+        }
+    }
+}
+
+tasks.named('runData').configure {
+    finalizedBy refreshGeneratedResources
+}
+
+tasks.named('compileDatagenJava').configure {
+    dependsOn refreshGeneratedResources
+}
+
+tasks.matching { it.name in ['runClient', 'runServer'] }.configureEach {
+    dependsOn refreshGeneratedResources
+}
+
 
 tasks.register('datagenJar', Jar) {
     dependsOn tasks.named('datagenClasses')

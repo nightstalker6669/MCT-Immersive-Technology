@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import mctmods.immersivetechnology.core.registration.ITTags;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -65,7 +64,7 @@ public class ValveLimiterBlock extends ITEntityBlock<ValveLimiterBlockEntity> {
                 valve.redstoneMode = (byte) (valve.redstoneMode == 1 ? 2 : 1);
                 valve.updateRedstoneState();
                 valve.efficientSetChanged();
-            } else { NetworkHooks.openScreen((ServerPlayer) player, valve, b -> b.writeBlockPos(pos)); }
+            } else { ((ServerPlayer) player).openMenu(valve, b -> b.writeBlockPos(pos)); }
             return ItemInteractionResult.SUCCESS;
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;

@@ -3,6 +3,7 @@ package mctmods.immersivetechnology.common.data.generators;
 import mctmods.immersivetechnology.common.data.loaders.ITObjModelBuilder;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.registration.ITFluids;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -12,7 +13,6 @@ import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.loaders.DynamicFluidContainerModelBuilder;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
 
@@ -97,7 +97,7 @@ public class ITItemModelProvider extends ItemModelProvider {
         ITFluids.ALL_ENTRIES.forEach(this::createBucket);
     }
 
-    private String name(ItemLike item) { return Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.asItem())).getPath(); }
+    private String name(ItemLike item) { return Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.asItem())).getPath(); }
 
     private ResourceLocation neoForgeLoc() { return ResourceLocation.fromNamespaceAndPath("neoforge", "item/bucket"); }
 }

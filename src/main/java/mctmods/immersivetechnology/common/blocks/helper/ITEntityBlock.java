@@ -35,7 +35,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.NetworkHooks;
 
 @SuppressWarnings("deprecation")
 public class ITEntityBlock<T extends BlockEntity> extends ITBaseBlock implements EntityBlock {
@@ -185,9 +184,9 @@ public class ITEntityBlock<T extends BlockEntity> extends ITBaseBlock implements
             if (player instanceof ServerPlayer serverPlayer) {
                 if (menuProvider instanceof ITBlockInterfaces.IInteractionObjectIT<?> interaction) {
                     interaction = interaction.getGuiMaster();
-                    if (interaction != null && interaction.canUseGui(player)) { NetworkHooks.openScreen(serverPlayer, interaction); }
+                    if (interaction != null && interaction.canUseGui(player)) { serverPlayer.openMenu(interaction); }
                 }
-                else { NetworkHooks.openScreen(serverPlayer, menuProvider); }
+                else { serverPlayer.openMenu(menuProvider); }
             }
             return ItemInteractionResult.SUCCESS;
         }

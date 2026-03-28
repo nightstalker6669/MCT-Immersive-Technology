@@ -6,7 +6,7 @@
     "amount": 1000
   },
   "output": {
-    "fluid": "immersivetechnology:molten_salt",
+    "id": "immersivetechnology:molten_salt",
     "amount": 500
   },
   "time": 20,

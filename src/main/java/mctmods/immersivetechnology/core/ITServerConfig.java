@@ -428,7 +428,7 @@ public class ITServerConfig {
 
     @SubscribeEvent
     public static void onConfig(final ModConfigEvent event) {
-        if (event.getConfig().getSpec() == SPEC) {
+        if (event.getConfig().getSpec() == SPEC&&(event instanceof ModConfigEvent.Loading||event instanceof ModConfigEvent.Reloading)) {
             // General
             disassemblyMode = DISASSEMBLY_MODE.get();
             burnTimeDivider = CONFIG_BURN_TIME_DIVIDER.get();

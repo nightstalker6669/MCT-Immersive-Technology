@@ -1,5 +1,6 @@
 package mctmods.immersivetechnology.common.fluids.helper;
 
+import mctmods.immersivetechnology.core.util.ITUtils;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.IFluidTank;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -32,7 +33,7 @@ public record ITArrayFluidHandler(IFluidTank[] internal, boolean allowDrain, boo
         FluidStack remaining = resource.copy();
         IFluidTank existing = null;
         for (IFluidTank tank : this.internal) {
-            if (tank.getFluid().isFluidEqual(remaining)) {
+            if (ITUtils.sameFluidComponents(tank.getFluid(), remaining)) {
                 existing = tank;
                 break;
             }

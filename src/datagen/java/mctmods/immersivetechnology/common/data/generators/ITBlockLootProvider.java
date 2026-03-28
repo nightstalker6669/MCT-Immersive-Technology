@@ -10,10 +10,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
-import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
@@ -43,7 +43,7 @@ public class ITBlockLootProvider extends BlockLootSubProvider {
 
     }
 
-    private void registerEntity(RegistryObject<? extends Block> block) {
+    private void registerEntity(Supplier<? extends Block> block) {
         LootPool.Builder pool = createPoolBuilder().add(ITBEDropLootEntry.builder());
         add(block.get(), LootTable.lootTable().withPool(pool));
     }
@@ -74,7 +74,7 @@ public class ITBlockLootProvider extends BlockLootSubProvider {
     @Override
     @NotNull
     protected Set<Block> getKnownBlocks() {
-        Stream<Block> registeredBlocks = ITBlocks.REGISTER.getEntries().stream().map(RegistryObject::get);
+        Stream<Block> registeredBlocks = ITBlocks.REGISTER.getEntries().stream().map(Supplier::get);
         Stream<Block> multiblockBlocks = Stream.of(
                 ITMultiblockProvider.ADVANCED_COKE_OVEN.block().get(),
                 ITMultiblockProvider.ALTERNATOR.block().get(),

@@ -30,8 +30,8 @@ public final class ITRecipeCodecs {
 
     public static DualMapCodec<RegistryFriendlyByteBuf, FluidStack> optionalFluidStack(String name) {
         return IEDualCodecs.FLUID_STACK.optionalFieldOf(name).map(
-                optional -> optional.orElse(null),
-                value -> Optional.ofNullable(value)
+                optional -> optional.orElse(FluidStack.EMPTY),
+                value -> value == null || value.isEmpty() ? Optional.empty() : Optional.of(value)
         );
     }
 

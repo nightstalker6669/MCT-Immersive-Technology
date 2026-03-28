@@ -39,7 +39,7 @@ public class ITFluidInfoArea extends ITInfoArea {
     }
 
     public static void fillTooltip(FluidStack fluid, int tankCapacity, Consumer<Component> tooltip) {
-        if (!fluid.isEmpty()) { tooltip.accept(fluid.getDisplayName().copy().withStyle(fluid.getFluid().getFluidType().getRarity(fluid).getStyleModifier())); } else { tooltip.accept(Component.translatable(TranslationKey.GUI_EMPTY.getLocation())); }
+        if (!fluid.isEmpty()) { tooltip.accept(ITUtils.fluidDisplayName(fluid).copy().withStyle(fluid.getFluid().getFluidType().getRarity(fluid).getStyleModifier())); } else { tooltip.accept(Component.translatable(TranslationKey.GUI_EMPTY.getLocation())); }
         if (Minecraft.getInstance().options.advancedItemTooltips && !fluid.isEmpty()) {
             if (!Screen.hasShiftDown()) { tooltip.accept(Component.translatable(TranslationKey.DESC_HOLD_SHIFT_FOR_INFO.getLocation())); } else {
                 tooltip.accept(TextUtils.applyFormat(Component.translatable(TranslationKey.GUI_FLUID_REGISTRY.getLocation(), ForgeRegistries.FLUIDS.getKey(fluid.getFluid())), ChatFormatting.DARK_GRAY));

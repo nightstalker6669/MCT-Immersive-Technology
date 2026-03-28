@@ -41,7 +41,7 @@ public class HeatExchangerRecipe extends MultiblockRecipe {
         this.input0 = input0;
         this.input1 = input1;
         this.output0 = output0;
-        this.output1 = output1;
+        this.output1 = output1 == null || output1.isEmpty() ? null : output1;
         this.totalProcessTime = time;
         this.totalProcessEnergy = energy;
 

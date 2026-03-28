@@ -1,6 +1,5 @@
 package mctmods.immersivetechnology.core.integration.jei;
 
-import blusunrize.immersiveengineering.api.crafting.CokeOvenRecipe;
 import mctmods.immersivetechnology.client.gui.*;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.*;
 import mctmods.immersivetechnology.common.multiblocks.stone.recipe.AdvancedCokeOvenRecipe;
@@ -12,25 +11,22 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.neoforge.NeoForgeTypes;
+import mezz.jei.api.gui.builder.IClickableIngredientFactory;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
-import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.recipe.IFocusFactory;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IClickableIngredient;
-import mezz.jei.api.runtime.IIngredientManager;
-import mezz.jei.api.runtime.IJeiRuntime;
 import mezz.jei.api.runtime.IRecipesGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.fluids.IFluidTank;
@@ -48,7 +44,6 @@ import static mctmods.immersivetechnology.client.gui.helper.ITFluidInfoArea.fill
 public class JEIIntegration implements IModPlugin {
 
     private static final ResourceLocation ID = ITLib.rl("main");
-    private static IIngredientManager ingredientManager;
 
     @Override @NotNull public ResourceLocation getPluginUid() { return ID; }
 
@@ -67,7 +62,6 @@ public class JEIIntegration implements IModPlugin {
     }
 
     @Override public void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(JEIRecipeTypes.ADVANCED_COKE_OVEN, getAdvancedCokeOvenRecipes());
         registration.addRecipes(JEIRecipeTypes.ADVANCED_COKE_OVEN_CUSTOM, getAdvancedCokeOvenCustomRecipes());
         registration.addRecipes(JEIRecipeTypes.BOILER_LIQUID, getBoilerLiquidRecipes());
         registration.addRecipes(JEIRecipeTypes.BOILER_SOLID, getBoilerSolidRecipes());
@@ -82,7 +76,6 @@ public class JEIIntegration implements IModPlugin {
     }
 
     @Override public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ITMultiblockProvider.ADVANCED_COKE_OVEN.iconStack(), JEIRecipeTypes.ADVANCED_COKE_OVEN);
         registration.addRecipeCatalyst(ITMultiblockProvider.ADVANCED_COKE_OVEN.iconStack(), JEIRecipeTypes.ADVANCED_COKE_OVEN_CUSTOM);
         registration.addRecipeCatalyst(ITMultiblockProvider.BOILER_LIQUID.iconStack(), JEIRecipeTypes.BOILER_LIQUID);
         registration.addRecipeCatalyst(ITMultiblockProvider.BOILER_SOLID.iconStack(), JEIRecipeTypes.BOILER_SOLID);
@@ -98,7 +91,7 @@ public class JEIIntegration implements IModPlugin {
 
     @Override public void registerGuiHandlers(@NotNull IGuiHandlerRegistration registration) {
         registration.addGuiContainerHandler(AdvancedCokeOvenScreen.class, new IGuiContainerHandler<>() {
-            @Override @NotNull public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull AdvancedCokeOvenScreen gui, double mouseX, double mouseY) {
+            @Override @NotNull public Optional<? extends IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull IClickableIngredientFactory builder, @NotNull AdvancedCokeOvenScreen gui, double mouseX, double mouseY) {
                 return Optional.empty();
             }
 
@@ -111,7 +104,7 @@ public class JEIIntegration implements IModPlugin {
 
         registration.addGuiContainerHandler(BoilerLiquidScreen.class, new IGuiContainerHandler<>() {
             @Override
-            public @NotNull Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull BoilerLiquidScreen gui, double mouseX, double mouseY) {
+            public @NotNull Optional<? extends IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull IClickableIngredientFactory builder, @NotNull BoilerLiquidScreen gui, double mouseX, double mouseY) {
                 int relX = (int) (mouseX - gui.getLeftPos());
                 int relY = (int) (mouseY - gui.getTopPos());
                 FluidStack fs = null;
@@ -121,13 +114,7 @@ public class JEIIntegration implements IModPlugin {
                     area = new Rect2i(gui.getLeftPos() + 80, gui.getTopPos() + 20, 16, 47);
                 }
                 if (fs != null && fs.getAmount() > 0) {
-                    Rect2i finalArea = area;
-                    return ingredientManager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
-                        @SuppressWarnings("removal")
-                        @Override @NotNull public ITypedIngredient<FluidStack> getTypedIngredient() {return typed;}
-
-                        @Override @NotNull public Rect2i getArea() {return finalArea;}
-                    });
+                    return builder.createBuilder(NeoForgeTypes.FLUID_STACK, fs).buildWithArea(area);
                 }
                 return Optional.empty();
             }
@@ -140,7 +127,7 @@ public class JEIIntegration implements IModPlugin {
         });
 
         registration.addGuiContainerHandler(BoilerSolidScreen.class, new IGuiContainerHandler<>() {
-            @Override @NotNull public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull BoilerSolidScreen gui, double mouseX, double mouseY) {
+            @Override @NotNull public Optional<? extends IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull IClickableIngredientFactory builder, @NotNull BoilerSolidScreen gui, double mouseX, double mouseY) {
                 int relX = (int) (mouseX - gui.getLeftPos());
                 int relY = (int) (mouseY - gui.getTopPos());
                 ItemStack is = ItemStack.EMPTY;
@@ -150,16 +137,7 @@ public class JEIIntegration implements IModPlugin {
                     area = new Rect2i(gui.getLeftPos() + 80, gui.getTopPos() + 53, 18, 18);
                 }
                 if (!is.isEmpty()) {
-                    Rect2i finalArea = area;
-                    return ingredientManager.createTypedIngredient(VanillaTypes.ITEM_STACK, is).map(typed -> new IClickableIngredient<ItemStack>() {
-                        @SuppressWarnings("removal")
-                        @Override @NotNull public ITypedIngredient<ItemStack> getTypedIngredient() {return typed;}
-
-                        @Override @NotNull public Rect2i getArea() {
-                            assert finalArea != null;
-                            return finalArea;
-                        }
-                    });
+                    return builder.createBuilder(VanillaTypes.ITEM_STACK, is).buildWithArea(area);
                 }
                 return Optional.empty();
             }
@@ -172,7 +150,7 @@ public class JEIIntegration implements IModPlugin {
         });
 
         registration.addGuiContainerHandler(DistillerScreen.class, new IGuiContainerHandler<>() {
-            @Override @NotNull public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull DistillerScreen gui, double mouseX, double mouseY) {
+            @Override @NotNull public Optional<? extends IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull IClickableIngredientFactory builder, @NotNull DistillerScreen gui, double mouseX, double mouseY) {
                 int relX = (int) (mouseX - gui.getLeftPos());
                 int relY = (int) (mouseY - gui.getTopPos());
                 FluidStack fs = null;
@@ -185,13 +163,7 @@ public class JEIIntegration implements IModPlugin {
                     area = new Rect2i(gui.getLeftPos() + 112, gui.getTopPos() + 19, 20, 51);
                 }
                 if (fs != null && fs.getAmount() > 0) {
-                    Rect2i finalArea = area;
-                    return ingredientManager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
-                        @SuppressWarnings("removal")
-                        @Override @NotNull public ITypedIngredient<FluidStack> getTypedIngredient() {return typed;}
-
-                        @Override @NotNull public Rect2i getArea() {return finalArea;}
-                    });
+                    return builder.createBuilder(NeoForgeTypes.FLUID_STACK, fs).buildWithArea(area);
                 }
                 return Optional.empty();
             }
@@ -205,7 +177,7 @@ public class JEIIntegration implements IModPlugin {
         });
 
         registration.addGuiContainerHandler(BoilerTankScreen.class, new IGuiContainerHandler<>() {
-            @Override @NotNull public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull BoilerTankScreen gui, double mouseX, double mouseY) {
+            @Override @NotNull public Optional<? extends IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull IClickableIngredientFactory builder, @NotNull BoilerTankScreen gui, double mouseX, double mouseY) {
                 int relX = (int) (mouseX - gui.getLeftPos());
                 int relY = (int) (mouseY - gui.getTopPos());
                 FluidStack fs = null;
@@ -218,13 +190,7 @@ public class JEIIntegration implements IModPlugin {
                     area = new Rect2i(gui.getLeftPos() + 90, gui.getTopPos() + 18, 20, 51);
                 }
                 if (fs != null && fs.getAmount() > 0) {
-                    Rect2i finalArea = area;
-                    return ingredientManager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
-                        @SuppressWarnings("removal")
-                        @Override @NotNull public ITypedIngredient<FluidStack> getTypedIngredient() {return typed;}
-
-                        @Override @NotNull public Rect2i getArea() {return finalArea;}
-                    });
+                    return builder.createBuilder(NeoForgeTypes.FLUID_STACK, fs).buildWithArea(area);
                 }
                 return Optional.empty();
             }
@@ -238,7 +204,7 @@ public class JEIIntegration implements IModPlugin {
         });
 
         registration.addGuiContainerHandler(SolarScreen.class, new IGuiContainerHandler<>() {
-            @Override @NotNull public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull SolarScreen gui, double mouseX, double mouseY) {
+            @Override @NotNull public Optional<? extends IClickableIngredient<?>> getClickableIngredientUnderMouse(@NotNull IClickableIngredientFactory builder, @NotNull SolarScreen gui, double mouseX, double mouseY) {
                 int relX = (int) (mouseX - gui.getLeftPos());
                 int relY = (int) (mouseY - gui.getTopPos());
                 FluidStack fs = null;
@@ -251,13 +217,7 @@ public class JEIIntegration implements IModPlugin {
                     area = new Rect2i(gui.getLeftPos() + 126, gui.getTopPos() + 21, 16, 47);
                 }
                 if (fs != null && fs.getAmount() > 0) {
-                    Rect2i finalArea = area;
-                    return ingredientManager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, fs).map(typed -> new IClickableIngredient<FluidStack>() {
-                        @SuppressWarnings("removal")
-                        @Override @NotNull public ITypedIngredient<FluidStack> getTypedIngredient() {return typed;}
-
-                        @Override @NotNull public Rect2i getArea() {return finalArea;}
-                    });
+                    return builder.createBuilder(NeoForgeTypes.FLUID_STACK, fs).buildWithArea(area);
                 }
                 return Optional.empty();
             }
@@ -276,7 +236,7 @@ public class JEIIntegration implements IModPlugin {
         return new IGuiClickableArea() {
             @Override @NotNull public Rect2i getArea() { return area; }
             @Override public void getTooltip(@NotNull ITooltipBuilder tooltip) { tooltip.add(Component.translatable("jei.tooltip.show.recipes")); }
-            @Override public void onClick(@NotNull IFocusFactory focusFactory, @NotNull IRecipesGui recipesGui) { recipesGui.showTypes(List.of(JEIRecipeTypes.ADVANCED_COKE_OVEN, JEIRecipeTypes.ADVANCED_COKE_OVEN_CUSTOM)); }
+            @Override public void onClick(@NotNull IFocusFactory focusFactory, @NotNull IRecipesGui recipesGui) { recipesGui.showTypes(List.of(JEIRecipeTypes.ADVANCED_COKE_OVEN_CUSTOM)); }
         };
     }
 
@@ -339,14 +299,6 @@ public class JEIIntegration implements IModPlugin {
         };
     }
 
-    @Override public void onRuntimeAvailable(@NotNull IJeiRuntime jeiRuntime) { ingredientManager = jeiRuntime.getIngredientManager(); }
-
-    private List<CokeOvenRecipe> getAdvancedCokeOvenRecipes() {
-        assert Minecraft.getInstance().level != null;
-        Level level = Minecraft.getInstance().level;
-        AdvancedCokeOvenRecipe.copyIECokeOvenRecipes(level);
-        return CokeOvenRecipe.RECIPES.getRecipes(level).stream().map(RecipeHolder::value).toList();
-    }
     private List<AdvancedCokeOvenRecipe> getAdvancedCokeOvenCustomRecipes() {
         assert Minecraft.getInstance().level != null;
         return AdvancedCokeOvenRecipe.RECIPES.getRecipes(Minecraft.getInstance().level).stream().map(RecipeHolder::value).toList();

@@ -26,7 +26,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -79,7 +78,7 @@ public class ValveFluidBlock extends ITEntityBlock<ValveFluidBlockEntity> {
                 valve.updateRedstoneState();
                 valve.efficientSetChanged();
             } else {
-                NetworkHooks.openScreen((ServerPlayer) player, valve, buf -> buf.writeBlockPos(pos));
+                ((ServerPlayer) player).openMenu(valve, buf -> buf.writeBlockPos(pos));
             }
             return ItemInteractionResult.SUCCESS;
         }

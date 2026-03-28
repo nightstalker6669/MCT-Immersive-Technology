@@ -2,11 +2,11 @@
   "type": "immersivetechnology:gas_turbine",
   "id": "immersivetechnology:gas_turbine/kerosene",
   "input": {
-    "tag": "forge:kerosene",
+    "tag": "c:kerosene",
     "amount": 150
   },
   "output": {
-    "fluid": "immersivetechnology:flue_gas",
+    "id": "immersivetechnology:flue_gas",
     "amount": 1000
   },
   "time": 10,

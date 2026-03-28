@@ -31,6 +31,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
@@ -53,7 +54,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.neoforged.neoforge.client.model.generators.*;
 import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder.PartialBlockstate;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -164,7 +164,7 @@ public class ITBlockStateProvider extends BlockStateProvider {
 
     private CompletableFuture<?> saveBlockState(Block owner, JsonObject stateJson, CachedOutput cache) {
         return CompletableFuture.runAsync(() -> {
-            ResourceLocation blockName = Preconditions.checkNotNull(ForgeRegistries.BLOCKS.getKey(owner));
+            ResourceLocation blockName = Preconditions.checkNotNull(BuiltInRegistries.BLOCK.getKey(owner));
             ResourceLocation outputLocation = extendWithFolder(blockName);
             Path path = packOutput.getOutputFolder().resolve("assets/" + outputLocation.getNamespace() + "/" + outputLocation.getPath() + ".json");
             try {

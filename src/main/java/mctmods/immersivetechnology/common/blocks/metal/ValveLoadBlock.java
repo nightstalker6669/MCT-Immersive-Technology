@@ -27,7 +27,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -133,7 +132,7 @@ public class ValveLoadBlock extends ITEntityBlock<ValveLoadBlockEntity> {
                 valve.efficientSetChanged();
             } else {
                 if (heldItem.getItem() instanceof WireCoilItem) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-                NetworkHooks.openScreen((ServerPlayer) player, valve, buf -> buf.writeBlockPos(pos));
+                ((ServerPlayer) player).openMenu(valve, buf -> buf.writeBlockPos(pos));
             }
             return ItemInteractionResult.SUCCESS;
         }

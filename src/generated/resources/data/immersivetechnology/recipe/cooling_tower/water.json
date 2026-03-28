@@ -10,15 +10,15 @@
     "amount": 900
   },
   "output0": {
-    "fluid": "minecraft:water",
+    "id": "minecraft:water",
     "amount": 500
   },
   "output1": {
-    "fluid": "minecraft:water",
+    "id": "minecraft:water",
     "amount": 500
   },
   "output2": {
-    "fluid": "minecraft:water",
+    "id": "minecraft:water",
     "amount": 500
   },
   "time": 3

@@ -2,7 +2,7 @@
   "type": "immersivetechnology:boiler_liquid",
   "id": "immersivetechnology:boiler_liquid/diesel",
   "input": {
-    "tag": "forge:diesel",
+    "tag": "c:diesel",
     "amount": 7
   },
   "time": 10,

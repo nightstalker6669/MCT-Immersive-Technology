@@ -111,9 +111,9 @@ public class ITCustomRecipes implements DataProvider {
 
     private void recipesBoilerLiquid(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         BoilerLiquidRecipeBuilder.builder().addInput(IETags.fluidBiodiesel, 10).setTime(10).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_liquid/biodiesel"));
-        BoilerLiquidRecipeBuilder.builder().addInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("forge", "gasoline")), 50).setTime(10).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_liquid/gasoline"));
-        BoilerLiquidRecipeBuilder.builder().addInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("forge", "diesel")), 7).setTime(10).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_liquid/diesel"));
-        BoilerLiquidRecipeBuilder.builder().addInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("forge", "kerosene")), 9).setTime(10).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_liquid/kerosene"));
+        BoilerLiquidRecipeBuilder.builder().addInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("c", "gasoline")), 50).setTime(10).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_liquid/gasoline"));
+        BoilerLiquidRecipeBuilder.builder().addInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("c", "diesel")), 7).setTime(10).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_liquid/diesel"));
+        BoilerLiquidRecipeBuilder.builder().addInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("c", "kerosene")), 9).setTime(10).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_liquid/kerosene"));
     }
 
     private void recipesBoilerSolid(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
@@ -127,7 +127,23 @@ public class ITCustomRecipes implements DataProvider {
 
     private void recipesDistiller(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         ItemStack salt = new ItemStack(ITItems.SALT.get(), 1);
-        DistillerRecipeBuilder.builder(new FluidTagInput(FluidTags.WATER, 1000), new FluidStack(ITFluids.DISTILLED_WATER.getStill(), 500), 20, 10000).addItemOutput(salt, 0.5f).build(out, toResourceLocation("distiller/water"));
+        out.accept(buildJsonRecipe(toResourceLocation("distiller/water"), DistillerRecipe.SERIALIZER.get(), json -> {
+            json.add("input", new FluidTagInput(FluidTags.WATER, 1000).serialize());
+            json.add("result", fluidStackJson(new FluidStack(ITFluids.DISTILLED_WATER.getStill(), 500)));
+            json.addProperty("time", 20);
+            json.addProperty("energy", 10000);
+
+            JsonObject itemStackJson = new JsonObject();
+            itemStackJson.addProperty("item", BuiltInRegistries.ITEM.getKey(salt.getItem()).toString());
+            if (salt.getCount() > 1) {
+                itemStackJson.addProperty("count", salt.getCount());
+            }
+
+            JsonObject itemOutputJson = new JsonObject();
+            itemOutputJson.add("item", itemStackJson);
+            itemOutputJson.addProperty("chance", 0.5f);
+            json.add("item_output", itemOutputJson);
+        }));
     }
 
     private void recipesHeatExchanger(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
@@ -160,7 +176,7 @@ public class ITCustomRecipes implements DataProvider {
         GasTurbineRecipeBuilder.builder().addInput(IETags.fluidBiodiesel, 160).addOutput(ITFluids.FLUE_GAS.getStill(), 1000).setTime(10).build(out, toResourceLocation("gas_turbine/biodiesel"));
         out.accept(withConditions(
                 buildJsonRecipe(toResourceLocation("gas_turbine/gasoline"), GasTurbineRecipe.SERIALIZER.get(), json -> {
-                    json.add("input", new FluidTagInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("forge", "gasoline")), 800).serialize());
+                    json.add("input", new FluidTagInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("c", "gasoline")), 800).serialize());
                     json.add("output", fluidStackJson(new FluidStack(ITFluids.FLUE_GAS.getStill(), 1000)));
                     json.addProperty("time", 10);
                 }),
@@ -168,7 +184,7 @@ public class ITCustomRecipes implements DataProvider {
         ));
         out.accept(withConditions(
                 buildJsonRecipe(toResourceLocation("gas_turbine/diesel"), GasTurbineRecipe.SERIALIZER.get(), json -> {
-                    json.add("input", new FluidTagInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("forge", "diesel")), 114).serialize());
+                    json.add("input", new FluidTagInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("c", "diesel")), 114).serialize());
                     json.add("output", fluidStackJson(new FluidStack(ITFluids.FLUE_GAS.getStill(), 1000)));
                     json.addProperty("time", 10);
                 }),
@@ -176,7 +192,7 @@ public class ITCustomRecipes implements DataProvider {
         ));
         out.accept(withConditions(
                 buildJsonRecipe(toResourceLocation("gas_turbine/kerosene"), GasTurbineRecipe.SERIALIZER.get(), json -> {
-                    json.add("input", new FluidTagInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("forge", "kerosene")), 150).serialize());
+                    json.add("input", new FluidTagInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("c", "kerosene")), 150).serialize());
                     json.add("output", fluidStackJson(new FluidStack(ITFluids.FLUE_GAS.getStill(), 1000)));
                     json.addProperty("time", 10);
                 }),
@@ -234,7 +250,7 @@ public class ITCustomRecipes implements DataProvider {
 
     private JsonObject fluidStackJson(FluidStack stack) {
         JsonObject json = new JsonObject();
-        json.addProperty("fluid", BuiltInRegistries.FLUID.getKey(stack.getFluid()).toString());
+        json.addProperty("id", BuiltInRegistries.FLUID.getKey(stack.getFluid()).toString());
         json.addProperty("amount", stack.getAmount());
         return json;
     }

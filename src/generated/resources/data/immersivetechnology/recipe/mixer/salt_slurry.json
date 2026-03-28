@@ -8,13 +8,13 @@
   "inputs": [
     {
       "basePredicate": {
-        "tag": "forge:dusts/salt"
+        "tag": "c:dusts/salt"
       },
       "count": 4
     }
   ],
   "result": {
-    "fluid": "immersivetechnology:salt_slurry",
+    "id": "immersivetechnology:salt_slurry",
     "amount": 1000
   },
   "energy": 3200

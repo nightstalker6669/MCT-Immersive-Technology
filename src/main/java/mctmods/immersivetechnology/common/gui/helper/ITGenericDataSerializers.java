@@ -1,5 +1,6 @@
 package mctmods.immersivetechnology.common.gui.helper;
 
+import mctmods.immersivetechnology.core.util.ITUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +19,7 @@ public class ITGenericDataSerializers {
             buf -> FluidStack.OPTIONAL_STREAM_CODEC.decode(buf),
             (buf, stack) -> FluidStack.OPTIONAL_STREAM_CODEC.encode(buf, stack),
             FluidStack::copy,
-            FluidStack::isFluidStackIdentical
+            ITUtils::sameFluidComponentsAndAmount
     );
     public static final DataSerializer<Float> FLOAT = register(RegistryFriendlyByteBuf::readFloat, RegistryFriendlyByteBuf::writeFloat);
     public static final DataSerializer<Double> DOUBLE = register(RegistryFriendlyByteBuf::readDouble, RegistryFriendlyByteBuf::writeDouble);

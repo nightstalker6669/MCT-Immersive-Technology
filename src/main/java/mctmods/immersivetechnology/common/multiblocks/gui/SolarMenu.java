@@ -7,6 +7,7 @@ import mctmods.immersivetechnology.common.multiblocks.helper.ITSlotwiseItemHandl
 import mctmods.immersivetechnology.common.multiblocks.metal.logic.SolarTowerLogic;
 import mctmods.immersivetechnology.common.fluids.helper.ITSolarTank;
 import mctmods.immersivetechnology.common.multiblocks.metal.interfaces.ITISolarMultiblockState;
+import mctmods.immersivetechnology.core.util.ITUtils;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.SimpleContainerData;
@@ -43,7 +44,7 @@ public class SolarMenu extends ITContainerMenu {
         this.outputTank = output;
         this.mbStateSupplier = mbStateSupplier;
         this.state = new SimpleContainerData(8);
-        this.addSlot(new ITSlot.FluidContainer(inv, 0, 80, 17, 1) { @Override public boolean mayPlace(@Nonnull ItemStack itemStack) { FluidStack fs = FluidUtil.getFluidContained(itemStack).orElse(null); if (fs == null) return false;return inputTank.getFluidAmount() <= 0 || fs.isFluidEqual(inputTank.getFluid()); }});
+        this.addSlot(new ITSlot.FluidContainer(inv, 0, 80, 17, 1) { @Override public boolean mayPlace(@Nonnull ItemStack itemStack) { FluidStack fs = FluidUtil.getFluidContained(itemStack).orElse(null); if (fs == null) return false;return inputTank.getFluidAmount() <= 0 || ITUtils.sameFluidComponents(fs, inputTank.getFluid()); }});
         this.addSlot(new ITSlot.Output(inv, 1, 80, 53));
         this.addSlot(new ITSlot.FluidContainer(inv, 2, 148, 17, 0) { @Override public boolean mayPlace(@Nonnull ItemStack itemStack) {
                 return ForgeCapabilities.FLUID_HANDLER_ITEM.get(itemStack).isPresent();

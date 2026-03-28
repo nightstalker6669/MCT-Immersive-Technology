@@ -175,7 +175,7 @@ public class ValveFluidBlockEntity extends ValveCommonBlockEntity implements ITS
         int toReturn = 0;
         for (int i = 0; i < handler.getTanks(); i++) {
             FluidStack stored = handler.getFluidInTank(i);
-            if (!stored.isEmpty() && stored.isFluidEqual(toFill)) toReturn += stored.getAmount();
+            if (!stored.isEmpty() && ITUtils.sameFluidComponents(stored, toFill)) toReturn += stored.getAmount();
         }
         return toReturn;
     }

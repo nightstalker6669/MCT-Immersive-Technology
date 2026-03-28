@@ -24,11 +24,14 @@ public class DistillerRecipeBuilder extends IEFinishedRecipe<DistillerRecipeBuil
 
     public DistillerRecipeBuilder addItemOutput(ItemStack item, float chance) {
         return this.addWriter(jsonObject -> {
-            com.google.gson.JsonObject itemJson = new com.google.gson.JsonObject();
-            itemJson.addProperty("item", Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.getItem())).toString());
-            if (item.getCount() > 1) itemJson.addProperty("count", item.getCount());
-            itemJson.addProperty("chance", chance);
-            jsonObject.add("item_output", itemJson);
+            com.google.gson.JsonObject itemStackJson = new com.google.gson.JsonObject();
+            itemStackJson.addProperty("item", Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.getItem())).toString());
+            if (item.getCount() > 1) itemStackJson.addProperty("count", item.getCount());
+
+            com.google.gson.JsonObject itemOutputJson = new com.google.gson.JsonObject();
+            itemOutputJson.add("item", itemStackJson);
+            itemOutputJson.addProperty("chance", chance);
+            jsonObject.add("item_output", itemOutputJson);
         });
     }
 }

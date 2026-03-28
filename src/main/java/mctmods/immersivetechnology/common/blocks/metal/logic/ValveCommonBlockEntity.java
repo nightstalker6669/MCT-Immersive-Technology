@@ -16,13 +16,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import static mctmods.immersivetechnology.common.blocks.metal.ValveFluidBlock.OPEN;
-
 public abstract class ValveCommonBlockEntity extends ITBaseBlockEntity implements ITServerTickableBE, ITClientTickableBE, MenuProvider, ITBlockInterfaces.IDirectionalBE, ITBlockInterfaces.IBlockOverlayText, ITBlockInterfaces.IHammerInteraction {
+    private static final String OPEN_PROPERTY = "open";
     final TranslationKey overlayNormal;
     final TranslationKey overlaySneakingFirstLine;
     final TranslationKey overlaySneakingSecondLine;
@@ -102,7 +103,7 @@ public abstract class ValveCommonBlockEntity extends ITBaseBlockEntity implement
             ITPacketHandler.sendToServer(new ITOSDRequestMessage(worldPosition));
             requestCooldown = 20;
         }
-        boolean open = getBlockState().getValue(OPEN);
+        boolean open = isOpenState(getBlockState());
         if (player.isCrouching()) {
             double avg = open ? average / 20.0 : 0;
             int pa = open ? packetAverage : 0;
@@ -197,11 +198,30 @@ public abstract class ValveCommonBlockEntity extends ITBaseBlockEntity implement
         int rs = getRSPower();
         boolean shouldOpen = (redstoneMode == 1 ? rs == 0 : rs > 0);
         BlockState state = getBlockState();
-        if (state.getValue(OPEN) != shouldOpen) {
+        if (isOpenState(state) != shouldOpen) {
             assert level != null;
-            level.setBlock(worldPosition, state.setValue(OPEN, shouldOpen), 3);
+            level.setBlock(worldPosition, withOpenState(state, shouldOpen), 3);
             markContainingBlockForUpdate(null);
         }
+    }
+
+    private boolean isOpenState(BlockState state) {
+        BooleanProperty property = findOpenProperty(state);
+        return property != null && state.getValue(property);
+    }
+
+    private BlockState withOpenState(BlockState state, boolean open) {
+        BooleanProperty property = findOpenProperty(state);
+        return property != null ? state.setValue(property, open) : state;
+    }
+
+    private BooleanProperty findOpenProperty(BlockState state) {
+        for (Property<?> property : state.getProperties()) {
+            if (property instanceof BooleanProperty booleanProperty && OPEN_PROPERTY.equals(property.getName())) {
+                return booleanProperty;
+            }
+        }
+        return null;
     }
 
     @Override public void receiveMessageFromClient(CompoundTag nbt) {

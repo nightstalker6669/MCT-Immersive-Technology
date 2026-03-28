@@ -2,7 +2,7 @@
   "type": "immersivetechnology:boiler_liquid",
   "id": "immersivetechnology:boiler_liquid/gasoline",
   "input": {
-    "tag": "forge:gasoline",
+    "tag": "c:gasoline",
     "amount": 50
   },
   "time": 10,

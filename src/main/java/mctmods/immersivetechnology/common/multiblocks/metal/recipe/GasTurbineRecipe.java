@@ -36,11 +36,11 @@ public class GasTurbineRecipe extends MultiblockRecipe {
         super(TagOutput.EMPTY, ITRecipeTypes.GAS_TURBINE, time, 0, () -> new RecipeMultiplier(() -> 1, () -> 1));
         this.id = id;
         this.input = input;
-        this.fluidOutput = fluidOutput;
+        this.fluidOutput = fluidOutput == null || fluidOutput.isEmpty() ? null : fluidOutput;
         this.time = time;
         this.torque = torque;
         this.fluidInputList = java.util.List.of(this.input.asSizedIngredient());
-        this.fluidOutputList = fluidOutput == null ? java.util.List.of() : java.util.List.of(fluidOutput);
+        this.fluidOutputList = this.fluidOutput == null ? java.util.List.of() : java.util.List.of(this.fluidOutput);
     }
 
     @Override protected IERecipeSerializer<?> getIESerializer() { return SERIALIZER.get(); }

@@ -3,6 +3,7 @@ package mctmods.immersivetechnology.common.data.generators;
 import mctmods.immersivetechnology.common.data.models.ITTRSRModelBuilder;
 import mctmods.immersivetechnology.core.lib.ITLib;
 import mctmods.immersivetechnology.core.registration.ITMultiblockProvider;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.ItemLike;
@@ -11,7 +12,6 @@ import net.neoforged.neoforge.client.model.generators.ModelProvider;
 import net.neoforged.neoforge.client.model.generators.loaders.CompositeModelBuilder;
 import net.neoforged.neoforge.client.model.generators.loaders.ObjModelBuilder;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -100,7 +100,7 @@ public class ITComplexItemModelProvider extends ModelProvider<ITTRSRModelBuilder
         return getBuilder(name(item)).customLoader(ObjModelBuilder::begin).modelLocation(modLoc("models/" + model)).flipV(true).end();
     }
 
-    private String name(ItemLike item) { return Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.asItem())).getPath(); }
+    private String name(ItemLike item) { return Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.asItem())).getPath(); }
 
     private void generateMultiblockModel(String id, String type, Supplier<? extends ItemLike> block, Vector3f guiTrans, float guiScale, float groundScale, float fixedScale) {
         ITTRSRModelBuilder model;

@@ -58,7 +58,7 @@ public class IEFinishedRecipe<T extends IEFinishedRecipe<T>> {
     protected T addFluid(String key, FluidStack stack) {
         return addWriter(json -> {
             JsonObject value = new JsonObject();
-            value.addProperty("fluid", Objects.requireNonNull(BuiltInRegistries.FLUID.getKey(stack.getFluid())).toString());
+            value.addProperty("id", Objects.requireNonNull(BuiltInRegistries.FLUID.getKey(stack.getFluid())).toString());
             value.addProperty("amount", stack.getAmount());
             json.add(key, value);
         });

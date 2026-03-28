@@ -6,7 +6,7 @@
     "amount": 1000
   },
   "output": {
-    "fluid": "immersivetechnology:heated_gravel_slurry",
+    "id": "immersivetechnology:heated_gravel_slurry",
     "amount": 500
   },
   "time": 10,

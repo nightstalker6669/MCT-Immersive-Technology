@@ -27,7 +27,7 @@ public class SteamTurbineRecipeBuilder extends IEFinishedRecipe<SteamTurbineReci
     public SteamTurbineRecipeBuilder addOutput(FluidStack fluidStack) {
         return this.addWriter((jsonObject) -> {
             JsonObject obj = new JsonObject();
-            obj.addProperty("fluid", Objects.requireNonNull(BuiltInRegistries.FLUID.getKey(fluidStack.getFluid())).toString());
+            obj.addProperty("id", Objects.requireNonNull(BuiltInRegistries.FLUID.getKey(fluidStack.getFluid())).toString());
             obj.addProperty("amount", fluidStack.getAmount());
             jsonObject.add("output", obj);
         });

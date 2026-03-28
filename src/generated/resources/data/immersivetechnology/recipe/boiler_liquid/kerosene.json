@@ -2,7 +2,7 @@
   "type": "immersivetechnology:boiler_liquid",
   "id": "immersivetechnology:boiler_liquid/kerosene",
   "input": {
-    "tag": "forge:kerosene",
+    "tag": "c:kerosene",
     "amount": 9
   },
   "time": 10,
