@@ -31,6 +31,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -46,7 +47,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import mctmods.immersivetechnology.core.util.compat.LazyOptional;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -204,7 +204,7 @@ public class BoilerSolidLogic implements IMultiblockLogic<BoilerSolidLogic.State
     private void updateAllBlocks(IMultiblockContext<State> ctx, Level level, boolean active) {
         if (level.isClientSide) { return; }
         ResourceLocation boilerRL = ITLib.rl("boiler_solid");
-        Block boilerBlock = ForgeRegistries.BLOCKS.get(boilerRL);
+        Block boilerBlock = BuiltInRegistries.BLOCK.get(boilerRL);
         if (boilerBlock == null) { return; }
         for (int y = 0; y < HEIGHT; y++) for (int z = 0; z < LENGTH; z++) for (int x = 0; x < WIDTH; x++) {
             BlockPos relPos = new BlockPos(x, y, z);

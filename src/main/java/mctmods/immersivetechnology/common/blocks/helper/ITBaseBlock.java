@@ -3,6 +3,7 @@ package mctmods.immersivetechnology.common.blocks.helper;
 import mctmods.immersivetechnology.core.registration.ITTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -27,7 +28,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.ticks.ScheduledTick;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -45,7 +45,7 @@ public class ITBaseBlock extends Block implements ITBlock, SimpleWaterloggedBloc
         this.registerDefaultState(this.getInitDefaultState());
     }
 
-    public String getNameForFlavour() { return Objects.requireNonNull(ForgeRegistries.BLOCKS.getKey(this)).getPath(); }
+    public String getNameForFlavour() { return Objects.requireNonNull(BuiltInRegistries.BLOCK.getKey(this)).getPath(); }
 
     public boolean hasFlavour() { return this.hasFlavour; }
 

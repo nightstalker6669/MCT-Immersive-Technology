@@ -38,6 +38,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 
@@ -167,7 +168,7 @@ public class ITFluid extends FlowingFluid {
             BlockState blockstate = pLevel.getBlockState(blockpos);
             FluidState fluidstate = blockstate.getFluidState();
             if (fluidstate.getType().isSame(this) && this.myCanPassThroughWall(direction, pLevel, pPos, pBlockState, blockpos, blockstate)) {
-                if (fluidstate.isSource() && net.minecraftforge.event.ForgeEventFactory.canCreateFluidSource(pLevel, blockpos, blockstate, fluidstate.canConvertToSource(pLevel, blockpos))) { ++j; }
+                if (fluidstate.isSource() && EventHooks.canCreateFluidSource(pLevel, blockpos, blockstate)) { ++j; }
                 i = Math.max(i, fluidstate.getAmount());
             }
         }

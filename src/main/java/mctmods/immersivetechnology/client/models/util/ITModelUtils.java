@@ -37,7 +37,7 @@ public class ITModelUtils {
         int[] newData = new int[oldData.length];
         int vertexLength = oldData.length / 4;
         for (int i = 0; i < 4; ++i) { System.arraycopy(oldData, i * vertexLength, newData, (3 - i) * vertexLength, vertexLength); }
-        return new BakedQuad(newData, in.getTintIndex(), in.getDirection(), in.getSprite(), in.isShade());
+        return new BakedQuad(newData, in.getTintIndex(), in.getDirection(), in.getSprite(), in.isShade(), in.hasAmbientOcclusion());
     }
 
     public static Transformation fromItemTransform(ItemTransform transform, boolean leftHand) {
@@ -86,8 +86,9 @@ public class ITModelUtils {
                     ((int)(colour[2] * 255) << 16) |
                     ((int)(colour[3] * alpha * 255) << 24);
 
-            data[base + UV_OFFSET]     = Float.floatToIntBits(sprite.getU((float) u));
-            data[base + UV_OFFSET + 1] = Float.floatToIntBits(sprite.getV((float) v));
+            // TextureAtlasSprite expects model UVs in 0..1 atlas space, not the legacy 0..16 face space.
+            data[base + UV_OFFSET]     = Float.floatToIntBits(sprite.getU((float) u / 16.0F));
+            data[base + UV_OFFSET + 1] = Float.floatToIntBits(sprite.getV((float) v / 16.0F));
 
             data[base + LIGHTMAP_OFFSET] = 0xF00000;
 
@@ -100,7 +101,7 @@ public class ITModelUtils {
         }
 
         public BakedQuad bake(int tint, Direction side, TextureAtlasSprite texture, boolean shade) {
-            return new BakedQuad(data, tint, side, texture, shade);
+            return new BakedQuad(data, tint, side, texture, shade, true);
         }
     }
 }

@@ -13,7 +13,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
@@ -47,7 +46,7 @@ public class SolarMenu extends ITContainerMenu {
         this.addSlot(new ITSlot.FluidContainer(inv, 0, 80, 17, 1) { @Override public boolean mayPlace(@Nonnull ItemStack itemStack) { FluidStack fs = FluidUtil.getFluidContained(itemStack).orElse(null); if (fs == null) return false;return inputTank.getFluidAmount() <= 0 || ITUtils.sameFluidComponents(fs, inputTank.getFluid()); }});
         this.addSlot(new ITSlot.Output(inv, 1, 80, 53));
         this.addSlot(new ITSlot.FluidContainer(inv, 2, 148, 17, 0) { @Override public boolean mayPlace(@Nonnull ItemStack itemStack) {
-                return ForgeCapabilities.FLUID_HANDLER_ITEM.get(itemStack).isPresent();
+                return FluidUtil.getFluidHandler(itemStack).isPresent();
             }});
         this.addSlot(new ITSlot.Output(inv, 3, 148, 53));
         ownSlotCount = 4;

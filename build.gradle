@@ -1,5 +1,6 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import org.gradle.process.ExecOperations
 
 plugins {
     id 'idea'
@@ -197,6 +198,8 @@ def ieEmbeddedDependencies = files({
 def icProjectDir = file('external/ImmersiveConvergence')
 def icLibDir = file("$icProjectDir/build/libs")
 def icJarPattern = "ImmersiveConvergence-${minecraftVersion}-*-dev.jar"
+def icProjectDirPath = relativePath(icProjectDir)
+def execOperations = services.get(ExecOperations)
 def findMatchingIcJars = {
     if (!icLibDir.exists()) {
         return [] as Set<File>
@@ -219,22 +222,23 @@ def prepareImmersiveConvergence = tasks.register('prepareImmersiveConvergence') 
     doLast {
         if (!icProjectDir.exists()) {
             throw new GradleException(
-                    "Immersive Convergence is missing at ${project.relativePath(icProjectDir)}. " +
+                    "Immersive Convergence is missing at ${icProjectDirPath}. " +
                             "Run `git submodule update --init --recursive` from the repo root."
             )
         }
 
         def wrapperName = System.getProperty('os.name').toLowerCase().contains('windows') ? 'gradlew.bat' : 'gradlew'
         def wrapper = new File(icProjectDir, wrapperName)
+        def wrapperPath = relativePath(wrapper)
         if (!wrapper.exists()) {
             throw new GradleException(
-                    "Expected the Immersive Convergence Gradle wrapper at ${project.relativePath(wrapper)} but it was not found."
+                    "Expected the Immersive Convergence Gradle wrapper at ${wrapperPath} but it was not found."
             )
         }
 
-        logger.lifecycle("Building Immersive Convergence dev jar from ${project.relativePath(icProjectDir)}")
+        logger.lifecycle("Building Immersive Convergence dev jar from ${icProjectDirPath}")
         try {
-            exec {
+            execOperations.exec {
                 workingDir = icProjectDir
                 if (wrapperName.endsWith('.bat')) {
                     commandLine 'cmd', '/c', wrapperName, 'devJar', '--no-daemon', '--stacktrace'
@@ -244,7 +248,7 @@ def prepareImmersiveConvergence = tasks.register('prepareImmersiveConvergence') 
             }
         } catch (Exception ex) {
             throw new GradleException(
-                    "Failed to build Immersive Convergence from ${project.relativePath(icProjectDir)}. " +
+                    "Failed to build Immersive Convergence from ${icProjectDirPath}. " +
                             "Port that submodule to Minecraft ${minecraftVersion} / NeoForge ${neoVersion} and rerun the build.",
                     ex
             )
@@ -253,7 +257,7 @@ def prepareImmersiveConvergence = tasks.register('prepareImmersiveConvergence') 
         def icJar = findLatestIcJar()
         if (icJar == null) {
             throw new GradleException(
-                    "Immersive Convergence did not produce ${icJarPattern} under ${project.relativePath(icLibDir)}. " +
+                    "Immersive Convergence did not produce ${icJarPattern} under ${relativePath(icLibDir)}. " +
                             "The submodule still needs to target Minecraft ${minecraftVersion} and publish a matching dev jar."
             )
         }
@@ -308,33 +312,6 @@ processResources {
             jsonFile.setText(JsonOutput.toJson(new JsonSlurper().parse(jsonFile, 'UTF-8')))
         }
     }
-}
-
-def refreshGeneratedResources = tasks.register('refreshGeneratedResources') {
-    inputs.dir("$rootDir/src/generated/resources")
-    outputs.dir(layout.buildDirectory.dir('resources/main'))
-    doLast {
-        copy {
-            from("$rootDir/src/generated/resources")
-            into(layout.buildDirectory.dir('resources/main'))
-            duplicatesStrategy = DuplicatesStrategy.INCLUDE
-        }
-        fileTree(dir: layout.buildDirectory.dir('resources/main').get().asFile, includes: jsonPatterns).each { File jsonFile ->
-            jsonFile.setText(JsonOutput.toJson(new JsonSlurper().parse(jsonFile, 'UTF-8')))
-        }
-    }
-}
-
-tasks.named('runData').configure {
-    finalizedBy refreshGeneratedResources
-}
-
-tasks.named('compileDatagenJava').configure {
-    dependsOn refreshGeneratedResources
-}
-
-tasks.matching { it.name in ['runClient', 'runServer'] }.configureEach {
-    dependsOn refreshGeneratedResources
 }
 
 
