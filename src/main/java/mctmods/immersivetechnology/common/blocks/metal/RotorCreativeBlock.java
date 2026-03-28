@@ -38,7 +38,6 @@ public class RotorCreativeBlock extends ITEntityBlock<RotorCreativeBlockEntity> 
 
     @Override @NotNull public VoxelShape getCollisionShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) { return getRotorShape(state); }
 
-    @SuppressWarnings("deprecation")
     @Override public @NotNull VoxelShape getOcclusionShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) { return getRotorShape(state); }
 
     private VoxelShape getRotorShape(BlockState state) {
@@ -60,6 +59,5 @@ public class RotorCreativeBlock extends ITEntityBlock<RotorCreativeBlockEntity> 
         return ItemInteractionResult.CONSUME;
     }
 
-    @SuppressWarnings("deprecation")
     @OnlyIn(Dist.CLIENT) @Override public @NotNull RenderShape getRenderShape(@NotNull BlockState state) { return RenderShape.ENTITYBLOCK_ANIMATED; }
 }

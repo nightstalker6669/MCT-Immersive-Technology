@@ -19,6 +19,7 @@ public class HeatExchangerProcess extends MultiblockProcessInMachine<HeatExchang
         this.setInputTanks(0, 1);
     }
 
+    @SuppressWarnings("unused")
     public HeatExchangerProcess(BiFunction<Level, ResourceLocation, HeatExchangerRecipe> getRecipe, CompoundTag data, HolderLookup.Provider provider) {
         super(getRecipe, data);
         this.setInputTanks(0, 1);

@@ -9,7 +9,6 @@ import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockB
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockState;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.registry.MultiblockBlockEntityDummy;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.registry.MultiblockBlockEntityMaster;
-import blusunrize.immersiveengineering.api.multiblocks.blocks.util.*;
 import blusunrize.immersiveengineering.api.utils.DirectionUtils;
 import com.google.common.base.Preconditions;
 import mctmods.immersivetechnology.common.blocks.helper.ITProperties;
@@ -53,6 +52,10 @@ import java.util.function.Consumer;
 import static net.minecraft.world.level.block.Mirror.FRONT_BACK;
 
 public abstract class ITTemplateMultiblock extends TemplateMultiblock {
+    protected record FormationResult(BlockPos origin, Rotation rotation, Mirror mirror, Direction clickDirection) {
+        public boolean mirrored() { return mirror != Mirror.NONE; }
+    }
+
     public static final int DISASSEMBLE_QUEUE_SIZE = 8;
     private final MultiblockRegistration<?> logic;
 
@@ -274,9 +277,9 @@ public abstract class ITTemplateMultiblock extends TemplateMultiblock {
     }
 
     @SuppressWarnings("deprecation")
-    @Override public boolean createStructure(Level world, BlockPos pos, Direction side, net.minecraft.world.entity.player.Player player) {
+    protected @Nullable FormationResult findFormationResult(Level world, BlockPos pos, Direction side) {
         Rotation baseRot = DirectionUtils.getRotationBetweenFacings(Direction.NORTH, side.getOpposite());
-        if (baseRot == null) { return false; }
+        if (baseRot == null) { return null; }
         getTemplate(world);
         List<StructureTemplate.StructureBlockInfo> structure = getStructure(world);
 
@@ -309,11 +312,10 @@ public abstract class ITTemplateMultiblock extends TemplateMultiblock {
                 if (allMatch) {
                     Direction formSide = side;
                     if (isSymmetric) { formSide = side.getOpposite(); }
-                    if (!world.isClientSide) { form(world, origin, currentRot, Mirror.NONE, formSide); }
-                    return true;
+                    return new FormationResult(origin, currentRot, Mirror.NONE, formSide);
                 }
             }
-            return false;
+            return null;
         }
 
         List<Mirror> mirrorsToTry = new ArrayList<>(getMirrorsToTry());
@@ -342,11 +344,17 @@ public abstract class ITTemplateMultiblock extends TemplateMultiblock {
             }
 
             if (allMatch) {
-                if (!world.isClientSide) { form(world, origin, rot, triedMirror, side); }
-                return true;
+                return new FormationResult(origin, rot, triedMirror, side);
             }
         }
-        return false;
+        return null;
+    }
+
+    @Override public boolean createStructure(Level world, BlockPos pos, Direction side, net.minecraft.world.entity.player.Player player) {
+        FormationResult formation = findFormationResult(world, pos, side);
+        if (formation == null) { return false; }
+        if (!world.isClientSide) { form(world, formation.origin(), formation.rotation(), formation.mirror(), formation.clickDirection()); }
+        return true;
     }
 
     protected void form(Level world, BlockPos origin, Rotation rot, Mirror mirrorForSettings, Direction side) {

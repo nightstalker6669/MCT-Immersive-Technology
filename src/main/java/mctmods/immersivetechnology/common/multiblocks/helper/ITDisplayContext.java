@@ -20,11 +20,15 @@ public interface ITDisplayContext {
 
     default IFluidTank[] getInternalTanks() { return ProcessContext.EMPTY_TANKS; }
 
+    @SuppressWarnings("unused")
     default void writeDisplaySyncNBT(CompoundTag nbt) { }
 
+    @SuppressWarnings("unused")
     default void readDisplaySyncNBT(CompoundTag nbt) { }
 
+    @SuppressWarnings("unused")
     default void writeDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) { writeDisplaySyncNBT(nbt); }
 
+    @SuppressWarnings("unused")
     default void readDisplaySyncNBT(CompoundTag nbt, HolderLookup.Provider provider) { readDisplaySyncNBT(nbt); }
 }

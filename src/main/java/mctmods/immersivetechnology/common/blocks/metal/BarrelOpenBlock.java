@@ -26,6 +26,5 @@ public class BarrelOpenBlock extends ITEntityBlock<BarrelOpenBlockEntity> {
         builder.add(BOTTOM_CONFIG);
     }
 
-    @SuppressWarnings("deprecation")
     @Override @NotNull public RenderShape getRenderShape(@NotNull BlockState state) { return RenderShape.ENTITYBLOCK_ANIMATED; }
 }

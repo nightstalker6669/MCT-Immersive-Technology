@@ -33,7 +33,6 @@ public class ITObjModelBuilder<T extends ModelBuilder<T>> extends CustomLoaderBu
     public ITObjModelBuilder<T> emissiveAmbient(boolean emissiveAmbient) { this.emissiveAmbient = emissiveAmbient; return this; }
     public ITObjModelBuilder<T> mtlOverride(String mtlOverride) { this.mtlOverride = mtlOverride; return this; }
     public ITObjModelBuilder<T> visibility(String part, boolean show) { visibility.put(part, show); return this; }
-    @SuppressWarnings("UnusedReturnValue")
     public ITObjModelBuilder<T> renderType(String renderType) { this.renderType = renderType; return this; }
 
     @Override public JsonObject toJson(JsonObject json) {

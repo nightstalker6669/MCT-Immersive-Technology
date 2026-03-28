@@ -22,7 +22,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
@@ -159,5 +158,6 @@ public class FormationTool extends Item {
 
     @Override public boolean isBookEnchantable(ItemStack stack, ItemStack book) { return false; }
 
+    @SuppressWarnings("unused")
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) { return false; }
 }

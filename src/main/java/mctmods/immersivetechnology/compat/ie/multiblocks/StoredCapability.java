@@ -10,10 +10,12 @@ public final class StoredCapability<T> {
         this.value = value;
     }
 
+    @SuppressWarnings("unused")
     public T get(@Nullable Object ignored) {
         return value;
     }
 
+    @SuppressWarnings({"unchecked", "unused"})
     public <X> LazyOptional<X> cast(@Nullable Object ignored) {
         return LazyOptional.of(() -> (X) value);
     }

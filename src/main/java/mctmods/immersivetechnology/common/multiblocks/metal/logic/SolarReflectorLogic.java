@@ -358,6 +358,7 @@ public class SolarReflectorLogic implements IMultiblockLogic<SolarReflectorLogic
         if (!state.isMirrorTaken) { SolarRegistry.updateDance(level); }
     }
 
+    @SuppressWarnings("unused")
     public <T> LazyOptional<T> getCapability(IMultiblockContext<State> ctx, CapabilityPosition position, Capability<T> cap) { return LazyOptional.empty(); }
 
     @Override public Function<BlockPos, VoxelShape> shapeGetter(ShapeType shapeType) { return SolarReflectorShape.GETTER; }

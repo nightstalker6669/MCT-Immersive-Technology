@@ -4,7 +4,6 @@ import blusunrize.immersiveengineering.api.multiblocks.ClientMultiblocks;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.MultiblockOrientation;
 import mctmods.immersivetechnology.common.multiblocks.helper.ITClientMultiblockProperties;
 import mctmods.immersivetechnology.common.multiblocks.helper.ITTemplateMultiblock;
-import mctmods.immersivetechnology.common.multiblocks.metal.logic.SolarMelterLogic;
 import mctmods.immersivetechnology.common.multiblocks.metal.logic.SolarTowerLogic;
 import mctmods.immersivetechnology.common.multiblocks.metal.shapes.SolarTowerShape;
 import mctmods.immersivetechnology.core.network.ITOSDSyncBlock;
@@ -27,23 +26,21 @@ public class SolarTower extends ITTemplateMultiblock {
 
     @Override public boolean createStructure(Level world, BlockPos pos, Direction side, Player player) {
         if (world.isClientSide) return false;
-        Direction front = player.getDirection();
-        boolean mirrored = false;
-        MultiblockOrientation orientation = new MultiblockOrientation(front, mirrored);
-        boolean formed = super.createStructure(world, pos, side, player);
-        if (formed) {
-            BlockPos origin = pos.subtract(orientation.getAbsoluteOffset(getTriggerOffset()));
-            BlockPos base = origin.offset(orientation.getAbsoluteOffset(SolarMelterLogic.LINK_POI));
-            SolarRegistry.RegisterResult result = SolarRegistry.registerTower(world, base);
-            if (!result.success) {
-                TranslationKey key = result.vertical ? TranslationKey.SOLAR_VERTICAL_STACK : TranslationKey.SOLAR_TOO_CLOSE;
-                int dist = result.vertical ? -1 : result.requiredMove;
-                ITPacketHandler.sendToPlayer(player, new ITOSDSyncBlock(key.name(), dist));
-                disassemble(world, origin, mirrored, front);
-                return false;
-            }
+        FormationResult formation = findFormationResult(world, pos, side);
+        if (formation == null) { return false; }
+
+        MultiblockOrientation orientation = new MultiblockOrientation(formation.clickDirection(), formation.mirrored());
+        BlockPos base = formation.origin().offset(orientation.getAbsoluteOffset(SolarTowerLogic.LINK_POI));
+        SolarRegistry.RegisterResult result = SolarRegistry.registerTower(world, base);
+        if (!result.success) {
+            TranslationKey key = result.vertical ? TranslationKey.SOLAR_VERTICAL_STACK : TranslationKey.SOLAR_TOO_CLOSE;
+            int dist = result.vertical ? -1 : result.requiredMove;
+            ITPacketHandler.sendToPlayer(player, new ITOSDSyncBlock(key.name(), dist));
+            return false;
         }
-        return formed;
+
+        form(world, formation.origin(), formation.rotation(), formation.mirror(), formation.clickDirection());
+        return true;
     }
 
     @Override public void disassemble(Level world, BlockPos origin, boolean mirrored, Direction clickDirectionAtCreation) {

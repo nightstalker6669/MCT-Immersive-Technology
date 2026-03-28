@@ -33,7 +33,6 @@ public class ITMultiblockBEType<T extends BlockEntity & ITBlockInterfaces.IGener
     public static <T extends BlockEntity> Supplier<BlockEntityType<T>> makeType(BEWithTypeConstructor<T> create, Supplier<? extends Block> valid) {
         return () -> {
             Mutable<BlockEntityType<T>> typeMutable = new MutableObject<>();
-            @SuppressWarnings("ConstantConditions")
             BlockEntityType<T> type = BlockEntityType.Builder.of((pos, state) -> create.create(typeMutable.getValue(), pos, state), valid.get()).build(null);
             typeMutable.setValue(type);
             return type;

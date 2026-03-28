@@ -20,6 +20,7 @@ public abstract class FluidPipeBlockEntityMixin {
     @Final @Shadow(remap = false) private Map<Direction, CapabilityReference<IFluidHandler>> neighbors;
 
     @Inject(method = "updateConnectionByte(Lnet/minecraft/core/Direction;)Z", at = @At("HEAD"), remap = false)
+    @SuppressWarnings("unused")
     private void invalidateCache(Direction dir, CallbackInfoReturnable<Boolean> cir) {
         CapabilityReference<IFluidHandler> ref = neighbors.get(dir);
         if (ref != null) {

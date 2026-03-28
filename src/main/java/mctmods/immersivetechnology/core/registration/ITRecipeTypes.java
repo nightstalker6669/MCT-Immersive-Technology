@@ -46,7 +46,9 @@ public class ITRecipeTypes {
         SteamTurbineRecipe.SERIALIZER = RECIPE_SERIALIZERS.register("steam_turbine", SteamTurbineRecipeSerializer::new);
     }
 
-    private static <T extends Recipe<?>> TypeWithClass<T> register(String name, Class<T> type) { return new TypeWithClass<>(REGISTER.register(name, () -> new RecipeType<>() {}), type); }
+    private static <T extends Recipe<?>> TypeWithClass<T> register(String name, Class<T> type) {
+        return new TypeWithClass<T>(REGISTER.register(name, () -> new RecipeType<T>() {}), type);
+    }
 
     public static void init(IEventBus modEventBus) { REGISTER.register(modEventBus); RECIPE_SERIALIZERS.register(modEventBus); }
 }

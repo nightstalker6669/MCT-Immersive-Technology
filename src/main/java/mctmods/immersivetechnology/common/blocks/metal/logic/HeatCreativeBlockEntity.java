@@ -16,6 +16,7 @@ public class HeatCreativeBlockEntity extends ITBaseBlockEntity {
     public HeatCreativeBlockEntity(BlockPos pos, BlockState state) { super(ITBlockEntities.HEAT_CREATIVE.get(), pos, state); }
 
     @Nullable
+    @SuppressWarnings("unused")
     public IHeatProvider getHeatProvider(@Nullable Direction side) {
         return provider;
     }

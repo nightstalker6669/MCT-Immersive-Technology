@@ -175,8 +175,10 @@ public class ITBlockInterfaces {
             else { return f; }
         }
 
+        @SuppressWarnings("unused")
         default boolean mirrorFacingOnPlacement(LivingEntity placer) { return false; }
 
+        @SuppressWarnings("unused")
         default boolean canHammerRotate(Direction side, Vec3 hit, LivingEntity entity) { return true; }
 
         default void afterRotation() { }

@@ -15,8 +15,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
 import java.util.function.BiFunction;
 
 public class AdvancedCokeOvenProcess extends MultiblockProcessInMachine<AdvancedCokeOvenRecipe> {
@@ -25,6 +23,7 @@ public class AdvancedCokeOvenProcess extends MultiblockProcessInMachine<Advanced
 
     public AdvancedCokeOvenProcess(AdvancedCokeOvenRecipe recipe) { super(new RecipeHolder<>(recipe.id(), recipe), 0); this.maxProcessTime = recipe.getTotalProcessTime(); }
 
+    @SuppressWarnings("unused")
     public AdvancedCokeOvenProcess(BiFunction<Level, ResourceLocation, AdvancedCokeOvenRecipe> getRecipe, CompoundTag data, HolderLookup.Provider provider) { super(getRecipe, data); this.processTick = data.getFloat("processTick"); this.maxProcessTime = data.getInt("maxProcessTime"); }
 
     @Override public void writeExtraDataToNBT(CompoundTag nbt, HolderLookup.Provider provider) { super.writeExtraDataToNBT(nbt, provider); nbt.putFloat("processTick", processTick); nbt.putInt("maxProcessTime", maxProcessTime); }

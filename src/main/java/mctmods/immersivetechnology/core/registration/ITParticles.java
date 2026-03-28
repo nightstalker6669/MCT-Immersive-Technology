@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class ITParticles {
     public static final DeferredRegister<ParticleType<?>> REGISTER = DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, ITLib.MODID);
 
-    public static final RegistryObject<ParticleType<ColoredSmoke>> COLORED_SMOKE = REGISTER.register("colored_smoke", () -> new ParticleType<>(false) {
+    public static final RegistryObject<ParticleType<ColoredSmoke>> COLORED_SMOKE = REGISTER.register("colored_smoke", () -> new ParticleType<ColoredSmoke>(false) {
         @Override @NotNull public MapCodec<ColoredSmoke> codec() {return ColoredSmoke.CODEC;}
 
         @Override

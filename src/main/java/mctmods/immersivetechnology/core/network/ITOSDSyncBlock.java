@@ -20,6 +20,7 @@ public record ITOSDSyncBlock(String key, int distance) implements CustomPacketPa
 
     private void write(RegistryFriendlyByteBuf buf) { buf.writeUtf(key); buf.writeInt(distance); }
 
+    @SuppressWarnings("unused")
     public static void handle(ITOSDSyncBlock message, IPayloadContext context) {
         TranslationKey transKey = TranslationKey.valueOf(message.key);
         String actualKey = transKey.getLocation();

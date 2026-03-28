@@ -19,5 +19,6 @@ public class InitializationTrackerMixin {
     private List<Pair<Exception, SetRestrictedField<?>>> fields;
 
     @Inject(method = "<init>", at = @At("RETURN"))
+    @SuppressWarnings("unused")
     private void onInit(CallbackInfo ci) { this.fields = Collections.synchronizedList(this.fields); }
 }

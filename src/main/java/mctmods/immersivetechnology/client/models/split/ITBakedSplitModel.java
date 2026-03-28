@@ -59,7 +59,7 @@ public class ITBakedSplitModel<T extends BakedModel> extends ITAbstractSplitMode
         }
     }
 
-    @Override @SuppressWarnings("ConstantConditions") @Nonnull public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull RandomSource rand, @Nonnull ModelData data, @Nullable RenderType renderType) {
+    @Override @Nonnull public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull RandomSource rand, @Nonnull ModelData data, @Nullable RenderType renderType) {
         BlockPos offset = data.get(ITProperties.Model.SUBMODEL_OFFSET);
         if (offset == null) {
             if (state == null) {

@@ -35,6 +35,7 @@ public abstract class MixerLogicDebounceMixin {
             cancellable = true,
             remap = false
     )
+    @SuppressWarnings("unused")
     private void it$smartDebounce(State state, Level rawLevel, CallbackInfoReturnable<Object> cir) {
         MixerStateDebounceAccessor ext = (MixerStateDebounceAccessor) state;
 

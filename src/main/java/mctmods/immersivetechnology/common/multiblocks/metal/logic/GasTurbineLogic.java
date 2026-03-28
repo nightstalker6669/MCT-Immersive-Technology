@@ -232,7 +232,6 @@ public class GasTurbineLogic implements IMultiblockLogic<GasTurbineLogic.State>,
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override public void tickServer(IMultiblockContext<State> ctx) {
         pumpOutputs(ctx);
         State state = ctx.getState();

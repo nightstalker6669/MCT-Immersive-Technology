@@ -5,7 +5,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-@SuppressWarnings("deprecation")
 public class ITBaseBlock extends Block implements ITBlock, SimpleWaterloggedBlock {
     protected final boolean notNormalBlock;
     private final boolean fitsIntoContainer;
@@ -89,10 +87,12 @@ public class ITBaseBlock extends Block implements ITBlock, SimpleWaterloggedBloc
         else { return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; }
     }
 
+    @SuppressWarnings("unused")
     public ItemInteractionResult hammerUseSide(Direction side, Player player, InteractionHand hand, Level w, BlockPos pos, BlockHitResult hit) {
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
+    @SuppressWarnings("unused")
     public ItemInteractionResult screwdriverUseSide(Direction side, Player player, InteractionHand hand, Level w, BlockPos pos, BlockHitResult hit) {
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }

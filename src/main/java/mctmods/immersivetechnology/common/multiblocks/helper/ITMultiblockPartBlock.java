@@ -63,7 +63,6 @@ public class ITMultiblockPartBlock<S extends IMultiblockState> extends Multibloc
         super.onRemove(state, level, pos, newState, isMoving);
     }
 
-    @SuppressWarnings("deprecation")
     @Override @Nonnull public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull LootParams.Builder builder) {
         BlockEntity te = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (te instanceof IMultiblockBE<?> be) {

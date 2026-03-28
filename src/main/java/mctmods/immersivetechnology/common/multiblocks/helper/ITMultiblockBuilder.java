@@ -34,12 +34,10 @@ public class ITMultiblockBuilder<S extends IMultiblockState> extends MultiblockR
 
     public ITMultiblockBuilder<S> redstone(IMultiblockComponent.StateWrapper<S, RedstoneControl.RSState> getState, BlockPos... positions) { redstoneAware(); return selfWrappingComponent(new RedstoneControl<>(getState, positions)); }
 
-    @SuppressWarnings("ConstantConditions")
     public ITMultiblockBuilder<S> customBEs(net.minecraftforge.registries.DeferredRegister<BlockEntityType<?>> register) {
         return customBEs(register.unwrap());
     }
 
-    @SuppressWarnings("ConstantConditions")
     public ITMultiblockBuilder<S> customBEs(DeferredRegister<BlockEntityType<?>> register) {
         try {
             Field nameField = MultiblockRegistrationBuilder.class.getDeclaredField("name");

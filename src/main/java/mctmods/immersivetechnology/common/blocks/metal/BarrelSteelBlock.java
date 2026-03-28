@@ -30,6 +30,5 @@ public class BarrelSteelBlock extends ITEntityBlock<BarrelSteelBlockEntity> {
         builder.add(TOP_CONFIG, BOTTOM_CONFIG);
     }
 
-    @SuppressWarnings("deprecation")
     @Override @NotNull public RenderShape getRenderShape(@NotNull BlockState state) { return RenderShape.MODEL; }
 }

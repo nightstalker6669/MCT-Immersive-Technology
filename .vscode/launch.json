@@ -1,0 +1,93 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Client",
+      "presentation": {
+        "group": "Mod Development - MCT-ImmersiveTechnology-1.21.1-2.0.1",
+        "order": 0
+      },
+      "projectName": "MCT-ImmersiveTechnology-1.21.1-2.0.1",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\build\\moddev\\clientRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\build\\moddev\\clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dimmersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\main;immersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\datagen;immersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\gametest"
+      ],
+      "cwd": "${workspaceFolder}\\run\\client",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Data",
+      "presentation": {
+        "group": "Mod Development - MCT-ImmersiveTechnology-1.21.1-2.0.1",
+        "order": 1
+      },
+      "projectName": "MCT-ImmersiveTechnology-1.21.1-2.0.1",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\build\\moddev\\dataRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\build\\moddev\\dataRunVmArgs.txt",
+        "-Dfml.modFolders\u003dimmersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\main;immersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\datagen;immersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\gametest"
+      ],
+      "cwd": "${workspaceFolder}\\run\\data",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "GameTestServer",
+      "presentation": {
+        "group": "Mod Development - MCT-ImmersiveTechnology-1.21.1-2.0.1",
+        "order": 2
+      },
+      "projectName": "MCT-ImmersiveTechnology-1.21.1-2.0.1",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\build\\moddev\\gameTestServerRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\build\\moddev\\gameTestServerRunVmArgs.txt",
+        "-Dfml.modFolders\u003dimmersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\main;immersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\datagen;immersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\gametest"
+      ],
+      "cwd": "${workspaceFolder}\\run\\gametest",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Server",
+      "presentation": {
+        "group": "Mod Development - MCT-ImmersiveTechnology-1.21.1-2.0.1",
+        "order": 3
+      },
+      "projectName": "MCT-ImmersiveTechnology-1.21.1-2.0.1",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\build\\moddev\\serverRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\build\\moddev\\serverRunVmArgs.txt",
+        "-Dfml.modFolders\u003dimmersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\main;immersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\datagen;immersivetechnology%%C:\\Users\\richa\\Documents\\GitHub\\MCT-Immersive-Technology\\bin\\gametest"
+      ],
+      "cwd": "${workspaceFolder}\\run\\server",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    }
+  ]
+}

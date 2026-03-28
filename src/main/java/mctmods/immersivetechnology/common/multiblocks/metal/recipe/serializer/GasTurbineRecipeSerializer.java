@@ -1,6 +1,5 @@
 package mctmods.immersivetechnology.common.multiblocks.metal.recipe.serializer;
 
-import mctmods.immersivetechnology.compat.ie.crafting.FluidTagInput;
 import blusunrize.immersiveengineering.api.crafting.IERecipeSerializer;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.GasTurbineRecipe;
 import mctmods.immersivetechnology.core.util.codec.ITRecipeCodecs;

@@ -9,19 +9,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import mctmods.immersivetechnology.common.multiblocks.metal.recipe.BoilerLiquidRecipe;
-import mctmods.immersivetechnology.common.multiblocks.metal.recipe.BoilerSolidRecipe;
-import mctmods.immersivetechnology.common.multiblocks.metal.recipe.BoilerTankRecipe;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.DistillerRecipe;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.GasTurbineRecipe;
-import mctmods.immersivetechnology.common.multiblocks.metal.recipe.HeatExchangerRecipe;
-import mctmods.immersivetechnology.common.multiblocks.metal.recipe.SolarMelterRecipe;
-import mctmods.immersivetechnology.common.multiblocks.metal.recipe.SolarTowerRecipe;
-import mctmods.immersivetechnology.common.multiblocks.metal.recipe.SteamTurbineRecipe;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.builder.BoilerLiquidRecipeBuilder;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.builder.BoilerSolidRecipeBuilder;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.builder.BoilerTankRecipeBuilder;
-import mctmods.immersivetechnology.common.multiblocks.metal.recipe.builder.DistillerRecipeBuilder;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.builder.GasTurbineRecipeBuilder;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.builder.HeatExchangerRecipeBuilder;
 import mctmods.immersivetechnology.common.multiblocks.metal.recipe.builder.SolarMelterRecipeBuilder;
@@ -45,11 +37,9 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import net.neoforged.neoforge.fluids.FluidStack;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -104,28 +94,28 @@ public class ITCustomRecipes implements DataProvider {
         });
     }
 
-    private void recipesBoilerTank(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
+    private void recipesBoilerTank(@NotNull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         BoilerTankRecipeBuilder.builder(FluidTags.WATER, 250).addOutput(ITFluids.STEAM.getStill(), 450).setTime(10).setRequiredHeat(100.0).build(out, toResourceLocation("boiler_tank/water"));
         BoilerTankRecipeBuilder.builder(ITTags.fluidDistilledWater, 250).addOutput(ITFluids.STEAM.getStill(), 500).setTime(10).setRequiredHeat(100.0).build(out, toResourceLocation("boiler_tank/distilled_water"));
     }
 
-    private void recipesBoilerLiquid(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
+    private void recipesBoilerLiquid(@NotNull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         BoilerLiquidRecipeBuilder.builder().addInput(IETags.fluidBiodiesel, 10).setTime(10).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_liquid/biodiesel"));
         BoilerLiquidRecipeBuilder.builder().addInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("c", "gasoline")), 50).setTime(10).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_liquid/gasoline"));
         BoilerLiquidRecipeBuilder.builder().addInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("c", "diesel")), 7).setTime(10).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_liquid/diesel"));
         BoilerLiquidRecipeBuilder.builder().addInput(FluidTags.create(ResourceLocation.fromNamespaceAndPath("c", "kerosene")), 9).setTime(10).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_liquid/kerosene"));
     }
 
-    private void recipesBoilerSolid(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
+    private void recipesBoilerSolid(@NotNull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         BoilerSolidRecipeBuilder.builder().addInput(ItemTags.COALS, 1).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_solid/coal"));
         BoilerSolidRecipeBuilder.builder().addInput(IETags.coalCoke, 1).setHeatPerTick(0.1).setTargetHeat(100.0).build(out, toResourceLocation("boiler_solid/coal_coke"));
     }
 
-    private void recipesCoolingTower(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
+    private void recipesCoolingTower(@NotNull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         CoolingTowerRecipeBuilder.builder().addInput(FluidTags.WATER, 1000).addInput(ITTags.fluidExhaustSteam, 900).addOutput(Fluids.WATER, 500).addOutput(Fluids.WATER, 500).addOutput(Fluids.WATER, 500).setTime(3).build(out, toResourceLocation("cooling_tower/water"));
     }
 
-    private void recipesDistiller(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
+    private void recipesDistiller(@NotNull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         ItemStack salt = new ItemStack(ITItems.SALT.get(), 1);
         out.accept(buildJsonRecipe(toResourceLocation("distiller/water"), DistillerRecipe.SERIALIZER.get(), json -> {
             json.add("input", new FluidTagInput(FluidTags.WATER, 1000).serialize());
@@ -146,14 +136,14 @@ public class ITCustomRecipes implements DataProvider {
         }));
     }
 
-    private void recipesHeatExchanger(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
+    private void recipesHeatExchanger(@NotNull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         HeatExchangerRecipeBuilder.builder(new FluidTagInput(FluidTags.WATER, 250), new FluidTagInput(ITTags.fluidFlueGas, 1000), new FluidStack(ITFluids.STEAM.getStill(), 450), null, 640, 10).build(out, toResourceLocation("heat_exchanger/water_fluegas"));
         HeatExchangerRecipeBuilder.builder(new FluidTagInput(ITTags.fluidDistilledWater, 250), new FluidTagInput(ITTags.fluidFlueGas, 1000), new FluidStack(ITFluids.STEAM.getStill(), 500), null, 640, 10).build(out, toResourceLocation("heat_exchanger/distwater_fluegas"));
         HeatExchangerRecipeBuilder.builder(new FluidTagInput(FluidTags.WATER, 250), new FluidTagInput(ITTags.fluidMoltenSalt, 80), new FluidStack(ITFluids.STEAM.getStill(), 450), new FluidStack(ITFluids.HEATED_SALT.getStill(), 80), 640, 10).build(out, toResourceLocation("heat_exchanger/water_moltensalt"));
         HeatExchangerRecipeBuilder.builder(new FluidTagInput(ITTags.fluidDistilledWater, 250), new FluidTagInput(ITTags.fluidMoltenSalt, 80), new FluidStack(ITFluids.STEAM.getStill(), 500), new FluidStack(ITFluids.HEATED_SALT.getStill(), 80), 640, 10).build(out, toResourceLocation("heat_exchanger/distwater_moltensalt"));
     }
 
-    private void recipesMixer(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
+    private void recipesMixer(@NotNull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         out.accept(mixerRecipe(
                 toResourceLocation("mixer/salt_slurry"),
                 new FluidTagInput(FluidTags.WATER, 1000),
@@ -170,7 +160,7 @@ public class ITCustomRecipes implements DataProvider {
         ));
     }
 
-    private void recipesTurbine(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
+    private void recipesTurbine(@NotNull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         SteamTurbineRecipeBuilder.builder().addInput(ITTags.fluidSteam, 100).addOutput(ITFluids.EXHAUST_STEAM.getStill(), 100).setTime(1).build(out, toResourceLocation("steam_turbine/steam"));
         SteamTurbineRecipeBuilder.builder().addInput(ITTags.fluidSteamForge, 100).addOutput(ITFluids.EXHAUST_STEAM.getStill(), 100).setTime(1).build(out, toResourceLocation("steam_turbine/steam_forge"));
         GasTurbineRecipeBuilder.builder().addInput(IETags.fluidBiodiesel, 160).addOutput(ITFluids.FLUE_GAS.getStill(), 1000).setTime(10).build(out, toResourceLocation("gas_turbine/biodiesel"));
@@ -200,12 +190,12 @@ public class ITCustomRecipes implements DataProvider {
         ));
     }
 
-    private void recipesSolarMelter(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
+    private void recipesSolarMelter(@NotNull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         SolarMelterRecipeBuilder.builder().addInput(ITTags.fluidHeatedSaltSlurry, 1000).addOutput(ITFluids.MOLTEN_SALT.getStill(), 500).setTime(20).setRequiredTemp(1000.0).build(out, toResourceLocation("solar_melter/heated_salt"));
         SolarMelterRecipeBuilder.builder().addInput(ITTags.fluidHeatedGravelSlurry, 1000).addOutput(Fluids.LAVA, 500).setTime(20).setRequiredTemp(1000.0).build(out, toResourceLocation("solar_melter/heated_gravel_slurry"));
     }
 
-    private void recipesSolarTower(@Nonnull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
+    private void recipesSolarTower(@NotNull Consumer<IEFinishedRecipe.GeneratedRecipe> out) {
         SolarTowerRecipeBuilder.builder().addInput(FluidTags.WATER, 250).addOutput(ITFluids.STEAM.getStill(), 450).setTime(10).setRequiredTemp(100.0).build(out, toResourceLocation("solar_tower/water"));
         SolarTowerRecipeBuilder.builder().addInput(ITTags.fluidDistilledWater, 250).addOutput(ITFluids.STEAM.getStill(), 500).setTime(10).setRequiredTemp(100.0).build(out, toResourceLocation("solar_tower/distilled_water"));
         SolarTowerRecipeBuilder.builder().addInput(ITTags.fluidSaltSlurry, 1000).addOutput(ITFluids.HEATED_SALT.getStill(), 500).setTime(10).setRequiredTemp(400.0).build(out, toResourceLocation("solar_tower/salt_slurry"));
@@ -273,7 +263,7 @@ public class ITCustomRecipes implements DataProvider {
     }
 
     @Override
-    public @Nonnull String getName() {
+    public @NotNull String getName() {
         return "Immersive Technology Custom Recipes";
     }
 }

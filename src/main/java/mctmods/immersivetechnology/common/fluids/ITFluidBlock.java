@@ -54,7 +54,6 @@ public class ITFluidBlock extends LiquidBlock {
         this.level = level;
     }
 
-    @SuppressWarnings("deprecation")
     @Override public void entityInside(@Nonnull BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull Entity entityIn) {
         super.entityInside(state, worldIn, pos, entityIn);
         if (effect != null && entityIn instanceof LivingEntity living) { living.addEffect(new MobEffectInstance(Holder.direct(effect), duration, level)); }

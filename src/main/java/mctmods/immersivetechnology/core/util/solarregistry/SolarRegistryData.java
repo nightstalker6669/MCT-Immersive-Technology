@@ -26,6 +26,7 @@ public class SolarRegistryData extends SavedData {
 
     public SolarRegistryData() { super(); }
 
+    @SuppressWarnings("unused")
     public static SolarRegistryData load(CompoundTag nbt, HolderLookup.Provider provider) {
         SolarRegistryData data = new SolarRegistryData();
         for (String key : nbt.getAllKeys()) {

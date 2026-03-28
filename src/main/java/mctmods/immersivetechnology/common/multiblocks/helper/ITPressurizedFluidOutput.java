@@ -3,8 +3,6 @@ package mctmods.immersivetechnology.common.multiblocks.helper;
 import blusunrize.immersiveengineering.api.fluid.IFluidPipe;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockContext;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockState;
-import blusunrize.immersiveengineering.api.multiblocks.blocks.util.CapabilityPosition;
-import blusunrize.immersiveengineering.api.multiblocks.blocks.util.MultiblockFace;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.util.RelativeBlockFace;
 import blusunrize.immersiveengineering.common.blocks.metal.FluidPipeBlockEntity;
 import mctmods.immersivetechnology.common.fluids.helper.ITMarkableFluidTank;
@@ -29,6 +27,7 @@ public interface ITPressurizedFluidOutput<State extends IMultiblockState> {
 
     default int getTransferSpeed() { return Integer.MAX_VALUE; }
 
+    @SuppressWarnings("unused")
     default boolean shouldPumpOutputs(IMultiblockContext<State> ctx) { return true; }
 
     default boolean pumpOutputs(IMultiblockContext<State> ctx) {
@@ -43,10 +42,6 @@ public interface ITPressurizedFluidOutput<State extends IMultiblockState> {
         for (int i = 0; i < tanks.size(); i++) {
             ITMarkableFluidTank tank = tanks.get(i);
             if (tank.getFluidAmount() == 0) continue;
-            RelativeBlockFace face = (facings != null && !facings.isEmpty()) ? facings.get(i) : ctx.getLevel().toRelative(singleOutputDir);
-            MultiblockFace mbf = new MultiblockFace(face, outputPositions.get(i));
-            CapabilityPosition oppCp = CapabilityPosition.opposing(mbf);
-            MultiblockFace oppMbf = new MultiblockFace(oppCp.side(), oppCp.posInMultiblock());
             BlockPos portAbs = ctx.getLevel().toAbsolute(outputPositions.get(i));
             Direction outputDir = singleOutputDir;
             if (facings != null && !facings.isEmpty()) outputDir = ctx.getLevel().toAbsolute(facings.get(i));
@@ -79,10 +74,6 @@ public interface ITPressurizedFluidOutput<State extends IMultiblockState> {
         List<BlockPos> outputPositions = getOutputPositions();
         if (index < 0 || index >= outputPositions.size()) { return false; }
         List<RelativeBlockFace> facings = getOutputFacings();
-        RelativeBlockFace face = (facings != null && !facings.isEmpty()) ? facings.get(index) : ctx.getLevel().toRelative(getOutputDirection(ctx));
-        MultiblockFace mbf = new MultiblockFace(face, outputPositions.get(index));
-        CapabilityPosition oppCp = CapabilityPosition.opposing(mbf);
-        MultiblockFace oppMbf = new MultiblockFace(oppCp.side(), oppCp.posInMultiblock());
         BlockPos portAbs = ctx.getLevel().toAbsolute(outputPositions.get(index));
         Direction outputDir = facings != null && !facings.isEmpty() ? ctx.getLevel().toAbsolute(facings.get(index)) : getOutputDirection(ctx);
         if (outputDir == null) return false;

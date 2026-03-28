@@ -1,7 +1,6 @@
 package mctmods.immersivetechnology.common.multiblocks.helper;
 
 import blusunrize.immersiveengineering.api.multiblocks.blocks.MultiblockRegistration;
-import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockContext;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockState;
 import blusunrize.immersiveengineering.api.multiblocks.blocks.registry.MultiblockBlockEntityMaster;
 import mctmods.immersivetechnology.common.blocks.helper.ITBlockInterfaces;
