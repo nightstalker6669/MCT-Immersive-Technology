@@ -39,7 +39,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public abstract class BarrelCommonBlockEntity extends ITBaseBlockEntity implements ITServerTickableBE, ITClientTickableBE, ITBlockInterfaces.IBlockOverlayText, ITBlockInterfaces.IPlayerInteraction, ITBlockInterfaces.IBlockEntityDrop, ITBlockInterfaces.IComparatorOverride, ITBlockInterfaces.IPlacementInteraction, ITBlockInterfaces.IConfigurableSides {
+public abstract class BarrelCommonBlockEntity extends ITBaseBlockEntity implements ITServerTickableBE, ITClientTickableBE, ITBlockInterfaces.IBlockOverlayText, ITBlockInterfaces.IPlayerInteraction, ITBlockInterfaces.IBlockEntityDrop, ITBlockInterfaces.IComparatorOverride, ITBlockInterfaces.IConfigurableSides {
     public final ITMarkableFluidTank tank;
     public EnumMap<Direction, IOSideConfig> sideConfig = new EnumMap<>(ImmutableMap.of(Direction.DOWN, IOSideConfig.OUTPUT, Direction.UP, IOSideConfig.INPUT));
     protected static final int transferSpeed = FluidType.BUCKET_VOLUME;

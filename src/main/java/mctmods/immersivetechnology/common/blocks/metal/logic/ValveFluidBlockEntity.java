@@ -3,7 +3,6 @@ package mctmods.immersivetechnology.common.blocks.metal.logic;
 import blusunrize.immersiveengineering.api.fluid.IFluidPipe;
 import blusunrize.immersiveengineering.common.blocks.metal.FluidPipeBlockEntity;
 import mctmods.immersivetechnology.common.blocks.helper.ITProperties;
-import mctmods.immersivetechnology.common.blocks.helper.ITServerTickableBE;
 import mctmods.immersivetechnology.common.blocks.metal.gui.ValveFluidMenu;
 import mctmods.immersivetechnology.core.util.TranslationKey;
 import mctmods.immersivetechnology.core.util.ITUtils;
@@ -30,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import static mctmods.immersivetechnology.common.blocks.metal.ValveFluidBlock.OPEN;
 import static mctmods.immersivetechnology.common.blocks.metal.ValveFluidBlock.ROTATION;
 
-public class ValveFluidBlockEntity extends ValveCommonBlockEntity implements ITServerTickableBE, IFluidHandler, IFluidPipe {
+public class ValveFluidBlockEntity extends ValveCommonBlockEntity implements IFluidHandler, IFluidPipe {
     public static class DummyTank implements IFluidHandler {
         @Override public int getTanks() { return 1; }
         @Override @NotNull public FluidStack getFluidInTank(int tank) { return FluidStack.EMPTY; }

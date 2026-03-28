@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.function.BooleanSupplier;
 
-public class AdvancedCokeOvenBaseHeaterBlockEntity extends ITBaseBlockEntity implements ITServerTickableBE, ITClientTickableBE, ITBlockInterfaces.IDirectionalBE, ITBlockInterfaces.IHasDummyBlocks, IEnergyStorage, ITModelOffsetProvider {
+public class AdvancedCokeOvenBaseHeaterBlockEntity extends ITBaseBlockEntity implements ITServerTickableBE, ITClientTickableBE, ITBlockInterfaces.IDirectionalBE, ITBlockInterfaces.IHasDummyBlocks, IEnergyStorage {
 
     private static final int MAX_ENERGY = ITServerConfig.advancedCokeOvenBaseheaterMaxEnergy;
     private static final int ENERGY_CONSUMPTION = ITServerConfig.advancedCokeOvenBaseheaterEnergyConsumption;

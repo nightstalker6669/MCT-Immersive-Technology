@@ -64,10 +64,8 @@ public abstract class ITContainerScreen<C extends AbstractContainerMenu> extends
 
     protected void drawBackgroundTexture(GuiGraphics graphics) { graphics.blit(this.background, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight); }
 
-    @SuppressWarnings("unused")
     protected void drawContainerBackgroundPre(@Nonnull GuiGraphics graphics, float partialTicks, int x, int y) {}
 
-    @SuppressWarnings("unused")
     protected void gatherAdditionalTooltips(int mouseX, int mouseY, Consumer<Component> addLine, Consumer<Component> addGray) {}
 
     public int getLeftPos() { return leftPos; }

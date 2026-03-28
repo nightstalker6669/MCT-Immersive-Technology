@@ -11,7 +11,6 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressWarnings("unused")
 public class ITObjModelBuilder<T extends ModelBuilder<T>> extends CustomLoaderBuilder<T> {
     public static <T extends ModelBuilder<T>> ITObjModelBuilder<T> begin(T parent, ExistingFileHelper existingFileHelper) { return new ITObjModelBuilder<>(parent, existingFileHelper); }
 

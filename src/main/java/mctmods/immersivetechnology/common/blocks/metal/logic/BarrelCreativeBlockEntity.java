@@ -41,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
-public class BarrelCreativeBlockEntity extends OSDCommonBlockEntity implements ITBlockInterfaces.IBlockEntityDrop, ITBlockInterfaces.IPlayerInteraction, ITBlockInterfaces.IBlockOverlayText {
+public class BarrelCreativeBlockEntity extends OSDCommonBlockEntity implements ITBlockInterfaces.IBlockEntityDrop, ITBlockInterfaces.IPlayerInteraction {
     private FluidStack selectedFluid = FluidStack.EMPTY;
 
     private static final int CREATIVE_BARREL_OUTPUT_AMOUNT = ITServerConfig.creativeBarrelOutputAmount;

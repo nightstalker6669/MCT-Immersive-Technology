@@ -200,10 +200,8 @@ public class ITModelConfigurableSides extends ITBakedModel {
             else { return Objects.requireNonNullElseGet(s, () -> c != null ? c : ""); }
         }
 
-        @SuppressWarnings("unused")
         default String nameFromSide(Direction side, ITEnums.IOSideConfig cfg) { return side.getSerializedName(); }
 
-        @SuppressWarnings("unused")
         default String nameFromCfg(Direction side, ITEnums.IOSideConfig cfg) { return cfg.getTextureName(); }
     }
 }

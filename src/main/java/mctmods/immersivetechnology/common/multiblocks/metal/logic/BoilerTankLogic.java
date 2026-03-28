@@ -86,7 +86,8 @@ public class BoilerTankLogic implements IMultiblockLogic<BoilerTankLogic.State>,
         final Level level = ctx.getLevel().getRawLevel();
         boolean update = false;
         double heatLevel = 0;
-        if (state.heatSource.isPresent()) { heatLevel = state.heatSource.get().getHeatLevel(); }
+        IHeatProvider heatSource = state.heatSource.getNullable();
+        if (heatSource != null) { heatLevel = heatSource.getHeatLevel(); }
         double previousHeatLevel = state.heatLevel;
         state.heatLevel = heatLevel;
         boolean isActive = heatLevel >= state.getWorkingHeatLevel() && state.recipeTimeRemaining > 0;
@@ -95,27 +96,29 @@ public class BoilerTankLogic implements IMultiblockLogic<BoilerTankLogic.State>,
         double required = state.getWorkingHeatLevel();
         if (heatLevel >= required) {
             if (state.recipeTimeRemaining > 0) {
-                if (state.lastRecipe == null) { state.recipeTimeRemaining = 0; update = true; }
+                BoilerTankRecipe activeRecipe = state.lastRecipe;
+                if (activeRecipe == null) { state.recipeTimeRemaining = 0; update = true; }
                 else {
                     state.recipeTimeRemaining--;
                     if (state.recipeTimeRemaining == 0) {
-                        state.tanks.output.fill(state.lastRecipe.output.copy(), FluidAction.EXECUTE);
+                        state.tanks.output.fill(activeRecipe.output.copy(), FluidAction.EXECUTE);
                         state.totalProcessTime = 0;
                         update = true;
                     }
                 }
             } else if (state.tanks.input.getFluidAmount() > 0) {
-                state.lastRecipe = BoilerTankRecipe.findRecipe(level, state.tanks.input.getFluid());
-                if (state.lastRecipe != null && state.lastRecipe.input.getAmount() <= state.tanks.input.getFluidAmount() && state.lastRecipe.output.getAmount() <= state.tanks.output.getCapacity() - state.tanks.output.getFluidAmount()) {
-                    if (heatLevel >= state.lastRecipe.requiredHeat) {
-                        int reqAmount = state.lastRecipe.input.getAmount();
+                BoilerTankRecipe newRecipe = BoilerTankRecipe.findRecipe(level, state.tanks.input.getFluid());
+                state.lastRecipe = newRecipe;
+                if (newRecipe != null && newRecipe.input.getAmount() <= state.tanks.input.getFluidAmount() && newRecipe.output.getAmount() <= state.tanks.output.getCapacity() - state.tanks.output.getFluidAmount()) {
+                    if (heatLevel >= newRecipe.requiredHeat) {
+                        int reqAmount = newRecipe.input.getAmount();
                         FluidStack drained = state.tanks.input.drain(reqAmount, FluidAction.EXECUTE);
-                        if (drained.getAmount() == reqAmount && state.lastRecipe.input.testIgnoringAmount(drained)) {
-                            state.recipeTimeRemaining = state.lastRecipe.getTotalProcessTime();
-                            state.totalProcessTime = state.lastRecipe.getTotalProcessTime();
+                        if (drained.getAmount() == reqAmount && newRecipe.input.testIgnoringAmount(drained)) {
+                            state.recipeTimeRemaining = newRecipe.getTotalProcessTime();
+                            state.totalProcessTime = newRecipe.getTotalProcessTime();
                             state.recipeTimeRemaining--;
                             if (state.recipeTimeRemaining == 0) {
-                                state.tanks.output.fill(state.lastRecipe.output.copy(), FluidAction.EXECUTE);
+                                state.tanks.output.fill(newRecipe.output.copy(), FluidAction.EXECUTE);
                                 state.totalProcessTime = 0;
                             }
                             update = true;
@@ -125,9 +128,10 @@ public class BoilerTankLogic implements IMultiblockLogic<BoilerTankLogic.State>,
             }
         } else if (state.recipeTimeRemaining > 0) {
             int previousProgress = state.recipeTimeRemaining;
-            if (state.lastRecipe == null) { state.recipeTimeRemaining = 0; update = true; }
+            BoilerTankRecipe activeRecipe = state.lastRecipe;
+            if (activeRecipe == null) { state.recipeTimeRemaining = 0; update = true; }
             else {
-                state.recipeTimeRemaining = Math.min(state.recipeTimeRemaining + PROGRESS_LOSS_PER_TICK, state.lastRecipe.getTotalProcessTime());
+                state.recipeTimeRemaining = Math.min(state.recipeTimeRemaining + PROGRESS_LOSS_PER_TICK, activeRecipe.getTotalProcessTime());
                 if (previousProgress != state.recipeTimeRemaining) { update = true; }
             }
         }

@@ -8,7 +8,6 @@ import blusunrize.immersiveengineering.api.wires.localhandlers.EnergyTransferHan
 import com.google.common.collect.ImmutableList;
 import mctmods.immersivetechnology.common.blocks.helper.ITProperties;
 import mctmods.immersivetechnology.common.blocks.helper.ITBlockInterfaces;
-import mctmods.immersivetechnology.common.blocks.helper.ITServerTickableBE;
 import mctmods.immersivetechnology.common.blocks.metal.gui.ValveLoadMenu;
 import mctmods.immersivetechnology.core.util.TranslationKey;
 import mctmods.immersivetechnology.core.registration.ITBlockEntities;
@@ -39,7 +38,7 @@ import static mctmods.immersivetechnology.common.blocks.metal.ValveLoadBlock.ROT
 import static mctmods.immersivetechnology.common.blocks.metal.ValveLoadBlock.OPEN;
 import static net.minecraftforge.common.capabilities.ForgeCapabilities.ENERGY;
 
-public class ValveLoadBlockEntity extends ValveCommonBlockEntity implements ITServerTickableBE, IImmersiveConnectable, EnergyConnector, ITBlockInterfaces.IMirrorAble {
+public class ValveLoadBlockEntity extends ValveCommonBlockEntity implements EnergyConnector, ITBlockInterfaces.IMirrorAble {
     protected static final int RIGHT_INDEX = 0;
     protected static final int LEFT_INDEX = 1;
     protected WireType leftType;

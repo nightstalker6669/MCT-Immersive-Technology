@@ -65,10 +65,8 @@ public class ITBaseBlock extends Block implements ITBlock, SimpleWaterloggedBloc
         return state;
     }
 
-    @SuppressWarnings("unused")
     public void onIEBlockPlacedBy(BlockPlaceContext context, BlockState state) {}
 
-    @SuppressWarnings("unused")
     public boolean canIEBlockBePlaced(BlockState newState, BlockPlaceContext context) { return true; }
 
     @Override public void setPlacedBy(@NotNull Level worldIn, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity placer, @NotNull ItemStack stack) {
@@ -87,12 +85,10 @@ public class ITBaseBlock extends Block implements ITBlock, SimpleWaterloggedBloc
         else { return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; }
     }
 
-    @SuppressWarnings("unused")
     public ItemInteractionResult hammerUseSide(Direction side, Player player, InteractionHand hand, Level w, BlockPos pos, BlockHitResult hit) {
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
-    @SuppressWarnings("unused")
     public ItemInteractionResult screwdriverUseSide(Direction side, Player player, InteractionHand hand, Level w, BlockPos pos, BlockHitResult hit) {
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }

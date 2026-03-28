@@ -36,7 +36,6 @@ public class ITTransformationMap {
         return result;
     }
 
-    @SuppressWarnings("unused")
     public void addFromJson(String json) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Transformation.class, new TransformationHelper.Deserializer())

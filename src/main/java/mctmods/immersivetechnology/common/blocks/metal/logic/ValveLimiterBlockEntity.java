@@ -1,7 +1,6 @@
 package mctmods.immersivetechnology.common.blocks.metal.logic;
 
 import mctmods.immersivetechnology.common.blocks.helper.ITProperties;
-import mctmods.immersivetechnology.common.blocks.helper.ITServerTickableBE;
 import mctmods.immersivetechnology.common.blocks.metal.gui.ValveLimiterMenu;
 import mctmods.immersivetechnology.core.util.TranslationKey;
 import mctmods.immersivetechnology.core.registration.ITBlockEntities;
@@ -27,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import static mctmods.immersivetechnology.common.blocks.metal.ValveLimiterBlock.OPEN;
 import static mctmods.immersivetechnology.common.blocks.metal.ValveLimiterBlock.ROTATION;
 
-public class ValveLimiterBlockEntity extends ValveCommonBlockEntity implements ITServerTickableBE, IItemHandler {
+public class ValveLimiterBlockEntity extends ValveCommonBlockEntity implements IItemHandler {
     public record OutputItemHandler(ValveLimiterBlockEntity be) implements IItemHandler {
         @Override public int getSlots() { return be.getSource() != null ? be.getSource().getSlots() : 0; }
 

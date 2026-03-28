@@ -119,7 +119,8 @@ public class BoilerSolidLogic implements IMultiblockLogic<BoilerSolidLogic.State
             double velZ = (level.random.nextFloat() * 0.0625 - 0.03125);
             level.addParticle(ParticleTypes.FLAME, flamePos.x, flamePos.y, flamePos.z, velX, velY, velZ);
         }
-        boolean hasWater = state.boilerInput.isPresent() && state.boilerInput.get().getFluidAmount() > 0;
+        IHeatConsumer boilerInput = state.boilerInput.getNullable();
+        boolean hasWater = boilerInput != null && boilerInput.getFluidAmount() > 0;
         if (state.pilotLit && state.heatLevel > PILOT_HEAT && state.rsState.isEnabled(ctx) && hasWater) {
             BlockPos exhaustAbs = ctx.getLevel().toAbsolute(EXHAUST_POI.get(0));
             Vec3 smokePos = new Vec3(exhaustAbs.getX() + 0.5, exhaustAbs.getY() + 1.25, exhaustAbs.getZ() + 0.5);
@@ -136,7 +137,8 @@ public class BoilerSolidLogic implements IMultiblockLogic<BoilerSolidLogic.State
         final Level level = ctx.getLevel().getRawLevel();
         boolean update = false;
         double previousHeatLevel = state.heatLevel;
-        boolean hasWater = state.boilerInput.isPresent() && state.boilerInput.get().getFluidAmount() > 0;
+        IHeatConsumer boilerInput = state.boilerInput.getNullable();
+        boolean hasWater = boilerInput != null && boilerInput.getFluidAmount() > 0;
         boolean fullMode = state.rsState.isEnabled(ctx) && hasWater;
         boolean valid = ctx.isValid().getAsBoolean();
         boolean isActive = state.pilotLit && fullMode && state.heatLevel >= state.workingHeatLevel && valid;
